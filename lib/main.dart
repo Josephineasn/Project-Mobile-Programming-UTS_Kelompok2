@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_uts_kelompok2/screens/player_screen.dart';
 
+import 'screens/search_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -17,6 +19,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
       ),
       home: const PlayerScreen(), 
+      home: const SearchScreen(),
     );
   }
 }
