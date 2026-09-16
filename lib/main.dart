@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_uts_kelompok2/screens/player_screen.dart';
-
-import 'screens/search_screen.dart';
+import 'screens/main_navigation_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,11 +13,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Spotify Clone',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const PlayerScreen(), 
-      home: const SearchScreen(),
+      home: const MainNavScreen(),
     );
   }
 }
