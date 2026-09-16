@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-
+import 'package:project_uts_kelompok2/screens/main_navigation_screen.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -17,7 +16,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const HomeScreen(),
+      home: const MainNavScreen(),
     );
   }
 }
