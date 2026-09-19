@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class YourLibraryScreen extends StatelessWidget {
-  const YourLibraryScreen({Key? key}) : super(key: key);
+  const YourLibraryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +11,7 @@ class YourLibraryScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         elevation: 0,
         title: const Text(
-          'Selamat Datang',
+          'Your Library Playlist',
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -19,14 +19,19 @@ class YourLibraryScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          // Ikon Lonceng (Notifikasi)
+          // Ikon Kaca Pembesar (Search)
           IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.white),
+            icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-              // Aksi saat ikon ditekan
             },
           ),
-          // Ikon Gear (Pengaturan)
+          // Ikon Plus (Tambah Playlist)
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.white),
+            onPressed: () {
+            },
+          ),
+          // Ikon Gear (Pengaturan) - Tetap dipertahankan di pojok
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Colors.white),
             onPressed: () {
