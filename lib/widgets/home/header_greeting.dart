@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../screens/settings_screen.dart';
 
 class HeaderGreetingWidget extends StatelessWidget {
   final String salam;
@@ -56,7 +57,12 @@ class HeaderGreetingWidget extends StatelessWidget {
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(left: 6),
             icon: const Icon(Icons.settings_outlined, color: AppColors.textWhite, size: 22),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),
