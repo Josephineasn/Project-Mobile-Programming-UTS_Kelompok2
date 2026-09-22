@@ -20,28 +20,39 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: const Text(
-          'Your Library Playlist',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        titleSpacing: 16.0,
+        title: Row(
+            children: const [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.green,
+                child: Icon(Icons.person, color: Colors.black, size: 20),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Your Library Playlist',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
+            icon: const Icon(Icons.search, color: Colors.white, size: 24),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
+            icon: const Icon(Icons.add, color: Colors.white, size: 24),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
             onPressed: () {},
           ),
-          const SizedBox(width: 8), 
+          const SizedBox(width: 8),
         ],
       ),
       
@@ -57,13 +68,13 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                 // Filter Playlists
                 ChoiceChip(
                   label: Text(
-                    'Playlists',
+                    'Playlist',
                     style: TextStyle(
-                      color: selectedFilter == 'Playlists' ? Colors.black : Colors.white,
-                      fontWeight: selectedFilter == 'Playlists' ? FontWeight.bold : FontWeight.normal,
+                      color: selectedFilter == 'Playlist' ? Colors.black : Colors.white,
+                      fontWeight: selectedFilter == 'Playlist' ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
-                  selected: selectedFilter == 'Playlists',
+                  selected: selectedFilter == 'Playlist',
                   selectedColor: Colors.green,
                   backgroundColor: Colors.grey[900],
                   side: BorderSide.none,
@@ -71,7 +82,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                   showCheckmark: false,
                   onSelected: (bool selected) {
                     setState(() {
-                      selectedFilter = selected ? 'Playlists' : '';
+                      selectedFilter = selected ? 'Playlist' : '';
                     });
                   },
                 ),

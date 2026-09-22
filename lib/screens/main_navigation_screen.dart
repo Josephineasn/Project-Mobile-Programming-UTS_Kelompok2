@@ -50,6 +50,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
             icon: Icon(Icons.library_music),
             label: 'Your Library',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.workspace_premium),
+            label: 'Premium',
+          ),
         ],
       ),
     );
