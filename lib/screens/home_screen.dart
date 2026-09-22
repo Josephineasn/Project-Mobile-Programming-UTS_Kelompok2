@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../widgets/home/header_greeting.dart';
+import '../widgets/home/category_filter.dart';
 
 class HomeScreen extends StatelessWidget {
 const HomeScreen({super.key});
@@ -10,13 +11,22 @@ const HomeScreen({super.key});
     return Scaffold(
         backgroundColor: AppColors.background,
         body: SafeArea(
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-            HeaderGreetingWidget(salam: 'Selamat Datang'),
-        ],
-        ),
-        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const HeaderGreetingWidget(salam: 'Selamat Datang'),
+              const SizedBox(height: 8),
+              CategoryFilter(
+                onSelected: (category) {
+
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+            ),
+          ),
+        )
     );
     }
 }
