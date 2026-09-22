@@ -56,7 +56,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
         ],
       ),
       
-      // BODY (Tombol Filter + Daftar Playlist)
+      // BODY (Tombol Filter + Daftar Playlists)
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -68,13 +68,13 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                 // Filter Playlists
                 ChoiceChip(
                   label: Text(
-                    'Playlist',
+                    'Playlists',
                     style: TextStyle(
-                      color: selectedFilter == 'Playlist' ? Colors.black : Colors.white,
-                      fontWeight: selectedFilter == 'Playlist' ? FontWeight.bold : FontWeight.normal,
+                      color: selectedFilter == 'Playlists' ? Colors.black : Colors.white,
+                      fontWeight: selectedFilter == 'Playlists' ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
-                  selected: selectedFilter == 'Playlist',
+                  selected: selectedFilter == 'Playlists',
                   selectedColor: Colors.green,
                   backgroundColor: Colors.grey[900],
                   side: BorderSide.none,
@@ -82,7 +82,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                   showCheckmark: false,
                   onSelected: (bool selected) {
                     setState(() {
-                      selectedFilter = selected ? 'Playlist' : '';
+                      selectedFilter = selected ? 'Playlists' : '';
                     });
                   },
                 ),
