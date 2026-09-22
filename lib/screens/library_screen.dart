@@ -1,46 +1,129 @@
 import 'package:flutter/material.dart';
+import '../widgets/library/playlist_item_tile.dart';
 
-class YourLibraryScreen extends StatelessWidget {
+class YourLibraryScreen extends StatefulWidget {
   const YourLibraryScreen({super.key});
+
+  @override
+  State<YourLibraryScreen> createState() => _YourLibraryScreenState();
+}
+
+class _YourLibraryScreenState extends State<YourLibraryScreen> {
+  String selectedFilter = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black, // Background hitam pekat
+      
+      // HEADER
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: const Text(
-          'Your Library Playlist',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        titleSpacing: 16.0,
+        title: Row(
+            children: const [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.green,
+                child: Icon(Icons.person, color: Colors.black, size: 20),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Your Library Playlist',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
         ),
         actions: [
-          // Ikon Kaca Pembesar (Search)
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-            },
+            icon: const Icon(Icons.search, color: Colors.white, size: 24),
+            onPressed: () {},
           ),
-          // Ikon Plus (Tambah Playlist)
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () {
-            },
+            icon: const Icon(Icons.add, color: Colors.white, size: 24),
+            onPressed: () {},
           ),
-          // Ikon Gear (Pengaturan) - Tetap dipertahankan di pojok
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white),
-            onPressed: () {
-            },
+            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
+            onPressed: () {},
           ),
-          const SizedBox(width: 8), 
+          const SizedBox(width: 8),
         ],
       ),
-      body: const SizedBox.shrink(), 
+      
+      // BODY (Tombol Filter + Daftar Playlist)
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Tombol Filter (Playlists & Artist)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              children: [
+                // Filter Playlists
+                ChoiceChip(
+                  label: Text(
+                    'Playlist',
+                    style: TextStyle(
+                      color: selectedFilter == 'Playlist' ? Colors.black : Colors.white,
+                      fontWeight: selectedFilter == 'Playlist' ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  selected: selectedFilter == 'Playlist',
+                  selectedColor: Colors.green,
+                  backgroundColor: Colors.grey[900],
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  showCheckmark: false,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      selectedFilter = selected ? 'Playlist' : '';
+                    });
+                  },
+                ),
+                const SizedBox(width: 12),
+                
+                // Filter Artist
+                ChoiceChip(
+                  label: Text(
+                    'Artist',
+                    style: TextStyle(
+                      color: selectedFilter == 'Artist' ? Colors.black : Colors.white,
+                      fontWeight: selectedFilter == 'Artist' ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  selected: selectedFilter == 'Artist',
+                  selectedColor: Colors.green,
+                  backgroundColor: Colors.grey[900],
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  showCheckmark: false,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      selectedFilter = selected ? 'Artist' : '';
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          
+          // Daftar Playlist
+          Expanded(
+            child: ListView.builder(
+              itemCount: 3, // Menampilkan 3 item dummy
+              itemBuilder: (context, index) {
+                return PlaylistItemTile(index: index);
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

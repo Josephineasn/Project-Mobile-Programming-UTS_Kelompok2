@@ -56,6 +56,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
             icon: Icon(Icons.play_circle_fill),
             label: 'Player',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.workspace_premium),
+            label: 'Premium',
+          ),
         ],
       ),
     );
