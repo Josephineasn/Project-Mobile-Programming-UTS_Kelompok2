@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import '../widgets/player/album_art_view.dart'; 
 
-class PlayerScreen extends StatelessWidget {
+class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  bool isLiked = false;
+  double progress = 0.3;
 
   @override
   Widget build(BuildContext context) {
@@ -12,40 +21,51 @@ class PlayerScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Column(
           children: [
-            const Spacer(),
+            const AlbumArtView(height: 260.0),
 
-            Container(
-              height: 250,
-              width: double.infinity,
-              color: Colors.grey[900],
-              child: const Icon(Icons.music_note, size: 80, color: Colors.green),
-            ),
+            const SizedBox(height: 24),
 
-            const Spacer(),
-
-            const ListTile(
+            ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(
+              title: const Text(
                 'As It Was',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
-              subtitle: Text(
+              subtitle: const Text(
                 'Harry Styles',
                 style: TextStyle(color: Colors.grey),
               ),
-              trailing: Icon(Icons.favorite_border, color: Colors.white),
+              trailing: IconButton(
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  color: isLiked ? Colors.green : Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
+                },
+              ),
             ),
 
+            const SizedBox(height: 8),
+
             Slider(
-              value: 0.3,
+              value: progress,
               activeColor: Colors.green,
               inactiveColor: Colors.grey[800],
-              onChanged: (val) {},
+              onChanged: (val) {
+                setState(() {
+                  progress = val;
+                });
+              },
             ),
+
+            const SizedBox(height: 8),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

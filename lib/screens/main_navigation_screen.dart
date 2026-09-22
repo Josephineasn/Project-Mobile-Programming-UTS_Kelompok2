@@ -3,6 +3,7 @@ import '../core/app_colors.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'library_screen.dart';
+import 'player_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -19,6 +20,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     HomeScreen(),
     SearchScreen(),
     YourLibraryScreen(),
+    PlayerScreen(),
   ];
 
   @override
@@ -49,6 +51,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.library_music),
             label: 'Your Library',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.play_circle_fill),
+            label: 'Player',
           ),
         ],
       ),
