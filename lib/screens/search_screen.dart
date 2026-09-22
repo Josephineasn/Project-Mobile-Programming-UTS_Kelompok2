@@ -12,7 +12,7 @@ class SearchScreen extends StatelessWidget {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -20,26 +20,30 @@ class SearchScreen extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.purple[200],
+                    radius: 18,
+                    backgroundColor: Colors.green[200],
                     child: const Text(
                       'H',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   const Text(
                     'Cari',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.camera_alt_outlined, color: Colors.white),
+                  const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 24,),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               const CustomSearchBar(),
 
@@ -51,26 +55,6 @@ class SearchScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      // menu bawah
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 1,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Cari'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_music),
-            label: 'Koleksi Kamu',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.workspace_premium),
-            label: 'Premium',
-          ),
-        ],
       ),
     );
   }
