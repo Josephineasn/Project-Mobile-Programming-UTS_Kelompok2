@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/custom_search_bar.dart';
+import '../widgets/search/custom_search_bar.dart';
+import '../widgets/search/search_category.dart';
+import '../widgets/search/search_card.dart';
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
@@ -16,7 +18,6 @@ class SearchScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //kepala search screen
               Row(
                 children: [
                   CircleAvatar(
@@ -27,10 +28,13 @@ class SearchScreen extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14),
+                        fontSize: 14,
+                      ),
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
                   const Text(
                     'Cari',
                     style: TextStyle(
@@ -39,19 +43,96 @@ class SearchScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const Spacer(),
-                  const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 24,),
+
+                  const Icon(
+                    Icons.camera_alt_outlined,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ],
               ),
+
               const SizedBox(height: 12),
 
               const CustomSearchBar(),
 
               const SizedBox(height: 24),
 
-              //untuk widgets category
-              // <code>
-              // <code>
+              Row(
+                children: [
+                  Expanded(
+                    child: SearchCategory(title: "Musik", color: Colors.pink),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: SearchCategory(title: "Podcast", color: Colors.teal),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: SearchCategory(
+                      title: "Acara Langsung",
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: SearchCategory(
+                      title: "K-Pop ON!",
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 25),
+
+              const Text(
+                "Temukan sesuatu yang lain",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              SizedBox(
+                height: 230,
+
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+
+                  children: [
+                    SearchCard(
+                      title: "#timor hip hop",
+                      image: "assets/images/hiphop.jpg",
+                    ),
+
+                    SearchCard(
+                      title: "#happy dance",
+                      image: "assets/images/dance.jpg",
+                    ),
+
+                    SearchCard(
+                      title: "Trending Music",
+                      image: "assets/images/music.jpg",
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
