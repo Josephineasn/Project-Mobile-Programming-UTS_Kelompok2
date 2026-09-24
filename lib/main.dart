@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_uts_kelompok2/screens/main_navigation_screen.dart';
+import 'screens/main_navigation_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }

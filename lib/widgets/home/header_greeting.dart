@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../screens/settings_screen.dart';
 
 class HeaderGreetingWidget extends StatelessWidget {
   final String salam;
@@ -18,7 +19,7 @@ class HeaderGreetingWidget extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            radius: 16,
+            radius: 18,
             backgroundColor: AppColors.primaryGreen,
             backgroundImage: profileImageUrl != null
                 ? NetworkImage(profileImageUrl!)
@@ -43,20 +44,25 @@ class HeaderGreetingWidget extends StatelessWidget {
           IconButton(
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            icon: const Icon(Icons.notifications_none, color: AppColors.textWhite, size: 22),
+            icon: const Icon(Icons.notifications_none, color: AppColors.textWhite, size: 24),
             onPressed: () {},
           ),
           IconButton(
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            icon: const Icon(Icons.history, color: AppColors.textWhite, size: 22),
+            icon: const Icon(Icons.history, color: AppColors.textWhite, size: 24),
             onPressed: () {},
           ),
           IconButton(
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(left: 6),
-            icon: const Icon(Icons.settings_outlined, color: AppColors.textWhite, size: 22),
-            onPressed: () {},
+            icon: const Icon(Icons.settings_outlined, color: AppColors.textWhite, size: 24),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),
