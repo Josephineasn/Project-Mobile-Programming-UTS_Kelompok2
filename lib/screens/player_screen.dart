@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/player/album_art_view.dart'; 
-
+import '../widgets/player/song_title_artist.dart';
+import '../widgets/player/song_progress_bar.dart'; 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
 
@@ -9,9 +10,6 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  bool isLiked = false;
-  double progress = 0.3;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,45 +24,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
         child: Column(
           children: [
             const AlbumArtView(height: 260.0),
-
-            const SizedBox(height: 24),
-
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text(
-                'As It Was',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              subtitle: const Text(
-                'Harry Styles',
-                style: TextStyle(color: Colors.grey),
-              ),
-              trailing: IconButton(
-                icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: isLiked ? Colors.green : Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    isLiked = !isLiked;
-                  });
-                },
-              ),
-            ),
-
+            const SizedBox(height: 16),
+            const SongTitleArtist(),
             const SizedBox(height: 8),
-
-            Slider(
-              value: progress,
-              activeColor: Colors.green,
-              inactiveColor: Colors.grey[800],
-              onChanged: (val) {
-                setState(() {
-                  progress = val;
-                });
-              },
-            ),
-
+            const SongProgressBar(),
             const SizedBox(height: 8),
 
             Row(
