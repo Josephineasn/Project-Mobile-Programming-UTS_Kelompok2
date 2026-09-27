@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/library/playlist_item_tile.dart';
+import '../widgets/library/library_header.dart';
 
 class YourLibraryScreen extends StatefulWidget {
   const YourLibraryScreen({super.key});
@@ -11,114 +12,152 @@ class YourLibraryScreen extends StatefulWidget {
 class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String selectedFilter = '';
 
+  List<String> playlists = [
+    'Playlist Musik #1',
+    'Playlist Musik #2',
+    'Playlist Musik #3',
+  ];
+
+  // Dialog Tambah Playlist
+  void showCreatePlaylistDialog() {
+    final controller = TextEditingController(
+      text: 'Playlist Baru #${playlists.length + 1}',
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF282828),
+          title: const Text('Beri nama playlist-mu', style: TextStyle(color: Colors.white, fontSize: 18)),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty) {
+                  setState(() {
+                    playlists.add(text);
+                  });
+                }
+                Navigator.pop(ctx);
+              },
+              child: const Text('Buat', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Dialog Konfirmasi Hapus Playlist
+  void showDeletePlaylistDialog(int index) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF282828),
+          title: const Text('Hapus Playlist?', style: TextStyle(color: Colors.white, fontSize: 18)),
+          content: Text(
+            'Apakah kamu yakin ingin menghapus "${playlists[index]}"?',
+            style: const TextStyle(color: Colors.grey),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                setState(() {
+                  playlists.removeAt(index);
+                });
+                Navigator.pop(ctx);
+              },
+              child: const Text('Hapus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Background hitam pekat
-      
-      // HEADER
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        titleSpacing: 16.0,
-        title: Row(
-            children: const [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.green,
-                child: Icon(Icons.person, color: Colors.black, size: 20),
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Your Library Playlist',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white, size: 24),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.white, size: 24),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-        ],
+      backgroundColor: Colors.black,
+
+      // Panggil LibraryHeader yang sudah dipisah
+      appBar: LibraryHeader(
+        onAddPressed: showCreatePlaylistDialog,
       ),
-      
-      // BODY (Tombol Filter + Daftar Playlists)
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tombol Filter (Playlists & Artist)
+          // Filter Chips
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
-                // Filter Playlists
                 ChoiceChip(
+                  shape: const StadiumBorder(),
+                  side: BorderSide.none,
                   label: Text(
                     'Playlists',
-                    style: TextStyle(
-                      color: selectedFilter == 'Playlists' ? Colors.black : Colors.white,
-                      fontWeight: selectedFilter == 'Playlists' ? FontWeight.bold : FontWeight.normal,
-                    ),
+                    style: TextStyle(color: selectedFilter == 'Playlists' ? Colors.black : Colors.white),
                   ),
                   selected: selectedFilter == 'Playlists',
                   selectedColor: Colors.green,
                   backgroundColor: Colors.grey[900],
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   showCheckmark: false,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedFilter = selected ? 'Playlists' : '';
-                    });
+                  onSelected: (selected) {
+                    setState(() => selectedFilter = selected ? 'Playlists' : '');
                   },
                 ),
                 const SizedBox(width: 12),
-                
-                // Filter Artist
                 ChoiceChip(
+                  shape: const StadiumBorder(),
+                  side: BorderSide.none,
                   label: Text(
                     'Artist',
-                    style: TextStyle(
-                      color: selectedFilter == 'Artist' ? Colors.black : Colors.white,
-                      fontWeight: selectedFilter == 'Artist' ? FontWeight.bold : FontWeight.normal,
-                    ),
+                    style: TextStyle(color: selectedFilter == 'Artist' ? Colors.black : Colors.white),
                   ),
                   selected: selectedFilter == 'Artist',
                   selectedColor: Colors.green,
                   backgroundColor: Colors.grey[900],
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   showCheckmark: false,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedFilter = selected ? 'Artist' : '';
-                    });
+                  onSelected: (selected) {
+                    setState(() => selectedFilter = selected ? 'Artist' : '');
                   },
                 ),
               ],
             ),
           ),
-          
-          // Daftar Playlist
+
+          // Daftar Playlist dengan Hold to Delete
           Expanded(
             child: ListView.builder(
-              itemCount: 3, // Menampilkan 3 item dummy
+              itemCount: playlists.length,
               itemBuilder: (context, index) {
-                return PlaylistItemTile(index: index);
+                return PlaylistItemTile(
+                  title: playlists[index],
+                  onLongPress: () => showDeletePlaylistDialog(index),
+                );
               },
             ),
           ),
