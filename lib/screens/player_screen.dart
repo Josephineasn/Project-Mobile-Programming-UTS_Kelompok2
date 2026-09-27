@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/player/album_art_view.dart'; 
-import '../widgets/player/song_title_artist_widget.dart';
+import '../widgets/player/song_title_artist.dart';
+import '../widgets/player/song_progress_bar.dart'; 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
 
@@ -9,8 +10,6 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  double progress = 0.3;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,24 +24,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
         child: Column(
           children: [
             const AlbumArtView(height: 260.0),
-
             const SizedBox(height: 16),
-
             const SongTitleArtist(),
-
             const SizedBox(height: 8),
-
-            Slider(
-              value: progress,
-              activeColor: Colors.green,
-              inactiveColor: Colors.grey[800],
-              onChanged: (val) {
-                setState(() {
-                  progress = val;
-                });
-              },
-            ),
-
+            const SongProgressBar(),
             const SizedBox(height: 8),
 
             Row(
