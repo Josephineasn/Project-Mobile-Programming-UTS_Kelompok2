@@ -15,7 +15,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
   List<String> playlists = [
     'Lagu yang Disukai',
-    'Playlist Musik #1',
+    'Yang lagi viral',
     'Old Times'
   ];
 
