@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/library/playlist_item_tile.dart';
 import '../widgets/library/library_header.dart';
+import '../widgets/library/filter_chip_row.dart';
 
 class YourLibraryScreen extends StatefulWidget {
   const YourLibraryScreen({super.key});
@@ -13,15 +14,15 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String selectedFilter = '';
 
   List<String> playlists = [
+    'Lagu yang Disukai',
     'Playlist Musik #1',
-    'Playlist Musik #2',
-    'Playlist Musik #3',
+    'Old Times'
   ];
 
-  // Dialog Tambah Playlist
+  // Tambah Playlist
   void showCreatePlaylistDialog() {
     final controller = TextEditingController(
-      text: 'Playlist Baru #${playlists.length + 1}',
+      text: 'New Playlist #${playlists.length + 1}',
     );
 
     showDialog(
@@ -29,7 +30,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: const Color(0xFF282828),
-          title: const Text('Beri nama playlist-mu', style: TextStyle(color: Colors.white, fontSize: 18)),
+          title: const Text('Give your playlist a name', style: TextStyle(color: Colors.white, fontSize: 18)),
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -42,7 +43,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
@@ -55,7 +56,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                 }
                 Navigator.pop(ctx);
               },
-              child: const Text('Buat', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              child: const Text('Create', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -63,22 +64,22 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     );
   }
 
-  // Dialog Konfirmasi Hapus Playlist
+  // Konfirmasi Hapus Playlist
   void showDeletePlaylistDialog(int index) {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: const Color(0xFF282828),
-          title: const Text('Hapus Playlist?', style: TextStyle(color: Colors.white, fontSize: 18)),
+          title: const Text('Delete Playlist?', style: TextStyle(color: Colors.white, fontSize: 18)),
           content: Text(
-            'Apakah kamu yakin ingin menghapus "${playlists[index]}"?',
+            'Are you sure want to delete "${playlists[index]}"?',
             style: const TextStyle(color: Colors.grey),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -88,7 +89,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                 });
                 Navigator.pop(ctx);
               },
-              child: const Text('Hapus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -101,7 +102,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
 
-      // Panggil LibraryHeader yang sudah dipisah
       appBar: LibraryHeader(
         onAddPressed: showCreatePlaylistDialog,
       ),
@@ -109,44 +109,13 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter Chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                ChoiceChip(
-                  shape: const StadiumBorder(),
-                  side: BorderSide.none,
-                  label: Text(
-                    'Playlists',
-                    style: TextStyle(color: selectedFilter == 'Playlists' ? Colors.black : Colors.white),
-                  ),
-                  selected: selectedFilter == 'Playlists',
-                  selectedColor: Colors.green,
-                  backgroundColor: Colors.grey[900],
-                  showCheckmark: false,
-                  onSelected: (selected) {
-                    setState(() => selectedFilter = selected ? 'Playlists' : '');
-                  },
-                ),
-                const SizedBox(width: 12),
-                ChoiceChip(
-                  shape: const StadiumBorder(),
-                  side: BorderSide.none,
-                  label: Text(
-                    'Artist',
-                    style: TextStyle(color: selectedFilter == 'Artist' ? Colors.black : Colors.white),
-                  ),
-                  selected: selectedFilter == 'Artist',
-                  selectedColor: Colors.green,
-                  backgroundColor: Colors.grey[900],
-                  showCheckmark: false,
-                  onSelected: (selected) {
-                    setState(() => selectedFilter = selected ? 'Artist' : '');
-                  },
-                ),
-              ],
-            ),
+          FilterChipRow(
+            selectedFilter: selectedFilter,
+            onFilterSelected: (filter) {
+              setState(() {
+                selectedFilter = filter;
+              });
+            },
           ),
 
           // Daftar Playlist dengan Hold to Delete
