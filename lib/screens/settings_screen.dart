@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/settings/user_profile_header.dart';
 import '../widgets/settings/account_setting_tile.dart';
-
+import '../widgets/settings/plan_status_card.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -23,6 +23,13 @@ class SettingsScreen extends StatelessWidget {
             userName: 'John Doe',
             userEmail: 'johndoe@example.com',
             onEditProfile: () {},
+          ),
+
+          PlanStatusCard(
+            planName: 'Spotify Free', // masih bisa di ubah teksnya
+            planDescription: 'Nikmati banyak lagu dengan jeda iklan. Upgrade untuk mendengarkan tanpa batas dan offline.' ,
+            isPremium: false,
+            onUpgradePressed: () {}, // dalam proses
           ),
           const Divider(color: Colors.white12, height: 1),
           const SizedBox(height: 12),
