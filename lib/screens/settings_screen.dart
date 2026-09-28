@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/settings/user_profile_header.dart';
 import '../widgets/settings/account_setting_tile.dart';
 import '../widgets/settings/plan_status_card.dart';
+import '../widgets/settings/logout_button.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -27,7 +28,7 @@ class SettingsScreen extends StatelessWidget {
 
           PlanStatusCard(
             planName: 'Spotify Free', // masih bisa di ubah teksnya
-            planDescription: 'Nikmati banyak lagu dengan jeda iklan. Upgrade untuk mendengarkan tanpa batas dan offline.' ,
+            planDescription: 'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.' ,
             isPremium: false,
             onUpgradePressed: () {}, // dalam proses
           ),
@@ -58,6 +59,14 @@ class SettingsScreen extends StatelessWidget {
             title: 'Privacy & Social',
             subtitle: 'Listening activity, private session',
             onTap: () {},
+          ),
+          
+          LogoutButton(
+            onLogout: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Successfully logged out'))
+              );
+            },
           ),
         ],
       ),
