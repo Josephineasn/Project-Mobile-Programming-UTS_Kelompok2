@@ -38,17 +38,17 @@ class FilterChipRow extends StatelessWidget {
             shape: const StadiumBorder(),
             side: BorderSide.none,
             label: Text(
-              'Artist',
+              'Artists',
               style: TextStyle(
-                color: selectedFilter == 'Artist' ? Colors.black : Colors.white,
+                color: selectedFilter == 'Artists' ? Colors.black : Colors.white,
               ),
             ),
-            selected: selectedFilter == 'Artist',
+            selected: selectedFilter == 'Artists',
             selectedColor: Colors.green,
             backgroundColor: Colors.grey[900],
             showCheckmark: false,
             onSelected: (selected) {
-              onFilterSelected(selected ? 'Artist' : '');
+              onFilterSelected(selected ? 'Artists' : '');
             },
           ),
         ],
