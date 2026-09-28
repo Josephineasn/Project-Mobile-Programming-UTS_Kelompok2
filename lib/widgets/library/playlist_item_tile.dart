@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PlaylistItemTile extends StatelessWidget {
   final String title;
-  final VoidCallback? onLongPress; // Tambahkan callback untuk long press
+  final VoidCallback? onLongPress;
 
   const PlaylistItemTile({
     super.key,
@@ -14,7 +14,7 @@ class PlaylistItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {},
-      onLongPress: onLongPress, // Panggil fungsi saat ditekan lama
+      onLongPress: onLongPress,
       leading: Container(
         width: 48,
         height: 48,

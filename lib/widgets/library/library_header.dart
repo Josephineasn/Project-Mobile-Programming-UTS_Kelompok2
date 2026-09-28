@@ -41,10 +41,6 @@ class LibraryHeader extends StatelessWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.add, color: Colors.white),
           onPressed: onAddPressed,
         ),
-        IconButton(
-          icon: const Icon(Icons.settings_outlined, color: Colors.white),
-          onPressed: () {},
-        ),
       ],
     );
   }
