@@ -4,6 +4,7 @@ import 'home_screen.dart';
 import 'search_screen.dart';
 import 'library_screen.dart';
 import 'player_screen.dart';
+import 'premium_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -21,6 +22,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     SearchScreen(),
     YourLibraryScreen(),
     PlayerScreen(),
+    PremiumScreen(),
   ];
 
   @override
