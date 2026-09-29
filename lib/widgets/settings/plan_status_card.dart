@@ -29,7 +29,7 @@ class PlanStatusCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: isPremium ? Colors.greenAccent.withOpacity(0.3) : Colors.white10,
+          color: isPremium ? Colors.greenAccent.withValues(alpha: 0.3) : Colors.white10,
         ),
       ),
       child: Column(
