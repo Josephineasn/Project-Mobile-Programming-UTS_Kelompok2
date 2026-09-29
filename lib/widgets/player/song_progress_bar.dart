@@ -1,40 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class SongProgressBar extends StatefulWidget {
-  const SongProgressBar({super.key});
+  final AudioPlayer audioPlayer;
+
+  const SongProgressBar({
+    super.key,
+    required this.audioPlayer,
+  });
 
   @override
   State<SongProgressBar> createState() => _SongProgressBarState();
 }
 
 class _SongProgressBarState extends State<SongProgressBar> {
-  double _currentSliderValue = 0.3; 
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
 
-  String _formatDuration(double value) {
-    int totalSeconds = (value * 215).toInt(); 
-    int minutes = totalSeconds ~/ 60;
-    int seconds = totalSeconds % 60;
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  @override
+  void initState() {
+    super.initState();
+
+    // Dengarkan perubahan posisi detik lagu secara real-time
+    widget.audioPlayer.onPositionChanged.listen((newPosition) {
+      if (mounted) {
+        setState(() {
+          _position = newPosition;
+        });
+      }
+    });
+
+    // Dengarkan total durasi lagu dari API
+    widget.audioPlayer.onDurationChanged.listen((newDuration) {
+      if (mounted) {
+        setState(() {
+          _duration = newDuration;
+        });
+      }
+    });
+  }
+
+  // Format durasi detik ke format waktu mm:ss (contoh 0:15)
+  String _formatDuration(Duration duration) {
+    String minutes = duration.inMinutes.remainder(60).toString().padLeft(1, '0');
+    String seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 
   @override
   Widget build(BuildContext context) {
+    final double maxDuration = _duration.inSeconds.toDouble();
+    final double currentPosition = _position.inSeconds.toDouble();
+
     return Column(
       children: [
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            trackHeight: 4.0,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
+            trackHeight: 3,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+            activeTrackColor: Colors.white,
+            inactiveTrackColor: Colors.grey[800],
+            thumbColor: Colors.white,
           ),
           child: Slider(
-            value: _currentSliderValue,
-            activeColor: Colors.green,
-            inactiveColor: Colors.grey[800],
-            onChanged: (double value) {
-              setState(() {
-                _currentSliderValue = value;
-              });
+            value: currentPosition.clamp(0.0, maxDuration > 0 ? maxDuration : 1.0),
+            min: 0.0,
+            max: maxDuration > 0 ? maxDuration : 1.0,
+            onChanged: (double value) async {
+              final newPosition = Duration(seconds: value.toInt());
+              await widget.audioPlayer.seek(newPosition);
             },
           ),
         ),
@@ -44,12 +79,12 @@ class _SongProgressBarState extends State<SongProgressBar> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _formatDuration(_currentSliderValue),
+                _formatDuration(_position),
                 style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
-              const Text(
-                '3:35',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+              Text(
+                _formatDuration(_duration),
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
           ),

@@ -16,20 +16,22 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen> {
   int _currentIndex = 0;
 
-  // semua screen mskin kesini
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    SearchScreen(),
-    YourLibraryScreen(),
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const SearchScreen(),
+    const YourLibraryScreen(),
     PlayerScreen(),
-    PremiumScreen(),
+    const PremiumScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
