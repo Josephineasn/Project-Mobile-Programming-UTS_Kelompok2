@@ -12,7 +12,7 @@ class PremiumScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // header foto
+            // Header foto
             Stack(
               children: [
                 SizedBox(
@@ -54,13 +54,13 @@ class PremiumScreen extends StatelessWidget {
               ],
             ),
 
-            // tulisan di header dan tombol premium
+            // Tulisan di header dan tombol premium
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // logo + teks "Premium"
+                  // Logo + teks "Premium"
                   Row(
                     children: const [
                       Icon(Icons.album_outlined, color: Colors.white, size: 20),
@@ -77,7 +77,7 @@ class PremiumScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // headline Besar
+                  // Headline Besar
                   const Text(
                     'Get more out of your\nmusic with Premium\nStandard.',
                     style: TextStyle(
@@ -89,7 +89,7 @@ class PremiumScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 22),
 
-                  // tombol "Get Premium Standard"
+                  // Tombol "Get Premium Standard"
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -127,7 +127,92 @@ class PremiumScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
 
+                  // Kotak Why join Premium Standard?
                   const PremiumBenefitsCard(),
+                  const SizedBox(height: 36),
+
+                  // Available plans
+                  const Text(
+                    'Available plans',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Paket 1: Standard
+                  PremiumPlanCard(
+                    title: 'Standard',
+                    titleColor: const Color(0xFF1DB954),
+                    price: 'IDR 59,900 / month',
+                    features: const [
+                      '1 Standard account',
+                      'Download to listen offline',
+                      'Very high audio quality (up to ~320kbps)',
+                      'Cancel anytime',
+                    ],
+                    buttonText: 'Get Premium Standard',
+                    buttonColor: const Color(0xFF1DB954),
+                    onSelect: () {},
+                  ),
+
+                  // Paket 2: Platinum
+                  PremiumPlanCard(
+                    title: 'Platinum',
+                    titleColor: const Color(0xFFE8FD52),
+                    price: 'IDR 119,900 / month',
+                    features: const [
+                      'Up to 3 Platinum accounts',
+                      'Download to listen offline',
+                      'Lossless audio quality (up to ~24-bit/\n44.1kHz)',
+                      'Mix your playlists',
+                      'Your personal AI DJ',
+                      'AI playlist creation',
+                      'Connect your DJ software',
+                      'Cancel anytime',
+                    ],
+                    buttonText: 'Get Premium Platinum',
+                    buttonColor: const Color(0xFFE8FD52),
+                    footerText: 'For up to 3 individuals residing at the same address. Terms apply.',
+                    onSelect: () {},
+                  ),
+
+                  // Paket 3: Student
+                  PremiumPlanCard(
+                    badgeText: 'Savings available',
+                    title: 'Student',
+                    titleColor: const Color(0xFF7AE7A7),
+                    price: 'IDR 29,900 / month',
+                    features: const [
+                      '1 verified Standard account',
+                      'Download to listen offline',
+                      'Very high audio quality (up to ~320kbps)',
+                      'Cancel anytime',
+                    ],
+                    buttonText: 'Get Premium Student',
+                    buttonColor: const Color(0xFF1DB954),
+                    onSelect: () {},
+                  ),
+
+                  // Paket 4: Family
+                  PremiumPlanCard(
+                    title: 'Family',
+                    titleColor: const Color(0xFF579FF4),
+                    price: 'IDR 86,900 / month',
+                    features: const [
+                      'Up to 6 Premium accounts',
+                      'Block explicit music',
+                      'Download to listen offline',
+                      'Cancel anytime',
+                    ],
+                    buttonText: 'Get Premium Family',
+                    buttonColor: const Color(0xFF579FF4),
+                    footerText: 'For up to 6 family members living under one roof. Terms apply.',
+                    onSelect: () {},
+                  ),
+
                   const SizedBox(height: 100),
                 ],
               ),
@@ -138,7 +223,7 @@ class PremiumScreen extends StatelessWidget {
     );
   }
 
-  // cover album di header
+  // Cover album di header
   Widget _buildAlbumTile(String url) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 6),

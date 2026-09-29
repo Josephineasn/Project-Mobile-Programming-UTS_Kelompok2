@@ -20,14 +20,16 @@ class _MainNavScreenState extends State<MainNavScreen> {
     const HomeScreen(),
     const SearchScreen(),
     const YourLibraryScreen(),
-    PlayerScreen(),
+    const PlayerScreen(),
     const PremiumScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.background : Theme.of(context).scaffoldBackgroundColor,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -39,9 +41,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
             _currentIndex = index;
           });
         },
-        backgroundColor: const Color(0xFF121212),
+
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
         selectedItemColor: AppColors.primaryGreen,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: isDark ? Colors.grey : Colors.black45,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
