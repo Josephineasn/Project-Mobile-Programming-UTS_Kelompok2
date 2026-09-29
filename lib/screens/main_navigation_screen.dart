@@ -16,7 +16,6 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen> {
   int _currentIndex = 0;
 
-  // semua screen mskin kesini
   final List<Widget> _screens = const [
     HomeScreen(),
     SearchScreen(),
@@ -27,8 +26,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.background : Theme.of(context).scaffoldBackgroundColor,
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -37,9 +38,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
             _currentIndex = index;
           });
         },
-        backgroundColor: const Color(0xFF121212),
+        // Warna latar dan icon dibuat adaptif sesuai mode
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
         selectedItemColor: AppColors.primaryGreen,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: isDark ? Colors.grey : Colors.black45,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(

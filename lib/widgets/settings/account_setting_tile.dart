@@ -18,24 +18,26 @@ class AccountSettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       leading: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: Colors.white,
+          color: isDark ? Colors.white : Colors.black87,
           size: 22,
         ),
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black87,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -44,17 +46,17 @@ class AccountSettingTile extends StatelessWidget {
           ? Text(
               subtitle!,
               style: TextStyle(
-                color: Colors.grey.shade400,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                 fontSize: 13,
               ),
             )
           : null,
-      trailing: trailing ?? 
-          const Icon(
+      trailing: trailing ??
+          Icon(
             Icons.chevron_right,
-            color: Colors.grey,
+            color: isDark ? Colors.grey : Colors.black45,
             size: 24,
-      ),
+          ),
       onTap: onTap,
     );
   }
