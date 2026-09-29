@@ -49,6 +49,8 @@ class LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
       child: Center(
@@ -57,16 +59,16 @@ class LogoutButton extends StatelessWidget {
           height: 48,
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.white38),
+              side: BorderSide(color: isDark ? Colors.white38 : Colors.black26),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24.0),
               ),
             ),
             onPressed: () => _showConfirmDialog(context),
-            child: const Text(
+            child: Text(
               'Keluar',
               style: TextStyle(
-                color: Colors.white,
+                color: isDark ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
               ),

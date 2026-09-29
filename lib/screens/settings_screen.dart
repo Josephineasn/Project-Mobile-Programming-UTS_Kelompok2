@@ -4,13 +4,16 @@ import '../widgets/settings/account_setting_tile.dart';
 import '../widgets/settings/plan_status_card.dart';
 import '../widgets/settings/logout_button.dart';
 import '../screens/premium_screen.dart';
+import '../widgets/settings/theme_toggle_switch.dart';
+import '../main.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Settings',
@@ -28,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           PlanStatusCard(
-            planName: 'Spotify Free', // masih bisa di ubah teksnya
+            planName: 'Melodix Free', // masih bisa di ubah teksnya
             planDescription: 'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.' ,
             isPremium: false,
             onUpgradePressed: () {
@@ -69,6 +72,22 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {},
           ),
           
+          ThemeToggleSwitch(
+            initialValue: themeNotifier.value == ThemeMode.dark,
+            onToggle: (isDark) {
+              themeNotifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isDark ? 'Dark mode is activated' : 'Light mode is activated',
+                  ),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+
           LogoutButton(
             onLogout: () {
               ScaffoldMessenger.of(context).showSnackBar(
