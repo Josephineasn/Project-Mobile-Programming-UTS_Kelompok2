@@ -32,7 +32,7 @@ class _ThemeToggleSwitchState extends State<ThemeToggleSwitch> {
       leading: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05),
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05),
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -58,8 +58,8 @@ class _ThemeToggleSwitchState extends State<ThemeToggleSwitch> {
       ),
       trailing: Switch(
         value: _isDarkMode,
-        activeColor: const Color(0xFF1DB954),
-        activeTrackColor: const Color(0xFF1DB954).withOpacity(0.4),
+        activeThumbColor: const Color(0xFF1DB954),
+        activeTrackColor: const Color(0xFF1DB954).withValues(alpha: 0.4),
         inactiveThumbColor: Colors.grey.shade600,
         inactiveTrackColor: Colors.black12,
         onChanged: (bool value) {

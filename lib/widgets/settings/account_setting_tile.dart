@@ -25,7 +25,7 @@ class AccountSettingTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05),
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05),
           shape: BoxShape.circle,
         ),
         child: Icon(
