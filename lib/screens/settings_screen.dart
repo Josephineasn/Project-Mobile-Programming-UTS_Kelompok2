@@ -3,6 +3,7 @@ import '../widgets/settings/user_profile_header.dart';
 import '../widgets/settings/account_setting_tile.dart';
 import '../widgets/settings/plan_status_card.dart';
 import '../widgets/settings/logout_button.dart';
+import '../screens/premium_screen.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -30,7 +31,14 @@ class SettingsScreen extends StatelessWidget {
             planName: 'Spotify Free', // masih bisa di ubah teksnya
             planDescription: 'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.' ,
             isPremium: false,
-            onUpgradePressed: () {}, // dalam proses
+            onUpgradePressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PremiumScreen()
+                ),
+              );
+            }, // dalam proses
           ),
           const Divider(color: Colors.white12, height: 1),
           const SizedBox(height: 12),
