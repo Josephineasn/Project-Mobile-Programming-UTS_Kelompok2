@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/song_model.dart';
 import '../services/song_service.dart';
+import 'hashtag_feed_screen.dart';
 import '../widgets/search/custom_search_bar.dart';
 import '../widgets/search/search_card.dart';
 import '../widgets/search/search_category.dart';
@@ -146,18 +147,36 @@ class _SearchScreenState extends State<SearchScreen> {
                 height: 230,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: const [
+                  children: [
                     SearchCard(
                       title: '#timor hip hop',
                       image: 'assets/images/hiphop.jpg',
+                      onTap: () => _openHashtagFeed(
+                        context,
+                        '#timor hip hop',
+                        'assets/images/hiphop.jpg',
+                        _songsFuture,
+                      ),
                     ),
                     SearchCard(
                       title: '#happy dance',
                       image: 'assets/images/dance.jpg',
+                      onTap: () => _openHashtagFeed(
+                        context,
+                        '#happy dance',
+                        'assets/images/dance.jpg',
+                        _songsFuture,
+                      ),
                     ),
                     SearchCard(
                       title: 'Trending Music',
                       image: 'assets/images/music.jpg',
+                      onTap: () => _openHashtagFeed(
+                        context,
+                        'Trending Music',
+                        'assets/images/music.jpg',
+                        _songsFuture,
+                      ),
                     ),
                   ],
                 ),
@@ -168,6 +187,23 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
     );
   }
+}
+
+void _openHashtagFeed(
+  BuildContext context,
+  String title,
+  String image,
+  Future<List<SongModel>> songsFuture,
+) {
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (context) => HashtagFeedScreen(
+        title: title,
+        image: image,
+        songsFuture: songsFuture,
+      ),
+    ),
+  );
 }
 
 class _CategorySongsScreen extends StatefulWidget {

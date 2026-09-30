@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 class SearchCard extends StatelessWidget {
   final String title;
   final String image;
+  final VoidCallback onTap;
 
-  const SearchCard({super.key, required this.title, required this.image});
+  const SearchCard({
+    super.key,
+    required this.title,
+    required this.image,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         width: 150,
         margin: const EdgeInsets.only(right: 12),
