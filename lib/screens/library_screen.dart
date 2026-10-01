@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/library/playlist_item_tile.dart';
 import '../widgets/library/library_header.dart';
 import '../widgets/library/filter_chip_row.dart';
+import '../widgets/library/add_playlist_button.dart';
 
 class YourLibraryScreen extends StatefulWidget {
   const YourLibraryScreen({super.key});
@@ -13,6 +14,9 @@ class YourLibraryScreen extends StatefulWidget {
 class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String selectedFilter = '';
 
+  bool isSearching = false;
+  String searchQuery = '';
+
   List<Map<String, dynamic>> playlists = [
     {'name': 'Top Hits Indonesia', 'isPinned': true},
     {'name': 'Calm Night Mix', 'isPinned': true},
@@ -22,14 +26,21 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     {'name': 'Discover Weekly', 'isPinned': false},
   ];
 
-  // Playlist lagu yang terurut (Pinned otomatis di atas)
   List<Map<String, dynamic>> get sortedPlaylists {
-    List<Map<String, dynamic>> list = List.from(playlists);
-    list.sort((a, b) {
+    // Filter playlist berdasarkan pencarian
+    List<Map<String, dynamic>> filteredList = playlists.where((item) {
+      final name = item['name'].toString().toLowerCase();
+      final query = searchQuery.toLowerCase();
+      return name.contains(query);
+    }).toList();
+
+    // urutkan yang Pinned tetap di atas
+    filteredList.sort((a, b) {
       if (a['isPinned'] == b['isPinned']) return 0;
       return a['isPinned'] ? -1 : 1;
     });
-    return list;
+
+    return filteredList;
   }
 
   // Tambah Playlist
@@ -167,8 +178,23 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
 
+      // Menambahkan parameter pencarian ke LibraryHeader] ===
       appBar: LibraryHeader(
         onAddPressed: showCreatePlaylistDialog,
+        isSearching: isSearching,
+        onSearchToggle: () {
+          setState(() {
+            isSearching = !isSearching;
+            if (!isSearching) {
+              searchQuery = ''; 
+            }
+          });
+        },
+        onSearchChanged: (value) {
+          setState(() {
+            searchQuery = value; 
+          });
+        },
       ),
 
       body: Column(
@@ -181,6 +207,13 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                 selectedFilter = filter;
               });
             },
+          ),
+
+          // Tombol Tambah Playlist
+          AddPlaylistButton(
+            onTap: () {
+               showCreatePlaylistDialog();
+             },
           ),
 
           // Daftar Playlist 
