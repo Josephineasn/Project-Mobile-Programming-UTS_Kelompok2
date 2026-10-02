@@ -3,6 +3,8 @@ import '../widgets/library/playlist_item_tile.dart';
 import '../widgets/library/library_header.dart';
 import '../widgets/library/filter_chip_row.dart';
 import '../widgets/library/add_playlist_button.dart';
+import '../models/song_model.dart';
+import 'playlist_detail_screen.dart';
 
 class YourLibraryScreen extends StatefulWidget {
   const YourLibraryScreen({super.key});
@@ -17,12 +19,12 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String searchQuery = '';
 
   List<Map<String, dynamic>> playlists = [
-    {'name': 'Top Hits Indonesia', 'isPinned': true},
-    {'name': 'Calm Night Mix', 'isPinned': true},
-    {'name': 'Daily Mix 1', 'isPinned': true},
-    {'name': 'Soft Mix', 'isPinned': false},
-    {'name': 'My Playlist #17', 'isPinned': false},
-    {'name': 'Discover Weekly', 'isPinned': false},
+    {'name': 'Top Hits Indonesia', 'isPinned': true, 'songs': <SongModel>[]},
+    {'name': 'Calm Night Mix', 'isPinned': true, 'songs': <SongModel>[]},
+    {'name': 'Daily Mix', 'isPinned': true, 'songs': <SongModel>[]},
+    {'name': 'Soft Mix', 'isPinned': false, 'songs': <SongModel>[]},
+    {'name': 'My Playlist #17', 'isPinned': false, 'songs': <SongModel>[]},
+    {'name': 'Discover Weekly', 'isPinned': false, 'songs': <SongModel>[]},
   ];
 
   List<Map<String, dynamic>> get sortedPlaylists {
@@ -46,7 +48,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       text: 'New Playlist #${playlists.length + 1}',
     );
 
-    // Ambil status tema
+    // Menentukan warna berdasarkan tema 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dialogBg = isDark ? const Color(0xFF282828) : Colors.white;
     final dialogTextColor = isDark ? Colors.white : Colors.black87;
@@ -87,7 +89,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                 final text = controller.text.trim();
                 if (text.isNotEmpty) {
                   setState(() {
-                    playlists.add({'name': text, 'isPinned': false});
+                    playlists.add({'name': text, 'isPinned': false, 'songs': <SongModel>[]});
                   });
                 }
                 Navigator.pop(ctx);
@@ -231,7 +233,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
           });
         },
       ),
-      // BUNGKUS DENGAN THEME AGAR SEMUA WIDGET TEMANMU OTOMATIS MENGIKUTI WARNA TEMA
       body: Theme(
         data: Theme.of(context).copyWith(
           textTheme: Theme.of(context).textTheme.apply(
@@ -267,6 +268,14 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                     onTogglePin: () => togglePin(item),
                     onEdit: () => showEditPlaylistDialog(item),
                     onDelete: () => showDeletePlaylistDialog(item),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlaylistDetailScreen(playlist: item),
+                        ),
+                      );  
+                    }
                   );
                 },
               ),
