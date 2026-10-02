@@ -18,78 +18,87 @@ class PlaylistItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
     return ListTile(
-      onTap: () {},
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       leading: Container(
-        width: 48,
-        height: 48,
-        color: Colors.grey[800],
-        child: const Icon(Icons.music_note, color: Colors.grey),
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Icon(
+          Icons.music_note,
+          color: isDark ? Colors.grey : Colors.grey.shade700,
+          size: 28,
+        ),
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: titleColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+        ),
       ),
       subtitle: Row(
         children: [
           if (isPinned) ...[
-            const Icon(Icons.push_pin, color: Colors.green, size: 14),
+            const Icon(Icons.push_pin, color: Color(0xFF1DB954), size: 14),
             const SizedBox(width: 4),
           ],
-          const Text(
+          Text(
             'Playlist • Kelompok 2',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
+            style: TextStyle(
+              color: subColor,
+              fontSize: 13,
+            ),
           ),
         ],
       ),
       trailing: PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert, color: Colors.grey),
-        color: const Color(0xFF282828),
+        icon: Icon(Icons.more_vert, color: subColor),
+        color: isDark ? const Color(0xFF282828) : Colors.white,
         onSelected: (value) {
-          if (value == 'pin') onTogglePin();
-          if (value == 'edit') onEdit();
-          if (value == 'delete') onDelete();
+          if (value == 'pin') {
+            onTogglePin();
+          } else if (value == 'edit') {
+            onEdit();
+          } else if (value == 'delete') {
+            onDelete();
+          }
         },
         itemBuilder: (context) => [
           PopupMenuItem(
             value: 'pin',
-            child: Row(
-              children: [
-                Icon(
-                  isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  isPinned ? 'Unpin playlist' : 'Pin playlist',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
+            child: Text(
+              isPinned ? 'Lepas Sematan' : 'Sematkan Playlist',
+              style: TextStyle(color: titleColor),
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'edit',
-            child: Row(
-              children: [
-                Icon(Icons.edit, color: Colors.white, size: 20),
-                SizedBox(width: 12),
-                Text('Edit name', style: TextStyle(color: Colors.white)),
-              ],
+            child: Text(
+              'Edit Nama',
+              style: TextStyle(color: titleColor),
             ),
           ),
           const PopupMenuItem(
             value: 'delete',
-            child: Row(
-              children: [
-                Icon(Icons.delete, color: Colors.red, size: 20),
-                SizedBox(width: 12),
-                Text('Delete playlist', style: TextStyle(color: Colors.red)),
-              ],
+            child: Text(
+              'Hapus',
+              style: TextStyle(color: Colors.redAccent),
             ),
           ),
         ],
       ),
+      onTap: () {},
     );
   }
 }

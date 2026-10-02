@@ -42,6 +42,7 @@ class PlaylistCard extends StatelessWidget {
               width: 56,
               height: 56,
               fit: BoxFit.cover,
+              cacheWidth: 150,
             ),
           ),
           const SizedBox(width: 8),

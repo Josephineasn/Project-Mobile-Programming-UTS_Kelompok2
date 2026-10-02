@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AddPlaylistButton extends StatelessWidget {
-  final Function() onTap;
+  final VoidCallback onTap;
 
   const AddPlaylistButton({
     super.key,
@@ -10,37 +10,33 @@ class AddPlaylistButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.grey[800],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 16),
-            const Text(
-              'Add Playlist',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleColor = isDark ? Colors.white : Colors.black87;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      leading: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Icon(
+          Icons.add,
+          color: titleColor,
+          size: 28,
         ),
       ),
+      title: Text(
+        'Add Playlist',
+        style: TextStyle(
+          color: titleColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

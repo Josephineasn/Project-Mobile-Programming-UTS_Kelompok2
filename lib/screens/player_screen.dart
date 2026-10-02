@@ -71,13 +71,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final contentColor = isDark ? Colors.white : Colors.black87;
-
+    
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Now Playing', style: TextStyle(fontSize: 16)),
+        title: Text(
+          'Now Playing',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: contentColor,
+          ),
+        ),
         centerTitle: true,
       ),
       body: FutureBuilder<List<SongModel>>(
@@ -118,14 +125,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         children: [
                           Text(
                             currentSong.title,
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: contentColor,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             currentSong.artist,
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? Colors.grey : Colors.grey.shade700,
+                            ),
                           ),
                         ],
                       ),
@@ -133,7 +147,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     IconButton(
                       icon: Icon(
                         _isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: _isLiked ? Colors.green : Colors.white,
+                        color: _isLiked ? Colors.green : contentColor,
                       ),
                       onPressed: () {
                         setState(() {
@@ -152,7 +166,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.skip_previous, color: Colors.white, size: 36),
+                      icon: Icon(Icons.skip_previous, color: contentColor, size: 36),
                       onPressed: _currentIndex > 0
                           ? () => _changeSong(songs, _currentIndex - 1)
                           : null,
@@ -161,12 +175,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       iconSize: 64,
                       icon: Icon(
                         _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                        color: Colors.white,
+                        color: contentColor,
                       ),
                       onPressed: () => _togglePlayPause(songs),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.skip_next, color: Colors.white, size: 36),
+                      icon: Icon(Icons.skip_next, color: contentColor, size: 36),
                       onPressed: _currentIndex < songs.length - 1
                           ? () => _changeSong(songs, _currentIndex + 1)
                           : null,
