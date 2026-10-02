@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/main_navigation_screen.dart';
 
-// Notifier global tema
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
 
 void main() {

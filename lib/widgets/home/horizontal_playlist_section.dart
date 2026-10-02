@@ -68,26 +68,26 @@ class HorizontalPlaylistSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // Judul Album / Playlist
+                    // Judul Album / Playlist (Dibuat Adaptif)
                     Text(
                       item['title'] ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textWhite,
+                      style: TextStyle(
+                        color: isDark ? AppColors.textWhite : Colors.black87,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 2),
 
-                    // Deskripsi atau Nama Artis
+                    // Deskripsi atau Nama Artis (Dibuat Adaptif)
                     Text(
                       item['subtitle'] ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: isDark ? Colors.white54 : Colors.grey.shade600,
                         fontSize: 11.5,
                       ),
                     ),

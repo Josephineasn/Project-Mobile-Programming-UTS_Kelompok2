@@ -100,7 +100,7 @@ class PlaylistItemTile extends StatelessWidget {
           ),
         ],
       ),
-      onTap: onTap, // 3. Menghubungkan onTap bawaan ListTile ke parameter onTap
+      onTap: onTap,
     );
   }
 }
