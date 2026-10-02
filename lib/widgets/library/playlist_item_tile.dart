@@ -6,6 +6,7 @@ class PlaylistItemTile extends StatelessWidget {
   final VoidCallback onTogglePin;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback onTap;
 
   const PlaylistItemTile({
     super.key,
@@ -14,6 +15,7 @@ class PlaylistItemTile extends StatelessWidget {
     required this.onTogglePin,
     required this.onEdit,
     required this.onDelete,
+    required this.onTap,
   });
 
   @override
@@ -98,7 +100,7 @@ class PlaylistItemTile extends StatelessWidget {
           ),
         ],
       ),
-      onTap: () {},
+      onTap: onTap, // 3. Menghubungkan onTap bawaan ListTile ke parameter onTap
     );
   }
 }
