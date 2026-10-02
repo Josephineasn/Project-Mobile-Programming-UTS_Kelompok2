@@ -111,8 +111,11 @@ const HomeScreen({super.key});
 
 @override
     Widget build(BuildContext context) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      final textColor = isDark ? Colors.white : Colors.black87;
+
     return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

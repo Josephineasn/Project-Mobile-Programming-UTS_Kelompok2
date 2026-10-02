@@ -174,9 +174,11 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final displayList = sortedPlaylists;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       // Menambahkan parameter pencarian ke LibraryHeader] ===
       appBar: LibraryHeader(

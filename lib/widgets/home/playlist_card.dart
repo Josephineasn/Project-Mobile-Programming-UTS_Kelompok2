@@ -17,10 +17,12 @@ class PlaylistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
         // Kalau lagi di play (isPlaying true), kotaknya kasih warna hijau tipis
-        color: isPlaying ? const Color(0x281DB954) : const Color(0x1AFFFFFF),
+        color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
           // Kalau lagi di play, kasih garis pinggir hijau
@@ -31,11 +33,16 @@ class PlaylistCard extends StatelessWidget {
       child: Row(
         children: [
           // Gambar Cover Lagu
-          Image.network(
-            imageUrl,
-            width: 56,
-            height: 56,
-            fit: BoxFit.cover,
+          Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(4)),
+            ),
+            child: Image.network(
+              imageUrl,
+              width: 56,
+              height: 56,
+              fit: BoxFit.cover,
+            ),
           ),
           const SizedBox(width: 8),
 
@@ -47,7 +54,7 @@ class PlaylistCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 // Teks jadi hijau kalau lagi play
-                color: isPlaying ? AppColors.primaryGreen : AppColors.textWhite,
+                color: isDark ? Colors.white : Colors.black87,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -64,13 +71,13 @@ class PlaylistCard extends StatelessWidget {
                 height: 30,
                 decoration: BoxDecoration(
                   // Kalau lagi di play warnanya jadi hijau, kalau tidak di play maka warnanya abu-abu
-                  color: isPlaying ? AppColors.primaryGreen : Colors.white24,
+                  color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   // Kalau lagi diplay ikonnya pause, kalau belum ikonnya play
                   isPlaying ? Icons.pause : Icons.play_arrow,
-                  color: isPlaying ? Colors.black : Colors.white,
+                  color: isDark ? Colors.white : Colors.black87,
                   size: 20,
                 ),
               ),
