@@ -14,6 +14,9 @@ class HeaderGreetingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final contentColor = isDark ? Colors.white : Colors.black87;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
@@ -33,8 +36,8 @@ class HeaderGreetingWidget extends StatelessWidget {
           Expanded(
             child: Text(
               salam,
-              style: const TextStyle(
-                color: AppColors.textWhite,
+              style: TextStyle(
+                color: contentColor,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -44,19 +47,19 @@ class HeaderGreetingWidget extends StatelessWidget {
           IconButton(
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            icon: const Icon(Icons.notifications_none, color: AppColors.textWhite, size: 24),
+            icon: Icon (Icons.notifications_none, color: contentColor, size: 24),
             onPressed: () {},
           ),
           IconButton(
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            icon: const Icon(Icons.history, color: AppColors.textWhite, size: 24),
+            icon: Icon (Icons.history, color: contentColor, size: 24),
             onPressed: () {},
           ),
           IconButton(
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(left: 6),
-            icon: const Icon(Icons.settings_outlined, color: AppColors.textWhite, size: 24),
+            icon: Icon (Icons.settings_outlined, color: contentColor, size: 24),
             onPressed: () {
               Navigator.push(
                 context,

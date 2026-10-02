@@ -13,6 +13,8 @@ class HorizontalPlaylistSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -21,8 +23,8 @@ class HorizontalPlaylistSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             title,
-            style: const TextStyle(
-              color: AppColors.textWhite,
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
               fontSize: 20,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.3,
