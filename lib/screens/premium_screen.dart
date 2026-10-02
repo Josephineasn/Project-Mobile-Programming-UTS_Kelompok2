@@ -17,7 +17,6 @@ class PremiumScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header foto dibungkus RepaintBoundary agar tidak lag saat ganti tema
             RepaintBoundary(
               child: Stack(
                 children: [

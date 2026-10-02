@@ -31,6 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -40,10 +41,10 @@ class _SearchScreenState extends State<SearchScreen> {
         title: Text(
           'search',
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black,
+            color: textColor,
             fontWeight: FontWeight.bold,
           ),
-        )
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -66,18 +67,18 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'Cari',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: textColor,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const Spacer(),
-                  const Icon(
+                  Icon(
                     Icons.camera_alt_outlined,
-                    color: Colors.white,
+                    color: textColor,
                     size: 24,
                   ),
                 ],
@@ -112,7 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     final imageUrl = songs.isEmpty
                                         ? null
                                         : songs[category.$3 % songs.length]
-                                              .albumCover;
+                                            .albumCover;
 
                                     return SearchCategory(
                                       title: category.$1,
@@ -126,14 +127,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                         }
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  snapshot.hasError
-                                                      ? 'Lagu gagal dimuat. Coba lagi nanti.'
-                                                      : 'Lagu sedang dimuat.',
-                                                ),
-                                              ),
-                                            );
+                                          SnackBar(
+                                            content: Text(
+                                              snapshot.hasError
+                                                  ? 'Lagu gagal dimuat. Coba lagi nanti.'
+                                                  : 'Lagu sedang dimuat.',
+                                            ),
+                                          ),
+                                        );
                                       },
                                     );
                                   },
@@ -148,10 +149,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 },
               ),
               const SizedBox(height: 25),
-              const Text(
+              Text(
                 'Temukan sesuatu yang lain',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: textColor,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -264,15 +265,22 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final itemTextColor = isDark ? Colors.white : Colors.black87;
+    final subTextColor = isDark ? Colors.white70 : Colors.black54;
+    final bottomNavBg = isDark ? const Color(0xFF282828) : Colors.grey.shade200;
+
     final currentSong = _playingIndex == null
         ? null
         : widget.songs[_playingIndex!];
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: itemTextColor,
         title: Text(widget.title),
       ),
       body: ListView.builder(
@@ -287,12 +295,15 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
                 width: 52,
                 height: 52,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const SizedBox(
+                errorBuilder: (context, error, stackTrace) => SizedBox(
                   width: 52,
                   height: 52,
                   child: ColoredBox(
-                    color: Colors.white12,
-                    child: Icon(Icons.music_note, color: Colors.white),
+                    color: isDark ? Colors.white12 : Colors.grey.shade300,
+                    child: Icon(
+                      Icons.music_note,
+                      color: isDark ? Colors.white : Colors.grey.shade700,
+                    ),
                   ),
                 ),
               ),
@@ -301,19 +312,19 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
               song.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: itemTextColor),
             ),
             subtitle: Text(
               song.artist,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(color: subTextColor),
             ),
             trailing: Icon(
               _playingIndex == index && _isPlaying
                   ? Icons.pause
                   : Icons.play_arrow,
-              color: Colors.white,
+              color: itemTextColor,
             ),
             onTap: () {
               if (_playingIndex == index) {
@@ -329,7 +340,7 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
           ? null
           : SafeArea(
               child: Container(
-                color: const Color(0xFF282828),
+                color: bottomNavBg,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
@@ -345,14 +356,14 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
                             currentSong.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: itemTextColor),
                           ),
                           Text(
                             currentSong.artist,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: subTextColor,
                               fontSize: 12,
                             ),
                           ),
@@ -363,7 +374,7 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
                       onPressed: _togglePlayback,
                       icon: Icon(
                         _isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white,
+                        color: itemTextColor,
                       ),
                     ),
                   ],

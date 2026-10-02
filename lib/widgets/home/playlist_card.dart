@@ -21,11 +21,9 @@ class PlaylistCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        // Kalau lagi di play (isPlaying true), kotaknya kasih warna hijau tipis
         color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          // Kalau lagi di play, kasih garis pinggir hijau
           color: isPlaying ? AppColors.primaryGreen : Colors.transparent,
           width: 1,
         ),
@@ -71,12 +69,10 @@ class PlaylistCard extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  // Kalau lagi di play warnanya jadi hijau, kalau tidak di play maka warnanya abu-abu
                   color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  // Kalau lagi diplay ikonnya pause, kalau belum ikonnya play
                   isPlaying ? Icons.pause : Icons.play_arrow,
                   color: isDark ? Colors.white : Colors.black87,
                   size: 20,

@@ -12,13 +12,15 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 55,
 
       padding: const EdgeInsets.symmetric(horizontal: 16),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.white : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(8),
       ),
 
