@@ -59,9 +59,9 @@ class _SongProgressBarState extends State<SongProgressBar> {
             trackHeight: 3,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-            activeTrackColor: Colors.white,
+            activeTrackColor: const Color(0xFF1DB954),
             inactiveTrackColor: Colors.grey[800],
-            thumbColor: Colors.white,
+            thumbColor: const Color(0xFF1DB954),
           ),
           child: Slider(
             value: currentPosition.clamp(0.0, maxDuration > 0 ? maxDuration : 1.0),

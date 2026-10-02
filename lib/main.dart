@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
       valueListenable: themeNotifier,
       builder: (context, currentMode, child) {
         return MaterialApp(
+          themeAnimationDuration: const Duration(milliseconds: 100),
           debugShowCheckedModeBanner: false,
           title: 'Melodix',
           themeMode: currentMode,

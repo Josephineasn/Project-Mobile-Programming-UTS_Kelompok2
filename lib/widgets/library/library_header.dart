@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class LibraryHeader extends StatelessWidget implements PreferredSizeWidget {
-  final Function() onAddPressed;
+  final VoidCallback onAddPressed;
   final bool isSearching;
-  final Function() onSearchToggle;
-  final Function(String) onSearchChanged;
+  final VoidCallback onSearchToggle;
+  final ValueChanged<String> onSearchChanged;
 
   const LibraryHeader({
     super.key,
@@ -15,35 +15,48 @@ class LibraryHeader extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final contentColor = isDark ? Colors.white : Colors.black87;
+
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.transparent,
       elevation: 0,
-      titleSpacing: 16.0,
       title: isSearching
           ? TextField(
               autofocus: true,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Search playlist...',
-                hintStyle: TextStyle(color: Colors.grey),
+              style: TextStyle(color: contentColor),
+              decoration: InputDecoration(
+                hintText: 'Cari playlist...',
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.grey : Colors.grey.shade600,
+                ),
                 border: InputBorder.none,
               ),
               onChanged: onSearchChanged,
             )
-          : const Row(
+          : Row(
               children: [
                 CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.person, color: Colors.black, size: 20),
+                  radius: 16,
+                  backgroundColor: const Color(0xFF1DB954),
+                  child: Text(
+                    'U',
+                    style: TextStyle(
+                      color: isDark ? Colors.black : Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
                   'Your Library Playlist',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                    color: contentColor,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -53,19 +66,16 @@ class LibraryHeader extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             isSearching ? Icons.close : Icons.search,
-            color: Colors.white,
+            color: contentColor,
           ),
           onPressed: onSearchToggle,
         ),
         if (!isSearching)
           IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
+            icon: Icon(Icons.add, color: contentColor),
             onPressed: onAddPressed,
           ),
       ],
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

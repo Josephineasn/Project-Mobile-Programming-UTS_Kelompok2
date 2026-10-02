@@ -8,53 +8,57 @@ class PremiumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final bgColor = theme.scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: bgColor,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header foto
-            Stack(
-              children: [
-                SizedBox(
-                  height: 230,
-                  width: double.infinity,
-                  child: OverflowBox(
-                    maxWidth: MediaQuery.of(context).size.width * 1.35,
-                    child: Transform.rotate(
-                      angle: -0.14,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildAlbumTile('https://picsum.photos/seed/phonk/250'),
-                          _buildAlbumTile('https://picsum.photos/seed/friday/250'),
-                          _buildAlbumTile('https://picsum.photos/seed/house/250'),
-                          _buildAlbumTile('https://picsum.photos/seed/reggae/250'),
-                        ],
+            // Header foto dibungkus RepaintBoundary agar tidak lag saat ganti tema
+            RepaintBoundary(
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 230,
+                    width: double.infinity,
+                    child: OverflowBox(
+                      maxWidth: MediaQuery.of(context).size.width * 1.35,
+                      child: Transform.rotate(
+                        angle: -0.14,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildAlbumTile('https://picsum.photos/seed/phonk/250'),
+                            _buildAlbumTile('https://picsum.photos/seed/friday/250'),
+                            _buildAlbumTile('https://picsum.photos/seed/house/250'),
+                            _buildAlbumTile('https://picsum.photos/seed/reggae/250'),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Positioned.fill(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.0, 0.45, 0.85, 1.0],
-                        colors: [
-                          Colors.transparent,
-                          Color(0x99121212),
-                          Color(0xF5121212),
-                          Color(0xFF121212),
-                        ],
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: const [0.0, 0.45, 0.85, 1.0],
+                          colors: [
+                            Colors.transparent,
+                            bgColor.withOpacity(0.6),
+                            bgColor.withOpacity(0.95),
+                            bgColor,
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             // Tulisan di header dan tombol premium
@@ -65,13 +69,13 @@ class PremiumScreen extends StatelessWidget {
                 children: [
                   // Logo + teks "Premium"
                   Row(
-                    children: const [
-                      Icon(Icons.album_outlined, color: Colors.white, size: 20),
-                      SizedBox(width: 6),
+                    children: [
+                      Icon(Icons.album_outlined, color: textColor, size: 20),
+                      const SizedBox(width: 6),
                       Text(
                         'Premium',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: textColor,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -81,10 +85,10 @@ class PremiumScreen extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // Headline Besar
-                  const Text(
+                  Text(
                     'Get more out of your\nmusic with Premium\nStandard.',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: textColor,
                       fontSize: 27,
                       fontWeight: FontWeight.w800,
                       height: 1.15,
@@ -99,8 +103,8 @@ class PremiumScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
+                        backgroundColor: isDark ? Colors.white : Colors.black87,
+                        foregroundColor: isDark ? Colors.black : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -115,18 +119,21 @@ class PremiumScreen extends StatelessWidget {
                   const SizedBox(height: 14),
 
                   // Syarat & Ketentuan
-                  const Text(
+                  Text(
                     'Terms apply.',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: isDark ? Colors.white70 : Colors.black54,
                       fontSize: 11,
                       decoration: TextDecoration.underline,
                     ),
                   ),
                   const SizedBox(height: 3),
-                  const Text(
+                  Text(
                     'See other plans below.',
-                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                    style: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.black45,
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(height: 28),
 
@@ -135,10 +142,10 @@ class PremiumScreen extends StatelessWidget {
                   const SizedBox(height: 36),
 
                   // Available plans
-                  const Text(
+                  Text(
                     'Available plans',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: textColor,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),

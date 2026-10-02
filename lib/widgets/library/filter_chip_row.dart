@@ -12,46 +12,43 @@ class FilterChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final filters = ['Playlists', 'Artists'];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
-        children: [
-          ChoiceChip(
-            shape: const StadiumBorder(),
-            side: BorderSide.none,
-            label: Text(
-              'Playlists',
-              style: TextStyle(
-                color: selectedFilter == 'Playlists' ? Colors.black : Colors.white,
+        children: filters.map((filter) {
+          final isSelected = selectedFilter == filter;
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                onFilterSelected(isSelected ? '' : filter);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF1DB954)
+                      : (isDark ? const Color(0xFF282828) : Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Text(
+                  filter,
+                  style: TextStyle(
+                    color: isSelected
+                        ? Colors.black
+                        : (isDark ? Colors.white : Colors.black87),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
               ),
             ),
-            selected: selectedFilter == 'Playlists',
-            selectedColor: Colors.green,
-            backgroundColor: Colors.grey[900],
-            showCheckmark: false,
-            onSelected: (selected) {
-              onFilterSelected(selected ? 'Playlists' : '');
-            },
-          ),
-          const SizedBox(width: 12),
-          ChoiceChip(
-            shape: const StadiumBorder(),
-            side: BorderSide.none,
-            label: Text(
-              'Artists',
-              style: TextStyle(
-                color: selectedFilter == 'Artists' ? Colors.black : Colors.white,
-              ),
-            ),
-            selected: selectedFilter == 'Artists',
-            selectedColor: Colors.green,
-            backgroundColor: Colors.grey[900],
-            showCheckmark: false,
-            onSelected: (selected) {
-              onFilterSelected(selected ? 'Artists' : '');
-            },
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }

@@ -13,7 +13,6 @@ class YourLibraryScreen extends StatefulWidget {
 
 class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String selectedFilter = '';
-
   bool isSearching = false;
   String searchQuery = '';
 
@@ -27,14 +26,12 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   ];
 
   List<Map<String, dynamic>> get sortedPlaylists {
-    // Filter playlist berdasarkan pencarian
     List<Map<String, dynamic>> filteredList = playlists.where((item) {
       final name = item['name'].toString().toLowerCase();
       final query = searchQuery.toLowerCase();
       return name.contains(query);
     }).toList();
 
-    // urutkan yang Pinned tetap di atas
     filteredList.sort((a, b) {
       if (a['isPinned'] == b['isPinned']) return 0;
       return a['isPinned'] ? -1 : 1;
@@ -49,25 +46,40 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       text: 'New Playlist #${playlists.length + 1}',
     );
 
+    // Ambil status tema
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDark ? const Color(0xFF282828) : Colors.white;
+    final dialogTextColor = isDark ? Colors.white : Colors.black87;
+
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF282828),
-          title: const Text('Give your playlist a name', style: TextStyle(color: Colors.white, fontSize: 18)),
+          backgroundColor: dialogBg,
+          title: Text(
+            'Give your playlist a name',
+            style: TextStyle(color: dialogTextColor, fontSize: 18),
+          ),
           content: TextField(
             controller: controller,
             autofocus: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+            style: TextStyle(color: dialogTextColor),
+            decoration: InputDecoration(
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: isDark ? Colors.grey : Colors.grey.shade400),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.green),
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: isDark ? Colors.grey : Colors.grey.shade600),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
@@ -92,25 +104,39 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   void showEditPlaylistDialog(Map<String, dynamic> item) {
     final controller = TextEditingController(text: item['name']);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDark ? const Color(0xFF282828) : Colors.white;
+    final dialogTextColor = isDark ? Colors.white : Colors.black87;
+
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF282828),
-          title: const Text('Edit playlist name', style: TextStyle(color: Colors.white, fontSize: 18)),
+          backgroundColor: dialogBg,
+          title: Text(
+            'Edit playlist name',
+            style: TextStyle(color: dialogTextColor, fontSize: 18),
+          ),
           content: TextField(
             controller: controller,
             autofocus: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+            style: TextStyle(color: dialogTextColor),
+            decoration: InputDecoration(
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: isDark ? Colors.grey : Colors.grey.shade400),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.green),
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: isDark ? Colors.grey : Colors.grey.shade600),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
@@ -133,20 +159,30 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
   // Konfirmasi Hapus Playlist
   void showDeletePlaylistDialog(Map<String, dynamic> item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDark ? const Color(0xFF282828) : Colors.white;
+    final dialogTextColor = isDark ? Colors.white : Colors.black87;
+
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF282828),
-          title: const Text('Delete Playlist?', style: TextStyle(color: Colors.white, fontSize: 18)),
+          backgroundColor: dialogBg,
+          title: Text(
+            'Delete Playlist?',
+            style: TextStyle(color: dialogTextColor, fontSize: 18),
+          ),
           content: Text(
             'Are you sure want to delete "${item['name']}"?',
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(color: isDark ? Colors.grey : Colors.grey.shade600),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: isDark ? Colors.grey : Colors.grey.shade600),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -164,7 +200,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     );
   }
 
-  // Toggle Pin / Unpin
   void togglePin(Map<String, dynamic> item) {
     setState(() {
       item['isPinned'] = !item['isPinned'];
@@ -179,8 +214,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-
-      // Menambahkan parameter pencarian ke LibraryHeader] ===
       appBar: LibraryHeader(
         onAddPressed: showCreatePlaylistDialog,
         isSearching: isSearching,
@@ -188,53 +221,58 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
           setState(() {
             isSearching = !isSearching;
             if (!isSearching) {
-              searchQuery = ''; 
+              searchQuery = '';
             }
           });
         },
         onSearchChanged: (value) {
           setState(() {
-            searchQuery = value; 
+            searchQuery = value;
           });
         },
       ),
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FilterChipRow(
-            selectedFilter: selectedFilter,
-            onFilterSelected: (filter) {
-              setState(() {
-                selectedFilter = filter;
-              });
-            },
+      // BUNGKUS DENGAN THEME AGAR SEMUA WIDGET TEMANMU OTOMATIS MENGIKUTI WARNA TEMA
+      body: Theme(
+        data: Theme.of(context).copyWith(
+          textTheme: Theme.of(context).textTheme.apply(
+            bodyColor: textColor,
+            displayColor: textColor,
           ),
-
-          // Tombol Tambah Playlist
-          AddPlaylistButton(
-            onTap: () {
-               showCreatePlaylistDialog();
-             },
-          ),
-
-          // Daftar Playlist 
-          Expanded(
-            child: ListView.builder(
-              itemCount: displayList.length,
-              itemBuilder: (context, index) {
-                final item = displayList[index];
-                return PlaylistItemTile(
-                  title: item['name'],
-                  isPinned: item['isPinned'],
-                  onTogglePin: () => togglePin(item),
-                  onEdit: () => showEditPlaylistDialog(item),
-                  onDelete: () => showDeletePlaylistDialog(item),
-                );
+          iconTheme: IconThemeData(color: textColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FilterChipRow(
+              selectedFilter: selectedFilter,
+              onFilterSelected: (filter) {
+                setState(() {
+                  selectedFilter = filter;
+                });
               },
             ),
-          ),
-        ],
+            AddPlaylistButton(
+              onTap: () {
+                showCreatePlaylistDialog();
+              },
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: displayList.length,
+                itemBuilder: (context, index) {
+                  final item = displayList[index];
+                  return PlaylistItemTile(
+                    title: item['name'],
+                    isPinned: item['isPinned'],
+                    onTogglePin: () => togglePin(item),
+                    onEdit: () => showEditPlaylistDialog(item),
+                    onDelete: () => showDeletePlaylistDialog(item),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
