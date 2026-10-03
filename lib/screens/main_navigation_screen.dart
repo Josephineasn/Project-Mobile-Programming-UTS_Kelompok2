@@ -79,7 +79,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(8),
@@ -137,12 +137,35 @@ class _MainNavScreenState extends State<MainNavScreen> {
                         ],
                       ),
                     ),
+                    
+                    // Tombol Previous
+                    IconButton(
+                      icon: Icon(
+                        Icons.skip_previous,
+                        color: contentColor,
+                        size: 22,
+                      ),
+                      onPressed: () => _audioController.playPrevious(),
+                    ),
+
+                    // Tombol Play / Pause
                     IconButton(
                       icon: Icon(
                         _audioController.isPlaying ? Icons.pause : Icons.play_arrow,
                         color: contentColor,
+                        size: 24,
                       ),
                       onPressed: () => _audioController.togglePlayPause(),
+                    ),
+
+                    // Tombol Next
+                    IconButton(
+                      icon: Icon(
+                        Icons.skip_next,
+                        color: contentColor,
+                        size: 22,
+                      ),
+                      onPressed: () => _audioController.playNext(),
                     ),
                   ],
                 ),
