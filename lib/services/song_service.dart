@@ -21,4 +21,24 @@ class SongService {
       throw Exception('Kesalahan jaringan: $e');
     }
   }
+
+  static Future<List<SongModel>> searchDeezerSongs(String query) async {
+    if (query.trim().isEmpty) return [];
+    final url = 'https://api.deezer.com/search?q=${Uri.encodeComponent(query)}';
+    
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> tracks = data['data'] ?? [];
+
+        return tracks.map((json) => SongModel.fromJson(json)).toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
 }

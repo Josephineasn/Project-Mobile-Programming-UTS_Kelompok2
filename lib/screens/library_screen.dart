@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import '../services/audio_controller.dart';
 import '../widgets/library/playlist_item_tile.dart';
 import '../widgets/library/library_header.dart';
 import '../widgets/library/filter_chip_row.dart';
 import '../widgets/library/add_playlist_button.dart';
 import '../models/song_model.dart';
 import 'playlist_detail_screen.dart';
+
 
 class YourLibraryScreen extends StatefulWidget {
   const YourLibraryScreen({super.key});
@@ -14,18 +16,46 @@ class YourLibraryScreen extends StatefulWidget {
 }
 
 class _YourLibraryScreenState extends State<YourLibraryScreen> {
+  final AudioController _audioController = AudioController.instance;
+
   String selectedFilter = '';
   bool isSearching = false;
   String searchQuery = '';
 
-  List<Map<String, dynamic>> playlists = [
-    {'name': 'Top Hits Indonesia', 'isPinned': true, 'songs': <SongModel>[]},
-    {'name': 'Calm Night Mix', 'isPinned': true, 'songs': <SongModel>[]},
-    {'name': 'Daily Mix', 'isPinned': true, 'songs': <SongModel>[]},
-    {'name': 'Soft Mix', 'isPinned': false, 'songs': <SongModel>[]},
-    {'name': 'My Playlist #17', 'isPinned': false, 'songs': <SongModel>[]},
-    {'name': 'Discover Weekly', 'isPinned': false, 'songs': <SongModel>[]},
-  ];
+  late List<Map<String, dynamic>> playlists;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioController.addListener(_onAudioChanged);
+
+    playlists = [
+      {'name': 'Liked Songs', 'isPinned': true, 'songs': _audioController.likedSongs},
+      {'name': 'Top Hits Indonesia', 'isPinned': true, 'songs': <SongModel>[]},
+      {'name': 'Calm Night Mix', 'isPinned': true, 'songs': <SongModel>[]},
+      {'name': 'Daily Mix', 'isPinned': true, 'songs': <SongModel>[]},
+      {'name': 'Soft Mix', 'isPinned': false, 'songs': <SongModel>[]},
+      {'name': 'My Playlist #17', 'isPinned': false, 'songs': <SongModel>[]},
+      {'name': 'Discover Weekly', 'isPinned': false, 'songs': <SongModel>[]},
+    ];
+  }
+
+  @override
+  void dispose() {
+    _audioController.removeListener(_onAudioChanged);
+    super.dispose();
+  }
+
+  void _onAudioChanged() {
+    if (mounted) {
+      setState(() {
+        final likedIndex = playlists.indexWhere((p) => p['name'] == 'Liked Songs');
+        if (likedIndex != -1) {
+          playlists[likedIndex]['songs'] = _audioController.likedSongs;
+        }
+      });
+    }
+  }
 
   List<Map<String, dynamic>> get sortedPlaylists {
     List<Map<String, dynamic>> filteredList = playlists.where((item) {
