@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart'; 
-import '../models/song_model.dart';
-import '../services/song_service.dart';
+import '../services/audio_controller.dart';
 import '../widgets/player/album_art_view.dart';
 import '../widgets/player/song_progress_bar.dart';
 
@@ -13,57 +11,23 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  late Future<List<SongModel>> _songsFuture;
-  final AudioPlayer _audioPlayer = AudioPlayer(); 
-  int _currentIndex = 0;
-  bool _isPlaying = false;
+  final AudioController _audioController = AudioController.instance;
   bool _isLiked = false;
 
   @override
   void initState() {
     super.initState();
-    _songsFuture = SongService.fetchDeezerSongs();
+    _audioController.addListener(_onAudioChanged);
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose(); 
+    _audioController.removeListener(_onAudioChanged);
     super.dispose();
   }
 
-  Future<void> _togglePlayPause(List<SongModel> songs) async {
-    final currentSong = songs[_currentIndex];
-
-    if (_isPlaying) {
-      await _audioPlayer.pause();
-      setState(() {
-        _isPlaying = false;
-      });
-    } else {
-      await _audioPlayer.play(UrlSource(currentSong.audioUrl));
-      setState(() {
-        _isPlaying = true;
-      });
-
-      _audioPlayer.onPlayerComplete.first.then((_) {
-        if (mounted) {
-          if (_currentIndex < songs.length - 1) {
-            _changeSong(songs, _currentIndex + 1);
-          } else {
-            _changeSong(songs, 0);
-          }
-        }
-      });
-    }
-  }
-
-  Future<void> _changeSong(List<SongModel> songs, int newIndex) async {
-    await _audioPlayer.stop();
-    setState(() {
-      _currentIndex = newIndex;
-      _isPlaying = false;
-    });
-    _togglePlayPause(songs);
+  void _onAudioChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -71,7 +35,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final contentColor = isDark ? Colors.white : Colors.black87;
-    
+    final currentSong = _audioController.currentSong;
+
+    if (currentSong == null) {
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: const Center(
+          child: CircularProgressIndicator(color: Colors.green),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -87,110 +61,84 @@ class _PlayerScreenState extends State<PlayerScreen> {
         ),
         centerTitle: true,
       ),
-      body: FutureBuilder<List<SongModel>>(
-        future: _songsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.green));
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Gagal memuat lagu: ${snapshot.error}',
-                style: const TextStyle(color: Colors.redAccent),
-              ),
-            );
-          }
-
-          final songs = snapshot.data!;
-          final currentSong = songs[_currentIndex];
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-            child: Column(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        child: Column(
+          children: [
+            AlbumArtView(
+              height: 260.0,
+              imageUrl: currentSong.albumCover,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AlbumArtView(
-                  height: 260.0,
-                  imageUrl: currentSong.albumCover,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        currentSong.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: contentColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        currentSong.artist,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.grey : Colors.grey.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 24),
-                
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            currentSong.title,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: contentColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            currentSong.artist,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.grey : Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        _isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: _isLiked ? Colors.green : contentColor,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isLiked = !_isLiked;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 16),
-                SongProgressBar(audioPlayer: _audioPlayer),
-                const SizedBox(height: 16),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.skip_previous, color: contentColor, size: 36),
-                      onPressed: _currentIndex > 0
-                          ? () => _changeSong(songs, _currentIndex - 1)
-                          : null,
-                    ),
-                    IconButton(
-                      iconSize: 64,
-                      icon: Icon(
-                        _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                        color: contentColor,
-                      ),
-                      onPressed: () => _togglePlayPause(songs),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.skip_next, color: contentColor, size: 36),
-                      onPressed: _currentIndex < songs.length - 1
-                          ? () => _changeSong(songs, _currentIndex + 1)
-                          : null,
-                    ),
-                  ],
+                IconButton(
+                  icon: Icon(
+                    _isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: _isLiked ? Colors.green : contentColor,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isLiked = !_isLiked;
+                    });
+                  },
                 ),
               ],
             ),
-          );
-        },
+            const SizedBox(height: 16),
+            SongProgressBar(audioPlayer: _audioController.player),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.skip_previous, color: contentColor, size: 36),
+                  onPressed: () => _audioController.playPrevious(),
+                ),
+                IconButton(
+                  iconSize: 64,
+                  icon: Icon(
+                    _audioController.isPlaying
+                        ? Icons.pause_circle_filled
+                        : Icons.play_circle_filled,
+                    color: contentColor,
+                  ),
+                  onPressed: () => _audioController.togglePlayPause(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.skip_next, color: contentColor, size: 36),
+                  onPressed: () => _audioController.playNext(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
