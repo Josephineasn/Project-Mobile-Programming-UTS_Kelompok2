@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/song_model.dart';
 import '../services/audio_controller.dart';
 import '../widgets/player/album_art_view.dart';
 import '../widgets/player/song_progress_bar.dart';
@@ -12,8 +13,7 @@ class PlayerScreen extends StatefulWidget {
 
 class _PlayerScreenState extends State<PlayerScreen> {
   final AudioController _audioController = AudioController.instance;
-  bool _isLiked = false;
-
+  
   @override
   void initState() {
     super.initState();
@@ -45,6 +45,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
         ),
       );
     }
+
+    final isLiked = _audioController.isLiked(currentSong);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -100,13 +102,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 ),
                 IconButton(
                   icon: Icon(
-                    _isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: _isLiked ? Colors.green : contentColor,
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.green : contentColor,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _isLiked = !_isLiked;
-                    });
+                    _audioController.toggleLike(currentSong);
                   },
                 ),
               ],

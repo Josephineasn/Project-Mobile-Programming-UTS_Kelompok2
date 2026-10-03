@@ -15,10 +15,13 @@ class AudioController extends ChangeNotifier {
   List<SongModel> _playlist = [];
   int _currentIndex = 0;
   bool _isPlaying = false;
+  final List<SongModel> _likedSongs = [];
 
   List<SongModel> get playlist => _playlist;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
+  List<SongModel> get likedSongs => _likedSongs;
+
   SongModel? get currentSong =>
       _playlist.isNotEmpty && _currentIndex < _playlist.length
           ? _playlist[_currentIndex]
@@ -79,5 +82,18 @@ class AudioController extends ChangeNotifier {
       _currentIndex = _playlist.length - 1;
     }
     await playSong(_playlist[_currentIndex]);
+  }
+
+  void toggleLike(SongModel song) {
+    if (_likedSongs.any((s) => s.title == song.title)) {
+      _likedSongs.removeWhere((s) => s.title == song.title);
+    } else {
+      _likedSongs.add(song);
+    }
+    notifyListeners();
+  }
+
+  bool isLiked(SongModel song) {
+    return _likedSongs.any((s) => s.title == song.title);
   }
 }
