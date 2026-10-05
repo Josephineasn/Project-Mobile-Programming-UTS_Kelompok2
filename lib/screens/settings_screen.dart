@@ -26,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   OverlayEntry? _toastEntry;
 
-  // Pop-up melayang di lapisan paling depan persis di atas bottom sheet (jelas & terang)
+  // Pop-up melayang 
   void _showNotification(String message) {
     _toastEntry?.remove();
     _toastEntry = null;
@@ -35,7 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final entry = OverlayEntry(
       builder: (context) => Positioned(
-        bottom: 275, // Mengambang persis di atas sheet
+        bottom: 275, 
         left: 32,
         right: 32,
         child: Material(
@@ -44,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                // Warna kontras & tegas agar tidak gelap/redup
+          
                 color: isDark ? const Color(0xFF333333) : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
@@ -102,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nama'),
+              decoration: const InputDecoration(labelText: 'Name'),
             ),
             TextField(
               controller: emailController,
@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(context);
               _showNotification('Profil berhasil diubah');
             },
-            child: const Text('Simpan'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -134,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // 2. Akun
   void _showAccountDetails() {
     _showSettingsBottomSheet(
-      title: 'Pengaturan Akun',
+      title: 'Setting account',
       children: [
         ListTile(
           leading: const Icon(Icons.person),
@@ -160,27 +160,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               SwitchListTile(
                 title: const Text('Push Notifications'),
-                subtitle: const Text('Rekomendasi musik & playlist baru'),
+                subtitle: const Text('Recommendation music & New playlist'),
                 activeColor: Colors.green,
                 value: _pushNotif,
                 onChanged: (val) {
                   setModalState(() => _pushNotif = val);
                   setState(() => _pushNotif = val);
                   _showNotification(
-                    val ? 'Push Notifications Aktif' : 'Push Notifications Mati',
+                    val ? 'Push Notifications Enabled' : 'Push Notifications Disabled',
                   );
                 },
               ),
               SwitchListTile(
                 title: const Text('Email Updates'),
-                subtitle: const Text('Pemberitahuan promo & fitur terbaru'),
+                subtitle: const Text('Notification promo & fitur terbaru'),
                 activeColor: Colors.green,
                 value: _emailUpdates,
                 onChanged: (val) {
                   setModalState(() => _emailUpdates = val);
                   setState(() => _emailUpdates = val);
                   _showNotification(
-                    val ? 'Email Updates Aktif' : 'Email Updates Mati',
+                    val ? 'Email updates enabled' : 'Email updates disabled'
                   );
                 },
               ),
@@ -276,20 +276,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setModalState(() => _privateSession = val);
                   setState(() => _privateSession = val);
                   _showNotification(
-                    val ? 'Sesi Pribadi Aktif' : 'Sesi Pribadi Nonaktif',
+                    val ? 'Private Session Enabled' : 'Private Session Disabled',
                   );
                 },
               ),
               SwitchListTile(
-                title: const Text('Tampilkan Aktivitas Mendengarkan'),
-                subtitle: const Text('Bagikan lagu yang diputar ke pengikut Anda'),
+                title: const Text('Listening activity'),
+                subtitle: const Text('Share what you play with your followers'),
                 activeColor: Colors.green,
                 value: _showListening,
                 onChanged: (val) {
                   setModalState(() => _showListening = val);
                   setState(() => _showListening = val);
                   _showNotification(
-                    val ? 'Aktivitas Ditampilkan' : 'Aktivitas Disembunyikan',
+                    val ? 'Listening Activity Shown' : 'Listening Activity Hidden',
                   );
                 },
               ),
@@ -408,7 +408,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ThemeToggleSwitch(
             onToggle: (bool val) {
               themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
-              _showNotification(val ? 'Dark Mode Aktif' : 'Light Mode Aktif');
+              _showNotification(val ? 'Dark mode enabled' : 'Light mode enabled');
             },
           ),
           const SizedBox(height: 20),
@@ -417,19 +417,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Keluar'),
-                  content: const Text('Apakah Anda yakin ingin keluar?'),
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to logout?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Batal'),
+                      child: const Text('Cancel'),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        _showNotification('Berhasil keluar');
+                        _showNotification('Successfully logged out');
                       },
-                      child: const Text('Keluar'),
+                      child: const Text('Logout'),
                     ),
                   ],
                 ),
