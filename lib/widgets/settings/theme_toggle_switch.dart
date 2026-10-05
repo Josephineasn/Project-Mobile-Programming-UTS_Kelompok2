@@ -50,7 +50,7 @@ class _ThemeToggleSwitchState extends State<ThemeToggleSwitch> {
         ),
       ),
       subtitle: Text(
-        _isDarkMode ? 'Tema gelap aktif' : 'Tema terang aktif',
+        _isDarkMode ? 'Dark mode enabled' : 'Light mode enabled',
         style: TextStyle(
           color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           fontSize: 13,

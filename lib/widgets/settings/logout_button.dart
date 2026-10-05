@@ -18,17 +18,17 @@ class LogoutButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           title: const Text(
-            'Keluar dari Akun?',
+            'Logout from Account?',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           content: const Text(
-            'Kamu harus masuk kembali untuk mengakses playlist dan lagu favoritmu.',
+            'You must log in again to access your playlists and favorite songs.',
             style: TextStyle(color: Colors.grey),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Batal', style: TextStyle(color: Colors.white70)),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -39,7 +39,7 @@ class LogoutButton extends StatelessWidget {
                 Navigator.of(ctx).pop();
                 onLogout();
               },
-              child: const Text('Keluar'),
+              child: const Text('Logout'),
             ),
           ],
         );
@@ -66,7 +66,7 @@ class LogoutButton extends StatelessWidget {
             ),
             onPressed: () => _showConfirmDialog(context),
             child: Text(
-              'Keluar',
+              'Logout',
               style: TextStyle(
                 color: isDark ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
