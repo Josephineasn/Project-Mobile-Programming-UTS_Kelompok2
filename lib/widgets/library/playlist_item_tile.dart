@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class PlaylistItemTile extends StatelessWidget {
   final String title;
+  final String? imageUrl;
   final bool isPinned;
   final VoidCallback onTogglePin;
   final VoidCallback onEdit;
@@ -11,12 +12,64 @@ class PlaylistItemTile extends StatelessWidget {
   const PlaylistItemTile({
     super.key,
     required this.title,
+    this.imageUrl,
     required this.isPinned,
     required this.onTogglePin,
     required this.onEdit,
     required this.onDelete,
     required this.onTap,
   });
+
+  Widget _buildImage(bool isDark) {
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return Container(
+        width: 50,
+        height: 50,
+        color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
+        child: Icon(
+          Icons.music_note,
+          color: isDark ? Colors.grey : Colors.grey.shade700,
+          size: 28,
+        ),
+      );
+    }
+
+    if (imageUrl!.startsWith('http://') || imageUrl!.startsWith('https://')) {
+      return Image.network(
+        imageUrl!,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: 50,
+          height: 50,
+          color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
+          child: Icon(
+            Icons.music_note,
+            color: isDark ? Colors.grey : Colors.grey.shade700,
+            size: 28,
+          ),
+        ),
+      );
+    }
+
+    return Image.asset(
+      imageUrl!,
+      width: 50,
+      height: 50,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: 50,
+        height: 50,
+        color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
+        child: Icon(
+          Icons.music_note,
+          color: isDark ? Colors.grey : Colors.grey.shade700,
+          size: 28,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,18 +79,9 @@ class PlaylistItemTile extends StatelessWidget {
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      leading: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF282828) : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Icon(
-          Icons.music_note,
-          color: isDark ? Colors.grey : Colors.grey.shade700,
-          size: 28,
-        ),
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(4.0),
+        child: _buildImage(isDark),
       ),
       title: Text(
         title,
@@ -80,21 +124,21 @@ class PlaylistItemTile extends StatelessWidget {
           PopupMenuItem(
             value: 'pin',
             child: Text(
-              isPinned ? 'Lepas Sematan' : 'Sematkan Playlist',
+              isPinned ? 'Remove Pin' : 'Pin Playlist',
               style: TextStyle(color: titleColor),
             ),
           ),
           PopupMenuItem(
             value: 'edit',
             child: Text(
-              'Edit Nama',
+              'Edit Name',
               style: TextStyle(color: titleColor),
             ),
           ),
           const PopupMenuItem(
             value: 'delete',
             child: Text(
-              'Hapus',
+              'Delete',
               style: TextStyle(color: Colors.redAccent),
             ),
           ),
