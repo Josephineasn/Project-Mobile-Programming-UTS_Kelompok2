@@ -4,11 +4,13 @@ import '../../core/app_colors.dart';
 class HorizontalPlaylistSection extends StatelessWidget {
   final String title;
   final List<Map<String, String>> items;
+  final VoidCallback? onSeeAll; // TAMBAHAN: aksi klik lihat semua
 
   const HorizontalPlaylistSection({
     super.key,
     required this.title,
     required this.items,
+    this.onSeeAll,
   });
 
   @override
@@ -18,16 +20,30 @@ class HorizontalPlaylistSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Judul Bagian
+        // Header Bagian (Bisa diklik)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black87,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.3,
+          child: GestureDetector(
+            onTap: onSeeAll,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 15,
+                  color: isDark ? Colors.white38 : Colors.black38,
+                ),
+              ],
             ),
           ),
         ),
@@ -42,6 +58,8 @@ class HorizontalPlaylistSection extends StatelessWidget {
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
+              final imageUrl = item['imageUrl'] ?? '';
+              final isAsset = imageUrl.startsWith('assets/');
 
               return Container(
                 width: 140,
@@ -49,26 +67,62 @@ class HorizontalPlaylistSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Gambar Cover Persegi
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: (item['imageUrl'] ?? '').startsWith('assets/')
-                          ? Image.asset(
-                              item['imageUrl'] ?? '',
-                              width: 140,
-                              height: 140,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.network(
-                              item['imageUrl'] ?? '',
-                              width: 140,
-                              height: 140,
-                              fit: BoxFit.cover,
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: isAsset
+                              ? Image.asset(
+                                  imageUrl,
+                                  width: 140,
+                                  height: 140,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    width: 140,
+                                    height: 140,
+                                    color: Colors.grey.shade800,
+                                    child: const Icon(Icons.music_note, color: Colors.white54),
+                                  ),
+                                )
+                              : Image.network(
+                                  imageUrl,
+                                  width: 140,
+                                  height: 140,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    width: 140,
+                                    height: 140,
+                                    color: Colors.grey.shade800,
+                                    child: const Icon(Icons.music_note, color: Colors.white54),
+                                  ),
+                                ),
+                        ),
+                        Positioned(
+                          right: 8,
+                          bottom: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryGreen,
+                              shape: BoxShape.circle,
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black45,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                             ),
+                            child: const Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.black,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
-
-                    // Judul Album / Playlist (Dibuat Adaptif)
                     Text(
                       item['title'] ?? '',
                       maxLines: 1,
@@ -80,8 +134,6 @@ class HorizontalPlaylistSection extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-
-                    // Deskripsi atau Nama Artis (Dibuat Adaptif)
                     Text(
                       item['subtitle'] ?? '',
                       maxLines: 1,
