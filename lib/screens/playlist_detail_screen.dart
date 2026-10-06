@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
-
 import '../models/song_model.dart';
 import '../services/song_service.dart';
 import '../services/audio_controller.dart';
+import 'player_screen.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final Map<String, dynamic> playlist;
@@ -15,10 +14,7 @@ class PlaylistDetailScreen extends StatefulWidget {
 }
 
 class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioController _audioController = AudioController.instance;
-  String? _currentlyPlayingUrl;
-  bool _isPlaying = false;
   bool _isLoading = false;
 
   bool get _isLikedSongsPlaylist => widget.playlist['name'] == 'Liked Songs';
@@ -26,10 +22,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (mounted) setState(() => _isPlaying = state == PlayerState.playing);
-    });
-
     _audioController.addListener(_onAudioControllerChanged);
 
     List<SongModel> currentSongs = List<SongModel>.from(
@@ -44,14 +36,15 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   @override
   void dispose() {
     _audioController.removeListener(_onAudioControllerChanged);
-    _audioPlayer.dispose();
     super.dispose();
   }
 
   void _onAudioControllerChanged() {
-    if (mounted && _isLikedSongsPlaylist) {
+    if (mounted) {
       setState(() {
-        widget.playlist['songs'] = _audioController.likedSongs;
+        if (_isLikedSongsPlaylist) {
+          widget.playlist['songs'] = _audioController.likedSongs;
+        }
       });
     }
   }
@@ -289,10 +282,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              if (song.audioUrl.isNotEmpty &&
-                  song.audioUrl == _currentlyPlayingUrl) {
-                _audioPlayer.stop();
-              }
               setState(() => widget.playlist['songs'].remove(song));
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -316,6 +305,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
+    final currentSong = _audioController.currentSong;
+
     List<SongModel> songs = List<SongModel>.from(
       _isLikedSongsPlaylist
           ? _audioController.likedSongs
@@ -385,7 +376,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               itemCount: songs.length,
               itemBuilder: (context, index) {
                 SongModel song = songs[index];
-                final isCurrentPlaying = _audioController.currentSong?.title == song.title;
+                final isCurrentPlaying =
+                    _audioController.currentSong?.title == song.title;
 
                 return ListTile(
                   onTap: () => _playPauseSong(song),
@@ -411,7 +403,10 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                           width: 48,
                           height: 48,
                           color: Colors.black54,
-                          child: const Icon(Icons.volume_up, color: Color(0xFF1DB954)),
+                          child: const Icon(
+                            Icons.volume_up,
+                            color: Color(0xFF1DB954),
+                          ),
                         ),
                     ],
                   ),
@@ -455,7 +450,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                   _audioController.toggleLike(song);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Added "${song.title}" to Liked Songs'),
+                                      content: Text(
+                                        'Added "${song.title}" to Liked Songs',
+                                      ),
                                       duration: const Duration(seconds: 2),
                                       behavior: SnackBarBehavior.floating,
                                     ),
@@ -489,6 +486,122 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 );
               },
             ),
+
+      bottomNavigationBar:
+          (currentSong != null && _audioController.hasPlayedBefore)
+              ? GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PlayerScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF282828)
+                          : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: currentSong.albumCover.isNotEmpty
+                              ? Image.network(
+                                  currentSong.albumCover,
+                                  width: 42,
+                                  height: 42,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  width: 42,
+                                  height: 42,
+                                  color: const Color(0xFF1DB954),
+                                  child: const Icon(
+                                    Icons.music_note,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                currentSong.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              Text(
+                                currentSong.artist,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.grey
+                                      : Colors.grey.shade700,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.skip_previous,
+                            color: textColor,
+                            size: 22,
+                          ),
+                          onPressed: () => _audioController.playPrevious(),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _audioController.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: textColor,
+                            size: 24,
+                          ),
+                          onPressed: () => _audioController.togglePlayPause(),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.skip_next,
+                            color: textColor,
+                            size: 22,
+                          ),
+                          onPressed: () => _audioController.playNext(),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : null,
     );
   }
 }

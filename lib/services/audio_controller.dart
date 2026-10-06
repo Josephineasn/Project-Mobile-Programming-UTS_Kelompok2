@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -116,11 +117,42 @@ class AudioController extends ChangeNotifier {
     } else {
       _likedSongs.add(song);
     }
+    _saveLikedSongs(); 
     notifyListeners();
   }
 
   bool isLiked(SongModel song) {
     return _likedSongs.any((s) => s.title == song.title);
+  }
+
+  Future<void> _saveLikedSongs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedData = _likedSongs.map((song) => {
+      'title': song.title,
+      'artist': song.artist,
+      'audioUrl': song.audioUrl,
+      'albumCover': song.albumCover,
+    }).toList();
+    
+    await prefs.setString('liked_songs_json', jsonEncode(likedData));
+  }
+
+  Future<void> loadLikedSongs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? likedJson = prefs.getString('liked_songs_json');
+    if (likedJson != null) {
+      final List<dynamic> decoded = jsonDecode(likedJson);
+      _likedSongs.clear();
+      for (var item in decoded) {
+        _likedSongs.add(SongModel(
+          title: item['title'] ?? '',
+          artist: item['artist'] ?? '',
+          audioUrl: item['audioUrl'] ?? '',
+          albumCover: item['albumCover'] ?? '',
+        ));
+      }
+      notifyListeners();
+    }
   }
 
   Future<void> _saveLastPlayedState(Duration position) async {

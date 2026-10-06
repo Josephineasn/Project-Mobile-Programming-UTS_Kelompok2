@@ -54,6 +54,8 @@ class _MainNavScreenState extends State<MainNavScreen> {
   Future<void> _loadInitialSongs() async {
     if (_audioController.playlist.isEmpty) {
       try {
+        await _audioController.loadLikedSongs();
+
         final songs = await SongService.fetchDeezerSongs();
         if (songs.isNotEmpty) {
           await _audioController.setPlaylist(songs, initialIndex: 0, autoPlay: false);
