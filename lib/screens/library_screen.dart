@@ -35,6 +35,12 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
     playlists = [
       {
+        'name': 'Liked Songs',
+        'isPinned': true,
+        'songs': <SongModel>[],
+        'imageUrl': 'assets/images/liked_songs.png',
+      },
+      {
         'name': 'Top Hits Indonesia',
         'isPinned': true,
         'songs': <SongModel>[],
@@ -194,7 +200,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
           (p) => p['name'] == 'Liked Songs',
         );
         if (likedIndex != -1) {
-          playlists[likedIndex]['songs'] = _audioController.likedSongs;
+          playlists[likedIndex]['songs'] = List<SongModel>.from(_audioController.likedSongs);
         }
       });
     }
