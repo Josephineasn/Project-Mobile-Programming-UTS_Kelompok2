@@ -30,7 +30,7 @@ class LibraryHeader extends StatelessWidget implements PreferredSizeWidget {
               autofocus: true,
               style: TextStyle(color: contentColor),
               decoration: InputDecoration(
-                hintText: 'Cari playlist...',
+                hintText: 'Search your library...',
                 hintStyle: TextStyle(
                   color: isDark ? Colors.grey : Colors.grey.shade600,
                 ),
