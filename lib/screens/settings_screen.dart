@@ -6,6 +6,8 @@ import '../widgets/settings/plan_status_card.dart';
 import '../widgets/settings/account_setting_tile.dart';
 import '../widgets/settings/theme_toggle_switch.dart';
 import '../widgets/settings/logout_button.dart';
+import '../screens/main_navigation_screen.dart';
+import '../services/premium_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -26,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   OverlayEntry? _toastEntry;
 
-  // Pop-up melayang 
+  // Pop-up melayang
   void _showNotification(String message) {
     _toastEntry?.remove();
     _toastEntry = null;
@@ -35,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final entry = OverlayEntry(
       builder: (context) => Positioned(
-        bottom: 275, 
+        bottom: 275,
         left: 32,
         right: 32,
         child: Material(
@@ -86,7 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  // 1. Edit Profil Sederhana
+  // Edit Profil
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _userName);
     final emailController = TextEditingController(text: _userEmail);
@@ -131,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // 2. Akun
+  // Akun
   void _showAccountDetails() {
     _showSettingsBottomSheet(
       title: 'Setting account',
@@ -150,7 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // 3. Notifikasi (Pop-up di atas sheet & pilihan tersimpan)
+  // Notifikasi (Pop-up di atas sheet & pilihan tersimpan)
   void _showNotificationsSettings() {
     _showSettingsBottomSheet(
       title: 'Notifikasi',
@@ -191,7 +193,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // 4. Kualitas Audio (Pop-up Premium -> Pindah ke Halaman Premium)
+  // Kualitas Audio (Pop-up Premium -> Pindah ke Halaman Premium)
   void _showAudioQualitySettings() {
     final listKualitas = [
       'Otomatis',
@@ -259,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // 5. Privasi & Sosial (Pop-up di atas sheet & pilihan tersimpan)
+  // Privasi & Sosial (Pop-up di atas sheet & pilihan tersimpan)
   void _showPrivacySocialSettings() {
     _showSettingsBottomSheet(
       title: 'Privasi & Sosial',
@@ -366,17 +368,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
             userEmail: _userEmail,
             onEditProfile: _showEditProfileDialog,
           ),
-          PlanStatusCard(
-            planName: 'Melodix Free',
-            planDescription:
-                'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.',
-            isPremium: false,
-            onUpgradePressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PremiumScreen(),
-                ),
+          ValueListenableBuilder<bool>(
+            valueListenable: PremiumController.isPremium,
+            builder: (context, isPremium, child) {
+              return PlanStatusCard(
+                planName: isPremium ? 'Melodix ${PremiumController.currentPlan.value}' : 'Melodix Free',
+                planDescription: isPremium
+                    ? 'Akun kamu aktif menikmati fitur bebas iklan dan kualitas audio tinggi.'
+                    : 'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.',
+                isPremium: isPremium,
+                onUpgradePressed: () {
+                  if (!isPremium) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const MainNavScreen(initialIndex: 4),
+                      ),
+                      (route) => false,
+                    );
+                  } else {
+                    // Batalin premium
+                    showDialog(
+                      context: context,
+                      builder: (dialogCtx) => AlertDialog(
+                        backgroundColor: const Color(0xFF242424),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        title: const Text(
+                          'Kelola Langganan',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        content: Text(
+                          'Paket kamu saat ini: ${PremiumController.currentPlan.value}.\nApakah kamu ingin membatalkan langganan Premium?',
+                          style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogCtx),
+                            child: const Text('Tetap Berlangganan', style: TextStyle(color: Colors.white70)),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            onPressed: () {
+                              // Reset status ke free
+                              PremiumController.cancelPremium();
+                              Navigator.pop(dialogCtx);
+                              _showNotification('Langganan Premium berhasil dibatalkan');
+                            },
+                            child: const Text('Batalkan Langganan'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               );
             },
           ),

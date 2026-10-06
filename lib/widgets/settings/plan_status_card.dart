@@ -22,14 +22,14 @@ class PlanStatusCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isPremium
-              ? [const Color(0xFF1DB954), const Color(0xFF128C3E)]
+              ? [const Color(0xFF261C3D), const Color(0xFF141622)]
               : [const Color(0xFF282828), const Color(0xFF1E1E1E)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: isPremium ? Colors.greenAccent.withValues(alpha: 0.3) : Colors.white10,
+          color: isPremium ? Colors.greenAccent.withValues(alpha: 0.35) : Colors.white10,
         ),
       ),
       child: Column(
@@ -49,13 +49,13 @@ class PlanStatusCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: isPremium ? Colors.black26 : Colors.white12,
+                  color: isPremium ? Colors.amber.withValues(alpha: 0.2) : Colors.white12,
                   borderRadius: BorderRadius.circular(6.0),
                 ),
                 child: Text(
                   isPremium ? 'ACTIVE' : 'FREE TIER',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: isPremium ? Colors.amber : Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -79,8 +79,8 @@ class PlanStatusCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onUpgradePressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: isPremium ? Colors.black : Colors.white,
-                foregroundColor: isPremium ? Colors.white : Colors.black,
+                backgroundColor: isPremium ? Colors.white12 : Colors.white,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
@@ -89,7 +89,8 @@ class PlanStatusCard extends StatelessWidget {
               ),
               child: Text(
                 isPremium ? 'Manage Subscription' : 'Upgrade to Premium',
-                style: const TextStyle(
+                style: TextStyle(
+                  color: isPremium ? Colors.white : Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
