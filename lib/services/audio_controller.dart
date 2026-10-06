@@ -16,11 +16,13 @@ class AudioController extends ChangeNotifier {
   List<SongModel> _playlist = [];
   int _currentIndex = 0;
   bool _isPlaying = false;
+  bool _hasPlayedBefore = false;
   final List<SongModel> _likedSongs = [];
 
   List<SongModel> get playlist => _playlist;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
+  bool get hasPlayedBefore => _hasPlayedBefore;
   List<SongModel> get likedSongs => _likedSongs;
 
   SongModel? get currentSong =>
@@ -45,7 +47,11 @@ class AudioController extends ChangeNotifier {
     });
   }
 
-  Future<void> setPlaylist(List<SongModel> songs, {int initialIndex = 0, bool autoPlay = true}) async {
+  Future<void> setPlaylist(
+    List<SongModel> songs, {
+    int initialIndex = 0,
+    bool autoPlay = true,
+  }) async {
     _playlist = songs;
     _currentIndex = initialIndex;
     if (currentSong != null) {
@@ -62,6 +68,7 @@ class AudioController extends ChangeNotifier {
 
   Future<void> playSong(SongModel song) async {
     if (song.audioUrl.isEmpty) return;
+    _hasPlayedBefore = true;
     await _player.stop();
     await _player.play(UrlSource(song.audioUrl));
     notifyListeners();
@@ -72,6 +79,7 @@ class AudioController extends ChangeNotifier {
       await _player.pause();
     } else {
       if (currentSong != null) {
+        _hasPlayedBefore = true;
         if (_player.state == PlayerState.paused) {
           await _player.resume();
         } else {
@@ -117,6 +125,7 @@ class AudioController extends ChangeNotifier {
 
   Future<void> _saveLastPlayedState(Duration position) async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_played_before', true);
     await prefs.setInt('last_song_index', _currentIndex);
     await prefs.setInt('last_position_ms', position.inMilliseconds);
   }
@@ -124,6 +133,10 @@ class AudioController extends ChangeNotifier {
   Future<void> loadLastPlayedState() async {
     if (_playlist.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
+    _hasPlayedBefore = prefs.getBool('has_played_before') ?? false;
+
+    if (!_hasPlayedBefore) return;
+
     final savedIndex = prefs.getInt('last_song_index') ?? 0;
     final savedPositionMs = prefs.getInt('last_position_ms') ?? 0;
 
@@ -134,7 +147,6 @@ class AudioController extends ChangeNotifier {
         if (savedPositionMs > 0) {
           await _player.seek(Duration(milliseconds: savedPositionMs));
         }
-
         await _player.pause();
         _isPlaying = false;
       }

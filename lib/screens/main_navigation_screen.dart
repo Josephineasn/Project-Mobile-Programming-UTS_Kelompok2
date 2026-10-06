@@ -7,10 +7,11 @@ import 'search_screen.dart';
 import 'library_screen.dart';
 import 'player_screen.dart';
 import 'premium_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainNavScreen extends StatefulWidget {
   final int initialIndex;
-  
+
   const MainNavScreen({
     super.key,
     this.initialIndex = 0,
@@ -55,9 +56,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
       try {
         final songs = await SongService.fetchDeezerSongs();
         if (songs.isNotEmpty) {
-          // autoPlay: false agar tidak langsung memutar lagu saat aplikasi baru dibuka
           await _audioController.setPlaylist(songs, initialIndex: 0, autoPlay: false);
-          // Load lagu & posisi durasi terakhir yang tersimpan di HP
           await _audioController.loadLastPlayedState();
         }
       } catch (_) {}
@@ -79,7 +78,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_currentIndex != 3 && currentSong != null)
+          if (_currentIndex != 3 && currentSong != null && _audioController.hasPlayedBefore)
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -147,7 +146,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
                       ),
                     ),
                     
-                    // Tombol Previous
                     IconButton(
                       icon: Icon(
                         Icons.skip_previous,
@@ -157,7 +155,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
                       onPressed: () => _audioController.playPrevious(),
                     ),
 
-                    // Tombol Play / Pause
                     IconButton(
                       icon: Icon(
                         _audioController.isPlaying ? Icons.pause : Icons.play_arrow,
@@ -167,7 +164,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
                       onPressed: () => _audioController.togglePlayPause(),
                     ),
 
-                    // Tombol Next
                     IconButton(
                       icon: Icon(
                         Icons.skip_next,
