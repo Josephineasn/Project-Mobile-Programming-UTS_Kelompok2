@@ -9,14 +9,19 @@ import 'player_screen.dart';
 import 'premium_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
-  const MainNavScreen({super.key});
+  final int initialIndex;
+  
+  const MainNavScreen({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
   State<MainNavScreen> createState() => _MainNavScreenState();
 }
 
 class _MainNavScreenState extends State<MainNavScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   final AudioController _audioController = AudioController.instance;
 
   final List<Widget> _screens = const [
@@ -31,6 +36,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   void initState() {
     super.initState();
     _audioController.addListener(_onAudioChanged);
+    _currentIndex = widget.initialIndex;
     _loadInitialSongs();
   }
 

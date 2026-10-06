@@ -9,31 +9,49 @@ class PremiumBenefitsCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(8),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E212B), Color(0xFF161822)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0x14FFFFFF)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Kartu
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 12),
-            child: Text(
-              'Why join Premium Standard?',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: Color(0x26FFC107), 
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Why join Premium Standard?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
-          const Divider(color: Color.fromARGB(15, 85, 78, 78), height: 1),
+          const Divider(color: Color(0x0FFFFFFF), height: 1),
 
           // Benefits
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
-              children: const [
+              children: [
                 PremiumFeatureItem(
                   icon: Icons.speaker_notes_off_outlined,
                   title: 'Ad-free music listening',
@@ -77,11 +95,18 @@ class PremiumFeatureItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 22),
-          const SizedBox(width: 14),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: const Color(0x0DFFFFFF),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.white70, size: 18),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               title,
@@ -101,7 +126,7 @@ class PremiumFeatureItem extends StatelessWidget {
 // Plans
 class PremiumPlanCard extends StatelessWidget {
   final String? badgeText;
-  final String title; // "Standard", "Platinum", "Student", "Family"
+  final String title;
   final Color titleColor;
   final String price;
   final List<String> features;
@@ -131,8 +156,19 @@ class PremiumPlanCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF242424),
-        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [
+            titleColor.withAlpha(30),
+            const Color(0xFF14161F),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: titleColor.withAlpha(90),
+          width: 1.2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,23 +178,45 @@ class PremiumPlanCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header mini (logo dan tulisan "Premium")
+                // Header mini
                 Row(
-                  children: const [
-                    Icon(
-                      Icons.album_outlined,
-                      color: Colors.white,
-                      size: 16,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.album_outlined,
+                          color: titleColor,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'Premium',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Premium',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    if (badgeText != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: titleColor.withAlpha(50),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: titleColor, width: 1),
+                        ),
+                        child: Text(
+                          badgeText!,
+                          style: TextStyle(
+                            color: titleColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -185,23 +243,25 @@ class PremiumPlanCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
 
-                const Divider(color: Colors.white10, height: 1),
+                const Divider(color: Color(0x14FFFFFF), height: 1),
                 const SizedBox(height: 14),
 
-                // Poin-poin
+                // List Fitur
                 ...features.map(
                   (feature) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '• ',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.check_circle_outline_rounded,
+                            color: titleColor.withAlpha(215),
+                            size: 15,
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             feature,
@@ -243,7 +303,7 @@ class PremiumPlanCard extends StatelessWidget {
                   ),
                 ),
 
-                // Keterangan Terms Bawah (family, platinum)
+                // Keterangan Terms Bawah
                 if (footerText != null) ...[
                   const SizedBox(height: 12),
                   Center(
