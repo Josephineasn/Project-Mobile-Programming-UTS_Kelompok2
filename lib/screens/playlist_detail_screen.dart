@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/song_model.dart';
 import '../services/song_service.dart';
 import '../services/audio_controller.dart';
-import 'player_screen.dart';
+import '../widgets/player/mini_player_bar.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final Map<String, dynamic> playlist;
@@ -305,8 +305,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final currentSong = _audioController.currentSong;
-
+    
     List<SongModel> songs = List<SongModel>.from(
       _isLikedSongsPlaylist
           ? _audioController.likedSongs
@@ -487,121 +486,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               },
             ),
 
-      bottomNavigationBar:
-          (currentSong != null && _audioController.hasPlayedBefore)
-              ? GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PlayerScreen(),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 6,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF282828)
-                          : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: const Offset(0, -2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: currentSong.albumCover.isNotEmpty
-                              ? Image.network(
-                                  currentSong.albumCover,
-                                  width: 42,
-                                  height: 42,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                  width: 42,
-                                  height: 42,
-                                  color: const Color(0xFF1DB954),
-                                  child: const Icon(
-                                    Icons.music_note,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                currentSong.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              Text(
-                                currentSong.artist,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: isDark
-                                      ? Colors.grey
-                                      : Colors.grey.shade700,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.skip_previous,
-                            color: textColor,
-                            size: 22,
-                          ),
-                          onPressed: () => _audioController.playPrevious(),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _audioController.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: textColor,
-                            size: 24,
-                          ),
-                          onPressed: () => _audioController.togglePlayPause(),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.skip_next,
-                            color: textColor,
-                            size: 22,
-                          ),
-                          onPressed: () => _audioController.playNext(),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : null,
+      bottomNavigationBar: const MiniPlayerBar(),
     );
   }
 }
