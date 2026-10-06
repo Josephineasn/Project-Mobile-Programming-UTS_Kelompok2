@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/audio_controller.dart';
 import '../services/song_service.dart';
 import '../widgets/player/album_art_view.dart';
+import '../widgets/player/song_title_artist.dart';
 import '../widgets/player/song_progress_bar.dart';
+import '../widgets/player/player_controller_buttons.dart';
 
 class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
@@ -133,8 +135,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
       );
     }
 
-    final isLiked = _audioController.isLiked(currentSong);
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -155,72 +155,39 @@ class _PlayerScreenState extends State<PlayerScreen> {
         child: Column(
           children: [
             AlbumArtView(
-              height: 260.0,
               imageUrl: currentSong.albumCover,
             ),
             const SizedBox(height: 24),
+
+            SongTitleArtist(song: currentSong),
+            const SizedBox(height: 16),
+
+            SongProgressBar(audioPlayer: _audioController.player),
+            const SizedBox(height: 16),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        currentSong.title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: contentColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        currentSong.artist,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark ? Colors.grey : Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
                 IconButton(
                   icon: Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.green : contentColor,
+                    Icons.shuffle,
+                    color: _audioController.isShuffle
+                        ? const Color(0xFF1DB954)
+                        : Colors.grey,
+                    size: 24,
                   ),
-                  onPressed: () {
-                    _audioController.toggleLike(currentSong);
-                  },
+                  onPressed: () => _audioController.toggleShuffle(),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SongProgressBar(audioPlayer: _audioController.player),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
+                const PlayerControllerButtons(),
                 IconButton(
-                  icon: Icon(Icons.skip_previous, color: contentColor, size: 36),
-                  onPressed: () => _audioController.playPrevious(),
-                ),
-                IconButton(
-                  iconSize: 64,
                   icon: Icon(
-                    _audioController.isPlaying
-                        ? Icons.pause_circle_filled
-                        : Icons.play_circle_filled,
-                    color: contentColor,
+                    Icons.repeat,
+                    color: _audioController.isRepeat
+                        ? const Color(0xFF1DB954)
+                        : Colors.grey,
+                    size: 24,
                   ),
-                  onPressed: () => _audioController.togglePlayPause(),
-                ),
-                IconButton(
-                  icon: Icon(Icons.skip_next, color: contentColor, size: 36),
-                  onPressed: () => _audioController.playNext(),
+                  onPressed: () => _audioController.toggleRepeat(),
                 ),
               ],
             ),
