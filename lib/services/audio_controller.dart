@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song_model.dart';
 
 class AudioController extends ChangeNotifier {
@@ -15,12 +17,19 @@ class AudioController extends ChangeNotifier {
   List<SongModel> _playlist = [];
   int _currentIndex = 0;
   bool _isPlaying = false;
+  bool _hasPlayedBefore = false;
   final List<SongModel> _likedSongs = [];
+
+  bool _isShuffle = false;
+  bool _isRepeat = false;
 
   List<SongModel> get playlist => _playlist;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
+  bool get hasPlayedBefore => _hasPlayedBefore;
   List<SongModel> get likedSongs => _likedSongs;
+  bool get isShuffle => _isShuffle;
+  bool get isRepeat => _isRepeat;
 
   SongModel? get currentSong =>
       _playlist.isNotEmpty && _currentIndex < _playlist.length
@@ -36,18 +45,59 @@ class AudioController extends ChangeNotifier {
     _player.onPlayerComplete.listen((_) {
       playNext();
     });
+
+    _player.onPositionChanged.listen((position) {
+      if (_isPlaying) {
+        _saveLastPlayedState(position);
+      }
+    });
   }
 
-  Future<void> setPlaylist(List<SongModel> songs, {int initialIndex = 0}) async {
+  void toggleShuffle() {
+    _isShuffle = !_isShuffle;
+    if (_isShuffle) {
+      _isRepeat = false;
+      final playingSong = currentSong;
+      _playlist.shuffle();
+
+      if (playingSong != null) {
+        _currentIndex = _playlist.indexWhere((song) => song.title == playingSong.title);
+        if (_currentIndex == -1) _currentIndex = 0;
+      }
+    }
+    notifyListeners();
+  }
+
+  void toggleRepeat() {
+    _isRepeat = !_isRepeat;
+    if (_isRepeat) {
+      _isShuffle = false; 
+    }
+    notifyListeners();
+  }
+
+  Future<void> setPlaylist(
+    List<SongModel> songs, {
+    int initialIndex = 0,
+    bool autoPlay = true,
+  }) async {
     _playlist = songs;
     _currentIndex = initialIndex;
     if (currentSong != null) {
-      await playSong(currentSong!);
+      if (autoPlay) {
+        await playSong(currentSong!);
+      } else {
+        await _player.setSource(UrlSource(currentSong!.audioUrl));
+        await _player.pause();
+        _isPlaying = false;
+        notifyListeners();
+      }
     }
   }
 
   Future<void> playSong(SongModel song) async {
     if (song.audioUrl.isEmpty) return;
+    _hasPlayedBefore = true;
     await _player.stop();
     await _player.play(UrlSource(song.audioUrl));
     notifyListeners();
@@ -58,7 +108,12 @@ class AudioController extends ChangeNotifier {
       await _player.pause();
     } else {
       if (currentSong != null) {
-        await _player.resume();
+        _hasPlayedBefore = true;
+        if (_player.state == PlayerState.paused) {
+          await _player.resume();
+        } else {
+          await playSong(currentSong!);
+        }
       }
     }
     notifyListeners();
@@ -66,6 +121,12 @@ class AudioController extends ChangeNotifier {
 
   Future<void> playNext() async {
     if (_playlist.isEmpty) return;
+
+    if (_isRepeat && currentSong != null) {
+      await playSong(currentSong!);
+      return;
+    }
+
     if (_currentIndex < _playlist.length - 1) {
       _currentIndex++;
     } else {
@@ -90,10 +151,72 @@ class AudioController extends ChangeNotifier {
     } else {
       _likedSongs.add(song);
     }
+    _saveLikedSongs(); 
     notifyListeners();
   }
 
   bool isLiked(SongModel song) {
     return _likedSongs.any((s) => s.title == song.title);
+  }
+
+  Future<void> _saveLikedSongs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedData = _likedSongs.map((song) => {
+      'title': song.title,
+      'artist': song.artist,
+      'audioUrl': song.audioUrl,
+      'albumCover': song.albumCover,
+    }).toList();
+    
+    await prefs.setString('liked_songs_json', jsonEncode(likedData));
+  }
+
+  Future<void> loadLikedSongs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? likedJson = prefs.getString('liked_songs_json');
+    if (likedJson != null) {
+      final List<dynamic> decoded = jsonDecode(likedJson);
+      _likedSongs.clear();
+      for (var item in decoded) {
+        _likedSongs.add(SongModel(
+          title: item['title'] ?? '',
+          artist: item['artist'] ?? '',
+          audioUrl: item['audioUrl'] ?? '',
+          albumCover: item['albumCover'] ?? '',
+        ));
+      }
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveLastPlayedState(Duration position) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_played_before', true);
+    await prefs.setInt('last_song_index', _currentIndex);
+    await prefs.setInt('last_position_ms', position.inMilliseconds);
+  }
+
+  Future<void> loadLastPlayedState() async {
+    if (_playlist.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    _hasPlayedBefore = prefs.getBool('has_played_before') ?? false;
+
+    if (!_hasPlayedBefore) return;
+
+    final savedIndex = prefs.getInt('last_song_index') ?? 0;
+    final savedPositionMs = prefs.getInt('last_position_ms') ?? 0;
+
+    if (savedIndex < _playlist.length) {
+      _currentIndex = savedIndex;
+      if (currentSong != null) {
+        await _player.setSource(UrlSource(currentSong!.audioUrl));
+        if (savedPositionMs > 0) {
+          await _player.seek(Duration(milliseconds: savedPositionMs));
+        }
+        await _player.pause();
+        _isPlaying = false;
+      }
+    }
+    notifyListeners();
   }
 }

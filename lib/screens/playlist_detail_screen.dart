@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
-
 import '../models/song_model.dart';
 import '../services/song_service.dart';
+import '../services/audio_controller.dart';
+import '../widgets/player/mini_player_bar.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final Map<String, dynamic> playlist;
@@ -14,31 +14,39 @@ class PlaylistDetailScreen extends StatefulWidget {
 }
 
 class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  String? _currentlyPlayingUrl;
-  bool _isPlaying = false;
+  final AudioController _audioController = AudioController.instance;
   bool _isLoading = false;
+
+  bool get _isLikedSongsPlaylist => widget.playlist['name'] == 'Liked Songs';
 
   @override
   void initState() {
     super.initState();
-    // Gabung status listener audio dan auto-fetch lagu Deezer dalam 1 alur awal
-    _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (mounted) setState(() => _isPlaying = state == PlayerState.playing);
-    });
+    _audioController.addListener(_onAudioControllerChanged);
 
     List<SongModel> currentSongs = List<SongModel>.from(
       widget.playlist['songs'] ?? [],
     );
-    if (currentSongs.isEmpty) {
+
+    if (currentSongs.isEmpty && !_isLikedSongsPlaylist) {
       _loadInitialSongs();
     }
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    _audioController.removeListener(_onAudioControllerChanged);
     super.dispose();
+  }
+
+  void _onAudioControllerChanged() {
+    if (mounted) {
+      setState(() {
+        if (_isLikedSongsPlaylist) {
+          widget.playlist['songs'] = _audioController.likedSongs;
+        }
+      });
+    }
   }
 
   Future<void> _loadInitialSongs() async {
@@ -53,23 +61,74 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     }
   }
 
-  Future<void> _playPauseSong(String audioUrl) async {
-    if (audioUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Preview audio not available for this song.'),
-        ),
-      );
-      return;
-    }
-
-    if (_currentlyPlayingUrl == audioUrl && _isPlaying) {
-      await _audioPlayer.pause();
+  Future<void> _playPauseSong(SongModel song) async {
+    if (_audioController.currentSong?.title == song.title) {
+      await _audioController.togglePlayPause();
     } else {
-      await _audioPlayer.stop();
-      await _audioPlayer.play(UrlSource(audioUrl));
-      setState(() => _currentlyPlayingUrl = audioUrl);
+      _audioController.setPlaylist(
+        List<SongModel>.from(widget.playlist['songs'] ?? []),
+        initialIndex: (widget.playlist['songs'] as List).indexOf(song),
+      );
     }
+  }
+
+  void _confirmUnlikeSong(SongModel song) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF282828) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Remove from Liked Songs?',
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        content: Text(
+          'We will remove "${song.title}" from your Liked Songs.',
+          style: TextStyle(
+            color: isDark ? Colors.grey[300] : Colors.grey[700],
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1DB954),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _audioController.toggleLike(song);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Removed "${song.title}" from Liked Songs'),
+                  duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: const Text(
+              'Remove',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAddSongDialog() {
@@ -162,15 +221,21 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               color: Colors.green,
                             ),
                             onPressed: () {
-                              setState(
-                                () => widget.playlist['songs'].add(song),
-                              );
+                              if (_isLikedSongsPlaylist) {
+                                _audioController.toggleLike(song);
+                              } else {
+                                setState(
+                                  () => widget.playlist['songs'].add(song),
+                                );
+                              }
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    'Adding "${song.title}" to playlist',
+                                    'Added "${song.title}" to ${widget.playlist['name']}',
                                   ),
+                                  duration: const Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
                                 ),
                               );
                             },
@@ -217,10 +282,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              if (song.audioUrl.isNotEmpty &&
-                  song.audioUrl == _currentlyPlayingUrl){
-                _audioPlayer.stop();
-              }
               setState(() => widget.playlist['songs'].remove(song));
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -244,8 +305,11 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
+    
     List<SongModel> songs = List<SongModel>.from(
-      widget.playlist['songs'] ?? [],
+      _isLikedSongsPlaylist
+          ? _audioController.likedSongs
+          : (widget.playlist['songs'] ?? []),
     );
 
     return Scaffold(
@@ -277,11 +341,17 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.music_off, size: 64, color: Colors.grey),
+                  Icon(
+                    _isLikedSongsPlaylist ? Icons.favorite_border : Icons.music_off,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Playlist is empty',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  Text(
+                    _isLikedSongsPlaylist
+                        ? 'Belum ada lagu yang disukai'
+                        : 'Playlist is empty',
+                    style: const TextStyle(color: Colors.grey, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
@@ -305,11 +375,11 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               itemCount: songs.length,
               itemBuilder: (context, index) {
                 SongModel song = songs[index];
-                final isCurrentSongPlaying =
-                    _currentlyPlayingUrl == song.audioUrl && _isPlaying;
+                final isCurrentPlaying =
+                    _audioController.currentSong?.title == song.title;
 
                 return ListTile(
-                  onTap: () => _playPauseSong(song.audioUrl),
+                  onTap: () => _playPauseSong(song),
                   leading: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -327,19 +397,22 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                 color: isDark ? Colors.white54 : Colors.black54,
                               ),
                       ),
-                      if (isCurrentSongPlaying)
+                      if (isCurrentPlaying && _audioController.isPlaying)
                         Container(
                           width: 48,
                           height: 48,
                           color: Colors.black54,
-                          child: const Icon(Icons.pause, color: Colors.white),
+                          child: const Icon(
+                            Icons.volume_up,
+                            color: Color(0xFF1DB954),
+                          ),
                         ),
                     ],
                   ),
                   title: Text(
                     song.title,
                     style: TextStyle(
-                      color: isCurrentSongPlaying
+                      color: isCurrentPlaying
                           ? const Color(0xFF1DB954)
                           : textColor,
                       fontWeight: FontWeight.w500,
@@ -349,30 +422,71 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     song.artist,
                     style: const TextStyle(color: Colors.grey, fontSize: 13),
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          isCurrentSongPlaying
-                              ? Icons.pause_circle_filled
-                              : Icons.play_circle_fill,
-                          color: const Color(0xFF1DB954),
+                  trailing: _isLikedSongsPlaylist
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                isCurrentPlaying && _audioController.isPlaying
+                                    ? Icons.pause_circle_filled
+                                    : Icons.play_circle_fill,
+                                color: const Color(0xFF1DB954),
+                              ),
+                              onPressed: () => _playPauseSong(song),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _audioController.isLiked(song)
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: const Color(0xFF1DB954),
+                              ),
+                              onPressed: () {
+                                if (_audioController.isLiked(song)) {
+                                  _confirmUnlikeSong(song);
+                                } else {
+                                  _audioController.toggleLike(song);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Added "${song.title}" to Liked Songs',
+                                      ),
+                                      duration: const Duration(seconds: 2),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                isCurrentPlaying && _audioController.isPlaying
+                                    ? Icons.pause_circle_filled
+                                    : Icons.play_circle_fill,
+                                color: const Color(0xFF1DB954),
+                              ),
+                              onPressed: () => _playPauseSong(song),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () => _showDeleteSongDialog(song),
+                            ),
+                          ],
                         ),
-                        onPressed: () => _playPauseSong(song.audioUrl),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.grey,
-                        ),
-                        onPressed: () => _showDeleteSongDialog(song),
-                      ),
-                    ],
-                  ),
                 );
               },
             ),
+
+      bottomNavigationBar: const MiniPlayerBar(),
     );
   }
 }
