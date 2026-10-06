@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song_model.dart';
 
 class AudioController extends ChangeNotifier {
@@ -36,13 +37,26 @@ class AudioController extends ChangeNotifier {
     _player.onPlayerComplete.listen((_) {
       playNext();
     });
+
+    _player.onPositionChanged.listen((position) {
+      if (_isPlaying) {
+        _saveLastPlayedState(position);
+      }
+    });
   }
 
-  Future<void> setPlaylist(List<SongModel> songs, {int initialIndex = 0}) async {
+  Future<void> setPlaylist(List<SongModel> songs, {int initialIndex = 0, bool autoPlay = true}) async {
     _playlist = songs;
     _currentIndex = initialIndex;
     if (currentSong != null) {
-      await playSong(currentSong!);
+      if (autoPlay) {
+        await playSong(currentSong!);
+      } else {
+        await _player.setSource(UrlSource(currentSong!.audioUrl));
+        await _player.pause();
+        _isPlaying = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -58,7 +72,11 @@ class AudioController extends ChangeNotifier {
       await _player.pause();
     } else {
       if (currentSong != null) {
-        await _player.resume();
+        if (_player.state == PlayerState.paused) {
+          await _player.resume();
+        } else {
+          await playSong(currentSong!);
+        }
       }
     }
     notifyListeners();
@@ -95,5 +113,32 @@ class AudioController extends ChangeNotifier {
 
   bool isLiked(SongModel song) {
     return _likedSongs.any((s) => s.title == song.title);
+  }
+
+  Future<void> _saveLastPlayedState(Duration position) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('last_song_index', _currentIndex);
+    await prefs.setInt('last_position_ms', position.inMilliseconds);
+  }
+
+  Future<void> loadLastPlayedState() async {
+    if (_playlist.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    final savedIndex = prefs.getInt('last_song_index') ?? 0;
+    final savedPositionMs = prefs.getInt('last_position_ms') ?? 0;
+
+    if (savedIndex < _playlist.length) {
+      _currentIndex = savedIndex;
+      if (currentSong != null) {
+        await _player.setSource(UrlSource(currentSong!.audioUrl));
+        if (savedPositionMs > 0) {
+          await _player.seek(Duration(milliseconds: savedPositionMs));
+        }
+
+        await _player.pause();
+        _isPlaying = false;
+      }
+    }
+    notifyListeners();
   }
 }

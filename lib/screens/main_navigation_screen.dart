@@ -55,7 +55,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
       try {
         final songs = await SongService.fetchDeezerSongs();
         if (songs.isNotEmpty) {
-          _audioController.setPlaylist(songs, initialIndex: 0);
+          // autoPlay: false agar tidak langsung memutar lagu saat aplikasi baru dibuka
+          await _audioController.setPlaylist(songs, initialIndex: 0, autoPlay: false);
+          // Load lagu & posisi durasi terakhir yang tersimpan di HP
+          await _audioController.loadLastPlayedState();
         }
       } catch (_) {}
     }
