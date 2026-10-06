@@ -9,6 +9,7 @@ class SongTitleArtist extends StatelessWidget {
   const SongTitleArtist({super.key, required this.song});
 
   void _showAddToPlaylistBottomSheet(BuildContext context) {
+    final audioController = AudioController.instance;
     final playlistController = PlaylistController.instance;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -20,8 +21,9 @@ class SongTitleArtist extends StatelessWidget {
       ),
       builder: (ctx) {
         return ListenableBuilder(
-          listenable: playlistController,
+          listenable: Listenable.merge([audioController, playlistController]),
           builder: (context, _) {
+            final activeSong = audioController.currentSong ?? song;
             final playlists = playlistController.userPlaylists;
 
             return Container(
@@ -47,8 +49,10 @@ class SongTitleArtist extends StatelessWidget {
                         final playlist = playlists[index];
                         final List<SongModel> songs =
                             List<SongModel>.from(playlist['songs'] ?? []);
-                        
-                        final isAlreadyAdded = songs.any((s) => s.title == song.title);
+
+                        final isAlreadyAdded = songs.any(
+                          (s) => s.title.trim().toLowerCase() == activeSong.title.trim().toLowerCase(),
+                        );
 
                         return ListTile(
                           leading: Icon(
@@ -66,24 +70,35 @@ class SongTitleArtist extends StatelessWidget {
                           ),
                           subtitle: isAlreadyAdded
                               ? const Text(
-                                  'Already added',
+                                  'Already added • Tap to remove',
                                   style: TextStyle(color: Colors.grey, fontSize: 11),
                                 )
                               : null,
-                          onTap: isAlreadyAdded
-                              ? null 
-                              : () {
-                                  playlistController.addSongToPlaylist(playlist['name'], song);
-                                  Navigator.pop(ctx);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Added "${song.title}" to ${playlist['name']}',
-                                      ),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                },
+                          onTap: () {
+                            if (isAlreadyAdded) {
+                              playlistController.removeSongFromPlaylist(playlist['name'], activeSong);
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Removed "${activeSong.title}" from ${playlist['name']}',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            } else {
+                              playlistController.addSongToPlaylist(playlist['name'], activeSong);
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Added "${activeSong.title}" to ${playlist['name']}',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          },
                         );
                       },
                     ),
@@ -100,62 +115,79 @@ class SongTitleArtist extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final audioController = AudioController.instance;
-    final isLiked = audioController.isLiked(song);
+    final playlistController = PlaylistController.instance;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                song.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                song.artist,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
+    return ListenableBuilder(
+      listenable: Listenable.merge([audioController, playlistController]),
+      builder: (context, _) {
+        final activeSong = audioController.currentSong ?? song;
+        final isLiked = audioController.isLiked(activeSong);
+
+        final bool isAddedToAnyPlaylist = playlistController.userPlaylists.any((playlist) {
+          final List<SongModel> songs = List<SongModel>.from(playlist['songs'] ?? []);
+          return songs.any((s) => s.title.trim().toLowerCase() == activeSong.title.trim().toLowerCase());
+        });
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: Icon(
-                Icons.add_circle_outline,
-                color: isDark ? Colors.grey.shade400 : Colors.black54,
-                size: 26,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    activeSong.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    activeSong.artist,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
-              onPressed: () => _showAddToPlaylistBottomSheet(context),
             ),
-            IconButton(
-              icon: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                color: isLiked ? const Color(0xFF1DB954) : Colors.white,
-                size: 26,
-              ),
-              onPressed: () => audioController.toggleLike(song),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    isAddedToAnyPlaylist
+                        ? Icons.check_circle
+                        : Icons.add_circle_outline,
+                    color: isAddedToAnyPlaylist
+                        ? const Color(0xFF1DB954)
+                        : (isDark ? Colors.grey.shade400 : Colors.black54),
+                    size: 26,
+                  ),
+                  onPressed: () => _showAddToPlaylistBottomSheet(context),
+                ),
+                IconButton(
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? const Color(0xFF1DB954) : Colors.white,
+                    size: 26,
+                  ),
+                  onPressed: () => audioController.toggleLike(activeSong),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

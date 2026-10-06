@@ -159,11 +159,22 @@ class PlaylistController extends ChangeNotifier {
     final index = _userPlaylists.indexWhere((p) => p['name'] == playlistName);
     if (index != -1) {
       final List<SongModel> songs = List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
-      if (!songs.any((s) => s.title == song.title)) {
+      final exists = songs.any((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
+      if (!exists) {
         songs.add(song);
         _userPlaylists[index]['songs'] = songs;
         notifyListeners();
       }
+    }
+  }
+
+  void removeSongFromPlaylist(String playlistName, SongModel song) {
+    final index = _userPlaylists.indexWhere((p) => p['name'] == playlistName);
+    if (index != -1) {
+      final List<SongModel> songs = List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
+      songs.removeWhere((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
+      _userPlaylists[index]['songs'] = songs;
+      notifyListeners();
     }
   }
 

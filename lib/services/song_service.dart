@@ -4,7 +4,7 @@ import '../models/song_model.dart';
 
 class SongService {
   static Future<List<SongModel>> fetchDeezerSongs() async {
-    const url = 'https://api.deezer.com/chart/0/tracks';
+    const url = 'https://api.deezer.com/chart/0/tracks?limit=300';
     
     try {
       final response = await http.get(Uri.parse(url));
