@@ -20,11 +20,16 @@ class AudioController extends ChangeNotifier {
   bool _hasPlayedBefore = false;
   final List<SongModel> _likedSongs = [];
 
+  bool _isShuffle = false;
+  bool _isRepeat = false;
+
   List<SongModel> get playlist => _playlist;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
   bool get hasPlayedBefore => _hasPlayedBefore;
   List<SongModel> get likedSongs => _likedSongs;
+  bool get isShuffle => _isShuffle;
+  bool get isRepeat => _isRepeat;
 
   SongModel? get currentSong =>
       _playlist.isNotEmpty && _currentIndex < _playlist.length
@@ -46,6 +51,29 @@ class AudioController extends ChangeNotifier {
         _saveLastPlayedState(position);
       }
     });
+  }
+
+  void toggleShuffle() {
+    _isShuffle = !_isShuffle;
+    if (_isShuffle) {
+      _isRepeat = false;
+      final playingSong = currentSong;
+      _playlist.shuffle();
+
+      if (playingSong != null) {
+        _currentIndex = _playlist.indexWhere((song) => song.title == playingSong.title);
+        if (_currentIndex == -1) _currentIndex = 0;
+      }
+    }
+    notifyListeners();
+  }
+
+  void toggleRepeat() {
+    _isRepeat = !_isRepeat;
+    if (_isRepeat) {
+      _isShuffle = false; 
+    }
+    notifyListeners();
   }
 
   Future<void> setPlaylist(
@@ -93,6 +121,12 @@ class AudioController extends ChangeNotifier {
 
   Future<void> playNext() async {
     if (_playlist.isEmpty) return;
+
+    if (_isRepeat && currentSong != null) {
+      await playSong(currentSong!);
+      return;
+    }
+
     if (_currentIndex < _playlist.length - 1) {
       _currentIndex++;
     } else {

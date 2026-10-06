@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../services/audio_controller.dart';
+import '../services/playlist_controller.dart';
 import '../widgets/library/playlist_item_tile.dart';
 import '../widgets/library/library_header.dart';
 import '../widgets/library/filter_chip_row.dart';
-import '../widgets/library/add_playlist_button.dart';
 import '../widgets/library/library_sort_dropdown.dart';
 import '../models/song_model.dart';
 import 'playlist_detail_screen.dart';
@@ -18,6 +18,7 @@ class YourLibraryScreen extends StatefulWidget {
 
 class _YourLibraryScreenState extends State<YourLibraryScreen> {
   final AudioController _audioController = AudioController.instance;
+  final PlaylistController _playlistController = PlaylistController.instance;
 
   String selectedFilter = '';
   bool isSearching = false;
@@ -26,199 +27,47 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String _currentSort = 'terbaru';
   bool _isGridView = false;
 
-  late List<Map<String, dynamic>> playlists;
-
   @override
   void initState() {
     super.initState();
-    _audioController.addListener(_onAudioChanged);
-
-    playlists = [
-      {
-        'name': 'Liked Songs',
-        'isPinned': true,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/liked_songs.png',
-      },
-      {
-        'name': 'Top Hits Indonesia',
-        'isPinned': true,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://i.pinimg.com/1200x/5e/73/1a/5e731a8079818156c4ebe3e928c9e173.jpg',
-      },
-      {
-        'name': 'Calm Night Mix',
-        'isPinned': true,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://i.pinimg.com/1200x/0a/1b/9c/0a1b9c9ba6956f06f7358d9efc9b3949.jpg',
-      },
-      {
-        'name': 'Daily Mix',
-        'isPinned': true,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://i.pinimg.com/736x/fb/4a/67/fb4a67c491ed6c28c0d12eb686f7c395.jpg',
-      },
-      {
-        'name': 'Soft Mix',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://i.pinimg.com/736x/11/4f/e3/114fe33c7abd274985eeb90096a55960.jpg',
-      },
-      {
-        'name': 'My Playlist #17',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://i.pinimg.com/736x/8c/ae/65/8cae65c1e73246ede11231230671b11b.jpg',
-      },
-      {
-        'name': 'Discover Weekly',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://i.pinimg.com/736x/e0/10/d4/e010d45a9468f1265eac61d58dfaec94.jpg',
-      },
-      {
-        'name': 'Viva La Vida',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://picsum.photos/seed/coldplay/250',
-      },
-      {
-        'name': 'Starboy',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://picsum.photos/seed/weeknd/250',
-      },
-      {
-        'name': 'Bohemian Rhapsody',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://picsum.photos/seed/queen/250',
-      },
-      {
-        'name': 'Monokrom',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'https://picsum.photos/seed/tulus/250',
-      },
-      {
-        'name': 'Hopeless Romantic Love Mix',
-        'subtitle': 'Hopeless Romantic Love music for you. Also try soft pop,easy listening,indie,bollywood,singer-songwriter',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/hopeless-romantic.jpg',
-      },
-      {
-        'name': 'Yearning Mix',
-        'subtitle': 'Yearning music for you. Also try soft pop,indie,alternative,singeer-songwriter,harana',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/yearning.jpg',
-      },
-      {
-        'name': 'Delulu Mix',
-        'subtitle': 'Delulu music for you. Also try opm,harana,kundiman,bollywood,pinoy indie',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/delulu.jpg',
-      },
-      {
-        'name': 'Gentle Love Mix',
-        'subtitle': 'Gentle Love music for you. Also try singer-songwriter, indie pop,italo disco,easy listening,new wave',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/gentle-love.jpg',
-      },
-      {
-        'name': 'Situationship Mix',
-        'subtitle': 'Situationship for you. Also try pop, singer-songwriter,slowcore,indie,alternative',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/situationship.jpg',
-      },
-      {
-        'name': 'Crying Sad Mix',
-        'subtitle': 'Crying Sad Music for you. Also try pop,slowcore,indie,singer-songwriter,latin',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/crying-sad.jpg',
-      },
-      {
-        'name': 'Moody Sad Mix',
-        'subtitle': 'Moody Sad music for you.Also try pop,slowcore,easy listening,singer-songwriter,latin',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/moody-sad.jpg',
-      },
-      {
-        'name': 'Masterpiece Mix',
-        'subtitle': 'Masterpiece music for you.Also try hindi pop,bollywood,indian indie,indorock,indonesian rock',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/masterpiece.jpg',
-      },
-      {
-        'name': 'Comforting Mix',
-        'subtitle': 'Comforting music for you. Also try slowcore,indie,soft pop,singer-songwriter,harana',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/comforting.jpg',
-      },
-      {
-        'name': 'Fomo Mix',
-        'subtitle': 'Fomo music for you.Also try indie,pop,indorock,alternative,indonesian jazz',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/fomo.jpg',
-      },
-      {
-        'name': 'Main Character Mix',
-        'subtitle': 'Main Character music for you.Also try pop,tollywood,alternative,indie,dance',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/main-character.jpg',
-      },
-      {
-        'name': 'Rizz Mix',
-        'subtitle': 'Rizz music for you.Also try r&b,childrens music,disco,bisrock,hyperpop',
-        'isPinned': false,
-        'songs': <SongModel>[],
-        'imageUrl': 'assets/images/rizz.jpg',
-      },
-    ];
+    _audioController.addListener(_onStateChanged);
+    _playlistController.addListener(_onStateChanged);
   }
 
   @override
   void dispose() {
-    _audioController.removeListener(_onAudioChanged);
+    _audioController.removeListener(_onStateChanged);
+    _playlistController.removeListener(_onStateChanged);
     super.dispose();
   }
 
-  void _onAudioChanged() {
+  void _onStateChanged() {
     if (mounted) {
-      setState(() {
-        final likedIndex = playlists.indexWhere(
-          (p) => p['name'] == 'Liked Songs',
-        );
-        if (likedIndex != -1) {
-          playlists[likedIndex]['songs'] = List<SongModel>.from(_audioController.likedSongs);
-        }
-      });
+      setState(() {});
     }
   }
 
   List<Map<String, dynamic>> get sortedPlaylists {
-    List<Map<String, dynamic>> filteredList = playlists.where((item) {
+    List<Map<String, dynamic>> allPlaylists = [
+      {
+        'name': 'Liked Songs',
+        'isPinned': true,
+        'songs': List<SongModel>.from(_audioController.likedSongs),
+        'imageUrl': 'assets/images/liked_songs.png',
+      },
+      ..._playlistController.userPlaylists,
+    ];
+
+    List<Map<String, dynamic>> filteredList = allPlaylists.where((item) {
       final name = item['name'].toString().toLowerCase();
       final query = searchQuery.toLowerCase();
       return name.contains(query);
     }).toList();
 
     filteredList.sort((a, b) {
-      // Pinned selalu di atas
       if (a['isPinned'] != b['isPinned']) {
         return a['isPinned'] ? -1 : 1;
       }
-      // Urutkan berdasarkan opsi dropdown jika status pinned-nya sama
       switch (_currentSort) {
         case 'Latest':
           return 0;
@@ -236,10 +85,9 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     return filteredList;
   }
 
-  // Tambah Playlist
   void showCreatePlaylistDialog() {
     final controller = TextEditingController(
-      text: 'New Playlist #${playlists.length + 1}',
+      text: 'New Playlist #${_playlistController.userPlaylists.length + 1}',
     );
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -287,13 +135,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
               onPressed: () {
                 final text = controller.text.trim();
                 if (text.isNotEmpty) {
-                  setState(() {
-                    playlists.add({
-                      'name': text,
-                      'isPinned': false,
-                      'songs': <SongModel>[],
-                    });
-                  });
+                  _playlistController.createNewPlaylist(text);
                 }
                 Navigator.pop(ctx);
               },
@@ -311,7 +153,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     );
   }
 
-  // Edit Nama Playlist
   void showEditPlaylistDialog(Map<String, dynamic> item) {
     final controller = TextEditingController(text: item['name']);
 
@@ -380,7 +221,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     );
   }
 
-  // Konfirmasi Hapus Playlist
   void showDeletePlaylistDialog(Map<String, dynamic> item) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dialogBg = isDark ? const Color(0xFF282828) : Colors.white;
@@ -414,9 +254,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
-                setState(() {
-                  playlists.remove(item);
-                });
+                _playlistController.deletePlaylist(item);
                 Navigator.pop(ctx);
               },
               child: const Text(
@@ -435,7 +273,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
   void togglePin(Map<String, dynamic> item) {
     setState(() {
-      item['isPinned'] = !item['isPinned'];
+      item['isPinned'] = !(item['isPinned'] ?? false);
     });
   }
 
@@ -613,7 +451,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                         return PlaylistItemTile(
                           title: item['name'],
                           imageUrl: item['imageUrl'],
-                          isPinned: item['isPinned'],
+                          isPinned: item['isPinned'] ?? false,
                           onTogglePin: () => togglePin(item),
                           onEdit: () => showEditPlaylistDialog(item),
                           onDelete: () => showDeletePlaylistDialog(item),
