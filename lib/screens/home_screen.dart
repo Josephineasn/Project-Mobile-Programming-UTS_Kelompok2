@@ -7,6 +7,7 @@ import '../services/song_service.dart';
 import '../widgets/home/header_greeting.dart';
 import '../widgets/home/horizontal_playlist_section.dart';
 import 'playlist_detail_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -120,12 +121,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     _activeTitle = item['title'] ?? '';
+
     final found = PlaylistController.instance.userPlaylists.firstWhere(
       (p) => (p['name'] ?? '').toLowerCase() == title,
       orElse: () => {},
     );
 
     List<SongModel> songs = List<SongModel>.from(found['songs'] ?? []);
+
     if (songs.isNotEmpty) {
       await _audio.setPlaylist(songs, initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
     } else {
@@ -165,7 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
-
           return Scaffold(
             backgroundColor: isDark ? const Color(0xFF121316) : const Color(0xFFEBEFF2),
             appBar: AppBar(
@@ -309,9 +311,15 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const HeaderGreetingWidget(salam: 'Melodix'),
+              ValueListenableBuilder<UserAccountData>(
+                valueListenable: currentAccountNotifier,
+                builder: (context, account, _) {
+                  final greetingText = account.isLoggedIn ? 'Hi, ${account.name}' : 'Melodix';
+                  return HeaderGreetingWidget(salam: greetingText);
+                },
+              ),
               const SizedBox(height: 14),
-
+              // Filter kategori atas
               SizedBox(
                 height: 40,
                 child: ListView.separated(
@@ -344,7 +352,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -359,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-
+              // Bento Spotlight
               if (spotlightItems.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -367,6 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 220,
                     child: Row(
                       children: [
+                        // Kartu spotlight besar kiri
                         Expanded(
                           flex: 5,
                           child: GestureDetector(
@@ -383,6 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Stack(
                                 children: [
+                                  // Foto latar belakang kartu spotlight
                                   Positioned(
                                     right: -25,
                                     bottom: -25,
@@ -425,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-
+                        // Dua kartu kecil kanan
                         Expanded(
                           flex: 5,
                           child: Column(
@@ -475,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               const SizedBox(height: 28),
-
+              // Recently Played
               HorizontalPlaylistSection(
                 title: 'Recently played',
                 items: HomeScreen.recentlyPlayed,
@@ -485,7 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 activePlayingTitle: _activeTitle,
               ),
               const SizedBox(height: 24),
-
+              // Made For You
               HorizontalPlaylistSection(
                 title: activeTitle == 'All' ? 'Made for you' : 'Made for you • $activeTitle',
                 items: selectedItems,

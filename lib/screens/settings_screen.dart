@@ -1,13 +1,196 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../screens/premium_screen.dart';
+import '../services/audio_controller.dart';
+import '../services/premium_controller.dart';
 import '../widgets/settings/user_profile_header.dart';
 import '../widgets/settings/plan_status_card.dart';
 import '../widgets/settings/account_setting_tile.dart';
 import '../widgets/settings/theme_toggle_switch.dart';
 import '../widgets/settings/logout_button.dart';
-import '../screens/main_navigation_screen.dart';
-import '../services/premium_controller.dart';
+
+// Model data akun
+class UserAccountData {
+  final String name;
+  final String email;
+  final bool isLoggedIn;
+  final bool isPremium;
+
+  const UserAccountData({
+    required this.name,
+    required this.email,
+    required this.isLoggedIn,
+    this.isPremium = false,
+  });
+
+  UserAccountData copyWith({
+    String? name,
+    String? email,
+    bool? isLoggedIn,
+    bool? isPremium,
+  }) {
+    return UserAccountData(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+      isPremium: isPremium ?? this.isPremium,
+    );
+  }
+}
+
+//read indicator
+class AppNotificationItem {
+  final String id;
+  final String title;
+  final String desc;
+  final String time;
+  final String type;
+  bool isRead;
+
+  AppNotificationItem({
+    required this.id,
+    required this.title,
+    required this.desc,
+    required this.time,
+    required this.type,
+    this.isRead = false,
+  });
+}
+
+class AppNotificationService {
+  static final ValueNotifier<bool> notificationEnabled = ValueNotifier<bool>(true);
+  static final ValueNotifier<List<AppNotificationItem>> notifications =
+      ValueNotifier<List<AppNotificationItem>>([
+    AppNotificationItem(
+      id: 'welcome_initial',
+      title: 'Welcome to Melodix!',
+      desc: 'Start exploring and playing your favorite music.',
+      time: 'Just now',
+      type: 'welcome',
+      isRead: false,
+    ),
+  ]);
+
+  static String _lastPlayingSong = '';
+
+  static void addNotification({
+    required String id,
+    required String title,
+    required String desc,
+    required String type,
+  }) {
+    if (!notificationEnabled.value) return;
+
+    final currentList = List<AppNotificationItem>.from(notifications.value);
+    currentList.removeWhere((item) => item.id == id);
+
+    currentList.insert(
+      0,
+      AppNotificationItem(
+        id: id,
+        title: title,
+        desc: desc,
+        time: 'Just now',
+        type: type,
+        isRead: false, //Green indicator
+      ),
+    );
+
+    notifications.value = currentList;
+  }
+
+  static void markAllAsRead() {
+    final updatedList = notifications.value.map((item) {
+      item.isRead = true;
+      return item;
+    }).toList();
+    notifications.value = List<AppNotificationItem>.from(updatedList);
+  }
+
+  // Clear all notification history
+  static void clearAllNotifications() {
+    _lastPlayingSong = '';
+    notifications.value = [];
+  }
+
+  static void syncPlayingSong({
+    required String title,
+    required String artist,
+    required bool isPrivateSession,
+    required bool showListeningActivity,
+  }) {
+    if (!notificationEnabled.value) return;
+    if (isPrivateSession || !showListeningActivity) return;
+    if (_lastPlayingSong == title) return;
+    _lastPlayingSong = title;
+
+    addNotification(
+      id: 'now_playing',
+      title: 'Now Playing',
+      desc: '$title • $artist',
+      type: 'music',
+    );
+  }
+
+  static void handleLoginEvent(String name, String email) {
+    if (!notificationEnabled.value) return;
+
+    addNotification(
+      id: 'login_${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Signed in successfully',
+      desc: 'Logged in as $name ($email)',
+      type: 'login',
+    );
+
+    addNotification(
+      id: 'welcome_$name',
+      title: 'Welcome, $name!',
+      desc: 'Glad to have you back on Melodix.',
+      type: 'welcome',
+    );
+  }
+
+  static void handlePremiumActivated(String planName) {
+    if (!notificationEnabled.value) return;
+
+    addNotification(
+      id: 'premium_${DateTime.now().millisecondsSinceEpoch}',
+      title: "You're now Premium",
+      desc: 'Enjoy unlimited offline playback and studio audio quality ($planName).',
+      type: 'premium',
+    );
+  }
+
+  static void clearMusicNotification() {
+    _lastPlayingSong = '';
+    final currentList = List<AppNotificationItem>.from(notifications.value);
+    currentList.removeWhere((item) => item.id == 'now_playing');
+    notifications.value = currentList;
+  }
+}
+
+// Master Akun Terdaftar (Database)
+final List<UserAccountData> registeredAccountsRegistry = [
+  const UserAccountData(name: 'Josephine', email: 'josephine@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Gading ', email: 'gading@example.com', isLoggedIn: true, isPremium: true),
+  const UserAccountData(name: 'Sarah Jenkins', email: 'sarah.j@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Calvin', email: 'calvin@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Hans', email: 'hans@example.com', isLoggedIn: false, isPremium: false),
+];
+
+// Akun Tersimpan di Device
+final ValueNotifier<List<UserAccountData>> savedAccountsNotifier = ValueNotifier<List<UserAccountData>>([
+  const UserAccountData(name: 'Josephine', email: 'josephine@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Gading ', email: 'gading@example.com', isLoggedIn: true, isPremium: true),
+  const UserAccountData(name: 'Sherli ', email: 'sherli.j@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Calvin', email: 'calvin@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Hans', email: 'hans@example.com', isLoggedIn: false, isPremium: false),
+]);
+
+// Akun yang sedang login
+final ValueNotifier<UserAccountData> currentAccountNotifier = ValueNotifier<UserAccountData>(
+  const UserAccountData(name: 'Gading ', email: 'gading@example.com', isLoggedIn: true, isPremium: true),
+);
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,19 +200,63 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _userName = 'John Doe';
-  String _userEmail = 'johndoe@example.com';
-
-  String _currentQuality = 'Otomatis';
-  bool _pushNotif = true;
-  bool _emailUpdates = false;
+  String _currentQuality = 'Automatic';
   bool _privateSession = false;
   bool _showListening = true;
 
   OverlayEntry? _toastEntry;
 
-  // Pop-up melayang
-  void _showNotification(String message) {
+  @override
+  void initState() {
+    super.initState();
+    AudioController.instance.addListener(_handleAudioChange);
+    PremiumController.isPremium.addListener(_handlePremiumChange);
+  }
+
+  @override
+  void dispose() {
+    AudioController.instance.removeListener(_handleAudioChange);
+    PremiumController.isPremium.removeListener(_handlePremiumChange);
+    super.dispose();
+  }
+
+  void _handlePremiumChange() {
+    final isPrem = PremiumController.isPremium.value;
+    if (currentAccountNotifier.value.isLoggedIn) {
+      currentAccountNotifier.value = currentAccountNotifier.value.copyWith(isPremium: isPrem);
+
+      final idx = registeredAccountsRegistry.indexWhere((a) => a.email == currentAccountNotifier.value.email);
+      if (idx != -1) {
+        registeredAccountsRegistry[idx] = registeredAccountsRegistry[idx].copyWith(isPremium: isPrem);
+      }
+
+      final savedIdx = savedAccountsNotifier.value.indexWhere((a) => a.email == currentAccountNotifier.value.email);
+      if (savedIdx != -1) {
+        final list = List<UserAccountData>.from(savedAccountsNotifier.value);
+        list[savedIdx] = list[savedIdx].copyWith(isPremium: isPrem);
+        savedAccountsNotifier.value = list;
+      }
+
+      if (isPrem) {
+        AppNotificationService.handlePremiumActivated(PremiumController.currentPlan.value);
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _handleAudioChange() {
+    final audio = AudioController.instance;
+    if (audio.isPlaying && audio.currentSong != null) {
+      AppNotificationService.syncPlayingSong(
+        title: audio.currentSong!.title,
+        artist: audio.currentSong!.artist,
+        isPrivateSession: _privateSession,
+        showListeningActivity: _showListening,
+      );
+    }
+  }
+
+  void _showNotification(String message, {double bottomPosition = 270}) {
     _toastEntry?.remove();
     _toastEntry = null;
 
@@ -37,21 +264,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final entry = OverlayEntry(
       builder: (context) => Positioned(
-        bottom: 275,
-        left: 32,
-        right: 32,
+        bottom: bottomPosition,
+        left: 28,
+        right: 28,
         child: Material(
           color: Colors.transparent,
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-          
-                color: isDark ? const Color(0xFF333333) : Colors.white,
+                color: isDark ? const Color(0xFF383838) : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: isDark ? Colors.white30 : Colors.black26,
-                  width: 1.2,
+                  width: 1.5,
                 ),
                 boxShadow: const [
                   BoxShadow(
@@ -79,7 +305,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _toastEntry = entry;
     Overlay.of(context).insert(entry);
 
-    // Otomatis hilang setelah 1.5 detik
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (_toastEntry == entry) {
         _toastEntry?.remove();
@@ -88,17 +313,397 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  // Edit Profil
-  void _showEditProfileDialog() {
-    final nameController = TextEditingController(text: _userName);
-    final emailController = TextEditingController(text: _userEmail);
+  // 1. Auth Options (Create Account atau I Already Have an Account)
+  void _showAuthOptionsSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Welcome to Melodix',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Join millions of music lovers or log back in.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey : Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1DB954),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _showRegistrationDialog();
+                  },
+                  child: const Text(
+                    'Create an Account',
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: isDark ? Colors.white38 : Colors.black26),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _showChooseAccountPicker();
+                  },
+                  child: Text(
+                    'I already have an account',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Create Account 
+  void _showRegistrationDialog() {
+    final nameCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
-        title: const Text('Edit Profil'),
+        title: const Text('Create an Account'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Full Name'),
+            ),
+            TextField(
+              controller: emailCtrl,
+              decoration: const InputDecoration(labelText: 'Email Address'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              final email = emailCtrl.text.trim();
+              if (name.isNotEmpty && email.isNotEmpty) {
+                final newAccount = UserAccountData(name: name, email: email, isLoggedIn: true, isPremium: false);
+
+                registeredAccountsRegistry.add(newAccount);
+                final updatedSaved = List<UserAccountData>.from(savedAccountsNotifier.value)..add(newAccount);
+                savedAccountsNotifier.value = updatedSaved;
+
+                currentAccountNotifier.value = newAccount;
+                PremiumController.cancelPremium();
+
+                AppNotificationService.handleLoginEvent(name, email);
+
+                Navigator.pop(ctx);
+                setState(() {});
+                _showNotification('Account created successfully', bottomPosition: 200);
+              }
+            },
+            child: const Text('Sign Up', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRemoveAccountConfirmDialog(UserAccountData acc) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF282828),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Remove Account?',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Remove "${acc.name}" from your saved accounts? You can still sign in again later.',
+          style: const TextStyle(color: Colors.white70, fontSize: 13.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _removeSavedAccount(acc);
+            },
+            child: const Text('Remove', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _removeSavedAccount(UserAccountData acc) {
+    final updatedList = List<UserAccountData>.from(savedAccountsNotifier.value)
+      ..removeWhere((a) => a.email == acc.email);
+    savedAccountsNotifier.value = updatedList;
+
+    if (currentAccountNotifier.value.isLoggedIn && currentAccountNotifier.value.email == acc.email) {
+      AudioController.instance.player.stop();
+      AppNotificationService.clearMusicNotification();
+
+      currentAccountNotifier.value = const UserAccountData(
+        name: 'Guest',
+        email: 'guest@melodix.com',
+        isLoggedIn: false,
+        isPremium: false,
+      );
+      PremiumController.cancelPremium();
+    }
+
+    setState(() {});
+    _showNotification('Account removed from saved list', bottomPosition: 200);
+  }
+
+  void _showChooseAccountPicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            child: ValueListenableBuilder<List<UserAccountData>>(
+              valueListenable: savedAccountsNotifier,
+              builder: (context, savedList, _) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      child: Text(
+                        'Choose Account',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(),
+                    if (savedList.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Center(
+                          child: Text(
+                            'No saved accounts found.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ...savedList.map((acc) {
+                      final isCurrent = currentAccountNotifier.value.isLoggedIn &&
+                          currentAccountNotifier.value.email == acc.email;
+
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: const Color(0xFF1DB954),
+                          child: Text(
+                            acc.name.isNotEmpty ? acc.name[0] : 'U',
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        title: Text(acc.name),
+                        subtitle: Text('${acc.email} • ${acc.isPremium ? 'Premium' : 'Free'}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isCurrent)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 6.0),
+                                child: Icon(Icons.check_circle, color: Color(0xFF1DB954), size: 22),
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline, color: Colors.grey, size: 20),
+                              tooltip: 'Remove account',
+                              onPressed: () {
+                                _showRemoveAccountConfirmDialog(acc);
+                              },
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          final updatedAcc = acc.copyWith(isLoggedIn: true);
+                          currentAccountNotifier.value = updatedAcc;
+
+                          if (acc.isPremium) {
+                            PremiumController.activatePremium('Melodix Premium');
+                          } else {
+                            PremiumController.cancelPremium();
+                          }
+
+                          AppNotificationService.handleLoginEvent(acc.name, acc.email);
+
+                          Navigator.pop(ctx);
+                          setState(() {});
+                          _showNotification('Signed in as ${acc.name}', bottomPosition: 200);
+                        },
+                      );
+                    }),
+                    ListTile(
+                      leading: const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.add, color: Colors.white),
+                      ),
+                      title: const Text('Sign in with another account'),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _showManualSignInDialog();
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  //Sign in with another account
+  void _showManualSignInDialog() {
+    final nameCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+        title: const Text('Sign In'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: emailCtrl,
+              decoration: const InputDecoration(labelText: 'Email Address'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              final email = emailCtrl.text.trim();
+              if (name.isNotEmpty && email.isNotEmpty) {
+                final existingIdx = registeredAccountsRegistry.indexWhere((a) => a.email == email);
+                UserAccountData acc;
+                if (existingIdx != -1) {
+                  // Pulihkan status Premium dan data akun dari database
+                  acc = registeredAccountsRegistry[existingIdx].copyWith(name: name, isLoggedIn: true);
+                } else {
+                  // Registrasi akun baru 
+                  acc = UserAccountData(name: name, email: email, isLoggedIn: true, isPremium: false);
+                  registeredAccountsRegistry.add(acc);
+                }
+
+                final currentSaved = List<UserAccountData>.from(savedAccountsNotifier.value);
+                final savedIdx = currentSaved.indexWhere((a) => a.email == email);
+                if (savedIdx == -1) {
+                  currentSaved.add(acc);
+                } else {
+                  currentSaved[savedIdx] = acc;
+                }
+                savedAccountsNotifier.value = currentSaved;
+
+                // Set sebagai active account
+                currentAccountNotifier.value = acc;
+                if (acc.isPremium) {
+                  PremiumController.activatePremium('Melodix Premium');
+                } else {
+                  PremiumController.cancelPremium();
+                }
+
+                AppNotificationService.handleLoginEvent(name, email);
+
+                Navigator.pop(ctx);
+                setState(() {});
+                _showNotification('Signed in as $name', bottomPosition: 200);
+              }
+            },
+            child: const Text('Sign In', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. Edit Profile
+  void _showEditProfileDialog() {
+    final nameController = TextEditingController(text: currentAccountNotifier.value.name);
+    final emailController = TextEditingController(text: currentAccountNotifier.value.email);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+        title: const Text('Edit Profile'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -114,17 +719,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                _userName = nameController.text.trim();
-                _userEmail = emailController.text.trim();
-              });
-              Navigator.pop(context);
-              _showNotification('Profil berhasil diubah');
+              final newName = nameController.text.trim();
+              final newEmail = emailController.text.trim();
+              if (newName.isNotEmpty && newEmail.isNotEmpty) {
+                final updated = currentAccountNotifier.value.copyWith(name: newName, email: newEmail);
+                currentAccountNotifier.value = updated;
+
+                final regIdx = registeredAccountsRegistry.indexWhere((a) => a.email == updated.email);
+                if (regIdx != -1) registeredAccountsRegistry[regIdx] = updated;
+
+                final savedIdx = savedAccountsNotifier.value.indexWhere((a) => a.email == updated.email);
+                if (savedIdx != -1) {
+                  final list = List<UserAccountData>.from(savedAccountsNotifier.value);
+                  list[savedIdx] = updated;
+                  savedAccountsNotifier.value = list;
+                }
+
+                Navigator.pop(ctx);
+                setState(() {});
+                _showNotification('Profile updated', bottomPosition: 200);
+              }
             },
             child: const Text('Save'),
           ),
@@ -133,115 +752,243 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Akun
+  // 3. Account Settings Modal
   void _showAccountDetails() {
+    final account = currentAccountNotifier.value;
+    final isPrem = PremiumController.isPremium.value || account.isPremium;
+
     _showSettingsBottomSheet(
-      title: 'Setting account',
+      title: 'Account Settings',
       children: [
-        ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Username'),
-          subtitle: Text(_userName),
-        ),
-        ListTile(
-          leading: const Icon(Icons.email),
-          title: const Text('Email'),
-          subtitle: Text(_userEmail),
-        ),
+        if (account.isLoggedIn) ...[
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text('Account Name'),
+            subtitle: Text(account.name),
+          ),
+          ListTile(
+            leading: const Icon(Icons.email_outlined),
+            title: const Text('Registered Email'),
+            subtitle: Text(account.email),
+          ),
+          ListTile(
+            leading: const Icon(Icons.card_membership_outlined),
+            title: const Text('Subscription'),
+            subtitle: Text(isPrem ? 'Melodix Premium' : 'Melodix Free'),
+            trailing: isPrem ? const Icon(Icons.stars, color: Color(0xFF1DB954)) : null,
+          ),
+          ListTile(
+            leading: const Icon(Icons.switch_account_outlined),
+            title: const Text('Switch Account'),
+            subtitle: const Text('Sign in with a different profile'),
+            onTap: () {
+              Navigator.pop(context);
+              _showChooseAccountPicker();
+            },
+          ),
+        ] else ...[
+          ListTile(
+            leading: const Icon(Icons.login_rounded),
+            title: const Text('Sign In to Melodix'),
+            subtitle: const Text('Access your customized playlists and profile'),
+            onTap: () {
+              Navigator.pop(context);
+              _showAuthOptionsSheet();
+            },
+          ),
+        ],
       ],
     );
   }
 
-  // Notifikasi
+  // 4. Notifications Settings Modal
   void _showNotificationsSettings() {
     _showSettingsBottomSheet(
-      title: 'Notifikasi',
+      title: 'Notifications',
       children: [
         StatefulBuilder(
-          builder: (context, setModalState) => Column(
-            children: [
-              SwitchListTile(
-                title: const Text('Push Notifications'),
-                subtitle: const Text('Recommendation music & New playlist'),
-                activeThumbColor: Colors.green,
-                value: _pushNotif,
-                onChanged: (val) {
-                  setModalState(() => _pushNotif = val);
-                  setState(() => _pushNotif = val);
-                  _showNotification(
-                    val ? 'Push Notifications Enabled' : 'Push Notifications Disabled',
-                  );
-                },
-              ),
-              SwitchListTile(
-                title: const Text('Email Updates'),
-                subtitle: const Text('Notification promo & fitur terbaru'),
-                activeThumbColor: Colors.green,
-                value: _emailUpdates,
-                onChanged: (val) {
-                  setModalState(() => _emailUpdates = val);
-                  setState(() => _emailUpdates = val);
-                  _showNotification(
-                    val ? 'Email updates enabled' : 'Email updates disabled'
-                  );
-                },
-              ),
-            ],
-          ),
+          builder: (context, setModalState) {
+            return Column(
+              children: [
+                SwitchListTile(
+                  title: const Text('Activity & Alerts'),
+                  subtitle: const Text('Track music updates, login events, and account status in Home bell'),
+                  activeThumbColor: const Color(0xFF1DB954),
+                  value: AppNotificationService.notificationEnabled.value,
+                  onChanged: (val) {
+                    setModalState(() {
+                      AppNotificationService.notificationEnabled.value = val;
+                    });
+                    setState(() {});
+                    _showNotification(
+                      val ? 'Notifications enabled' : 'Notifications disabled',
+                      bottomPosition: 260,
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('View Notification Bell'),
+                  subtitle: Text(
+                    '${AppNotificationService.notifications.value.length} activity items recorded',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showNotificationBellViewer();
+                  },
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
   }
 
-  // Kualitas Audio
+  void _showNotificationBellViewer() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    AppNotificationService.markAllAsRead();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: const [
+                Icon(Icons.notifications_active, color: Color(0xFF1DB954)),
+                SizedBox(width: 8),
+                Text('Notifications Bell', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+              ],
+            ),
+            ValueListenableBuilder<List<AppNotificationItem>>(
+              valueListenable: AppNotificationService.notifications,
+              builder: (context, notifs, _) {
+                if (notifs.isEmpty) return const SizedBox.shrink();
+                return TextButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (c) => AlertDialog(
+                        backgroundColor: const Color(0xFF282828),
+                        title: const Text('Clear Notifications?', style: TextStyle(color: Colors.white)),
+                        content: const Text(
+                          'All notification history will be removed.',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                            onPressed: () {
+                              AppNotificationService.clearAllNotifications();
+                              Navigator.pop(c);
+                            },
+                            child: const Text('Clear', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: const Text('Clear all', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                );
+              },
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ValueListenableBuilder<List<AppNotificationItem>>(
+            valueListenable: AppNotificationService.notifications,
+            builder: (context, notifList, _) {
+              if (notifList.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Center(child: Text('No notifications')),
+                );
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                itemCount: notifList.length,
+                separatorBuilder: (_, _) => const Divider(),
+                itemBuilder: (context, idx) {
+                  final item = notifList[idx];
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text(item.desc, style: const TextStyle(fontSize: 12)),
+                    trailing: Text(item.time, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 5. Audio Quality
   void _showAudioQualitySettings() {
-    final listKualitas = [
-      'Otomatis',
-      'Normal (~96 kbps)',
-      'Tinggi (~160 kbps)',
-      'Sangat Tinggi (~320 kbps)',
+    final isPrem = PremiumController.isPremium.value || currentAccountNotifier.value.isPremium;
+
+    final listQualities = [
+      {'title': 'Automatic', 'desc': 'Optimizes with your network'},
+      {'title': 'Normal (~96 kbps)', 'desc': 'Data saver'},
+      {'title': 'High (~160 kbps)', 'desc': 'Standard clear audio'},
+      {'title': 'Very High (~320 kbps)', 'desc': 'Studio master quality'},
     ];
 
     _showSettingsBottomSheet(
-      title: 'Kualitas Audio',
+      title: 'Audio Quality',
       children: [
         StatefulBuilder(
           builder: (context, setModalState) => Column(
-            children: listKualitas.map((kualitas) {
-              final isSelected = _currentQuality == kualitas;
-              final isPremium = kualitas == 'Sangat Tinggi (~320 kbps)';
+            children: listQualities.map((q) {
+              final title = q['title']!;
+              final desc = q['desc']!;
+              final isSelected = _currentQuality == title;
+              final isRestricted = title.contains('320 kbps') && !isPrem;
 
               return ListTile(
-                title: Text(kualitas),
+                title: Text(title),
+                subtitle: Text(desc),
                 trailing: isSelected
-                    ? const Icon(Icons.check, color: Colors.green)
-                    : (isPremium ? const Icon(Icons.lock, size: 18) : null),
+                    ? const Icon(Icons.check, color: Color(0xFF1DB954))
+                    : (isRestricted ? const Icon(Icons.lock_outline, size: 18) : null),
                 onTap: () {
-                  if (isPremium) {
+                  if (isRestricted) {
                     showDialog(
                       context: context,
                       builder: (dialogCtx) => AlertDialog(
-                        title: const Text('Fitur Premium'),
+                        title: const Text('Premium Feature'),
                         content: const Text(
-                          'Kualitas Sangat Tinggi hanya untuk pengguna Premium. Upgrade sekarang?',
+                          'Very High quality (~320 kbps) is exclusively available for Melodix Premium subscribers.',
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(dialogCtx),
-                            child: const Text('Nanti'),
+                            child: const Text('Later'),
                           ),
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
                             onPressed: () {
                               Navigator.pop(dialogCtx);
                               Navigator.pop(context);
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => const PremiumScreen(),
-                                ),
+                                MaterialPageRoute(builder: (context) => const PremiumScreen()),
                               );
                             },
-                            child: const Text('Upgrade Sekarang'),
+                            child: const Text('Upgrade Now', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -249,9 +996,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     return;
                   }
 
-                  setModalState(() => _currentQuality = kualitas);
-                  setState(() => _currentQuality = kualitas);
-                  _showNotification('Kualitas: $kualitas');
+                  setModalState(() => _currentQuality = title);
+                  setState(() => _currentQuality = title);
+                  _showNotification('Quality: $title', bottomPosition: 405);
                 },
               );
             }).toList(),
@@ -261,37 +1008,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Privasi & Sosial
+  // 6. Privacy & Social
   void _showPrivacySocialSettings() {
     _showSettingsBottomSheet(
-      title: 'Privasi & Sosial',
+      title: 'Privacy & Social',
       children: [
         StatefulBuilder(
           builder: (context, setModalState) => Column(
             children: [
               SwitchListTile(
-                title: const Text('Sesi Pribadi (Private Session)'),
-                subtitle: const Text('Dengarkan musik tanpa terlihat teman'),
-                activeThumbColor: Colors.green,
+                title: const Text('Private Session'),
+                subtitle: const Text('Listen privately. Hides your status and pauses public listening activity.'),
+                activeThumbColor: const Color(0xFF1DB954),
                 value: _privateSession,
                 onChanged: (val) {
                   setModalState(() => _privateSession = val);
                   setState(() => _privateSession = val);
+                  if (val) {
+                    AppNotificationService.clearMusicNotification();
+                  }
                   _showNotification(
-                    val ? 'Private Session Enabled' : 'Private Session Disabled',
+                    val ? 'Private Session enabled' : 'Private Session disabled',
+                    bottomPosition: 245,
                   );
                 },
               ),
               SwitchListTile(
-                title: const Text('Listening activity'),
-                subtitle: const Text('Share what you play with your followers'),
-                activeThumbColor: Colors.green,
+                title: const Text('Show Listening Activity'),
+                subtitle: const Text('Broadcast current songs to your followers when not in Private Session.'),
+                activeThumbColor: const Color(0xFF1DB954),
                 value: _showListening,
                 onChanged: (val) {
                   setModalState(() => _showListening = val);
                   setState(() => _showListening = val);
+                  if (!val) {
+                    AppNotificationService.clearMusicNotification();
+                  }
                   _showNotification(
-                    val ? 'Listening Activity Shown' : 'Listening Activity Hidden',
+                    val ? 'Listening activity shared' : 'Listening activity hidden',
+                    bottomPosition: 245,
                   );
                 },
               ),
@@ -302,7 +1057,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Bottom Sheet Standar
   void _showSettingsBottomSheet({
     required String title,
     required List<Widget> children,
@@ -348,6 +1102,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _executeLogout() {
+    AudioController.instance.player.stop();
+    AppNotificationService.clearMusicNotification();
+
+    // Reset active session
+    currentAccountNotifier.value = const UserAccountData(
+      name: 'Guest',
+      email: 'guest@melodix.com',
+      isLoggedIn: false,
+      isPremium: false,
+    );
+    PremiumController.cancelPremium();
+
+    setState(() {});
+    _showNotification('Logged out successfully', bottomPosition: 200);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -360,131 +1131,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        children: [
-          UserProfileHeader(
-            userName: _userName,
-            userEmail: _userEmail,
-            onEditProfile: _showEditProfileDialog,
-          ),
-          ValueListenableBuilder<bool>(
+      body: ValueListenableBuilder<UserAccountData>(
+        valueListenable: currentAccountNotifier,
+        builder: (context, account, _) {
+          return ValueListenableBuilder<bool>(
             valueListenable: PremiumController.isPremium,
-            builder: (context, isPremium, child) {
-              return PlanStatusCard(
-                planName: isPremium ? 'Melodix ${PremiumController.currentPlan.value}' : 'Melodix Free',
-                planDescription: isPremium
-                    ? 'Akun kamu aktif menikmati fitur bebas iklan dan kualitas audio tinggi.'
-                    : 'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.',
-                isPremium: isPremium,
-                onUpgradePressed: () {
-                  if (!isPremium) {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (context) => const MainNavScreen(initialIndex: 4),
-                      ),
-                      (route) => false,
-                    );
-                  } else {
-                    // Batalin premium
-                    showDialog(
-                      context: context,
-                      builder: (dialogCtx) => AlertDialog(
-                        backgroundColor: const Color(0xFF242424),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        title: const Text(
-                          'Kelola Langganan',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            builder: (context, isPremiumActive, _) {
+              final isPrem = isPremiumActive || account.isPremium;
+
+              return ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                children: [
+                  UserProfileHeader(
+                    userName: account.name,
+                    userEmail: account.email,
+                    isPrivateSession: _privateSession,
+                    onEditProfile: account.isLoggedIn ? _showEditProfileDialog : _showAuthOptionsSheet,
+                  ),
+                  PlanStatusCard(
+                    planName: isPrem ? 'Melodix Premium' : 'Melodix Free',
+                    planDescription: isPrem
+                        ? 'Unlimited skips, offline listening, and high-fidelity studio sound.'
+                        : 'Enjoy music with ad breaks. Upgrade to get unlimited and offline listening.',
+                    isPremium: isPrem,
+                    onUpgradePressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PremiumScreen(),
                         ),
-                        content: Text(
-                          'Paket kamu saat ini: ${PremiumController.currentPlan.value}.\nApakah kamu ingin membatalkan langganan Premium?',
-                          style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(dialogCtx),
-                            child: const Text('Tetap Berlangganan', style: TextStyle(color: Colors.white70)),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            ),
-                            onPressed: () {
-                              // Reset status ke free
-                              PremiumController.cancelPremium();
-                              Navigator.pop(dialogCtx);
-                              _showNotification('Langganan Premium berhasil dibatalkan');
-                            },
-                            child: const Text('Batalkan Langganan'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  AccountSettingTile(
+                    icon: Icons.person_outline,
+                    title: 'Account',
+                    subtitle: account.isLoggedIn
+                        ? '${account.name} • ${account.email}'
+                        : 'Not signed in (Tap to sign in)',
+                    onTap: _showAccountDetails,
+                  ),
+                  AccountSettingTile(
+                    icon: Icons.notifications_none,
+                    title: 'Notifications',
+                    subtitle: AppNotificationService.notificationEnabled.value
+                        ? 'Notifications are on'
+                        : 'Notifications are off',
+                    onTap: _showNotificationsSettings,
+                  ),
+                  AccountSettingTile(
+                    icon: Icons.volume_up_outlined,
+                    title: 'Audio Quality',
+                    subtitle: 'Streaming and download settings',
+                    onTap: _showAudioQualitySettings,
+                  ),
+                  AccountSettingTile(
+                    icon: Icons.security_outlined,
+                    title: 'Privacy & Social',
+                    subtitle: 'Listening activity, private session',
+                    onTap: _showPrivacySocialSettings,
+                  ),
+                  ThemeToggleSwitch(
+                    onToggle: (bool val) {
+                      themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+                      _showNotification(
+                        val ? 'Dark Mode enabled' : 'Light Mode enabled',
+                        bottomPosition: 100,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  if (account.isLoggedIn)
+                    LogoutButton(
+                      onLogout: _executeLogout,
+                    ),
+                  const SizedBox(height: 40),
+                ],
               );
             },
-          ),
-          const SizedBox(height: 12),
-          AccountSettingTile(
-            icon: Icons.person_outline,
-            title: 'Account',
-            subtitle: 'Username, email, connected accounts',
-            onTap: _showAccountDetails,
-          ),
-          AccountSettingTile(
-            icon: Icons.notifications_none,
-            title: 'Notifications',
-            subtitle: 'Push notifications, email updates',
-            onTap: _showNotificationsSettings,
-          ),
-          AccountSettingTile(
-            icon: Icons.volume_up_outlined,
-            title: 'Audio Quality',
-            subtitle: 'Streaming and download settings',
-            onTap: _showAudioQualitySettings,
-          ),
-          AccountSettingTile(
-            icon: Icons.security_outlined,
-            title: 'Privacy & Social',
-            subtitle: 'Listening activity, private session',
-            onTap: _showPrivacySocialSettings,
-          ),
-          ThemeToggleSwitch(
-            onToggle: (bool val) {
-              themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
-              _showNotification(val ? 'Dark mode enabled' : 'Light mode enabled');
-            },
-          ),
-          const SizedBox(height: 20),
-          LogoutButton(
-            onLogout: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _showNotification('Successfully logged out');
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 40),
-        ],
+          );
+        },
       ),
     );
   }
