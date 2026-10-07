@@ -8,6 +8,7 @@ class HorizontalPlaylistSection extends StatelessWidget {
   final VoidCallback? onSeeAll;
   final Function(Map<String, String>)? onItemTap;
   final Function(Map<String, String>)? onPlayTap;
+  final Function(Map<String, String>)? onQueueTap;
   final String activePlayingTitle;
 
   const HorizontalPlaylistSection({
@@ -17,6 +18,7 @@ class HorizontalPlaylistSection extends StatelessWidget {
     this.onSeeAll,
     this.onItemTap,
     this.onPlayTap,
+    this.onQueueTap,
     this.activePlayingTitle = '',
   });
 
@@ -109,7 +111,28 @@ class HorizontalPlaylistSection extends StatelessWidget {
                                     ),
                                   ),
                           ),
-                          // Tombol Play Hijau / Pause Lingkaran Hitam
+
+                          if (onQueueTap != null)
+                            Positioned(
+                              left: 8,
+                              bottom: 8,
+                              child: GestureDetector(
+                                onTap: () => onQueueTap!(item),
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.queue_music,
+                                    color: Colors.white,
+                                    size: 17,
+                                  ),
+                                ),
+                              ),
+                            ),
                           Positioned(
                             right: 8,
                             bottom: 8,
