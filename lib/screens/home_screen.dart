@@ -6,6 +6,7 @@ import '../services/playlist_controller.dart';
 import '../services/song_service.dart';
 import '../widgets/home/header_greeting.dart';
 import '../widgets/home/horizontal_playlist_section.dart';
+import '../widgets/home/quick_picks.dart';
 import 'playlist_detail_screen.dart';
 import 'settings_screen.dart';
 
@@ -26,7 +27,7 @@ class HomeScreen extends StatefulWidget {
     {'title': 'Soft Fade', 'subtitle': 'Gentle notes.', 'imageUrl': 'assets/images/softfade.jpg', 'category': 'Melancholy'},
     {'title': 'Melancholy', 'subtitle': 'Raw honest songs.', 'imageUrl': 'assets/images/melancholy.jpg', 'category': 'Melancholy'},
     {'title': 'Trending Now', 'subtitle': 'Popular today.', 'imageUrl': 'assets/images/trending.jpg', 'category': 'Trending Spotlight'},
-    {'title': 'Top Hits Indonesia','subtitle': 'Lagu terpopuler minggu ini.','imageUrl': 'assets/images/tophits.jpg','category': 'Trending Spotlight'},
+    {'title': 'Top Hits Indonesia', 'subtitle': 'Lagu terpopuler minggu ini.', 'imageUrl': 'assets/images/tophits.jpg', 'category': 'Trending Spotlight'},
     {'title': 'Chart Climbers', 'subtitle': 'Blowing up right now.', 'imageUrl': 'assets/images/chart.jpg', 'category': 'Trending Spotlight'},
     {'title': 'Hot Right Now', 'subtitle': 'Viral anthems.', 'imageUrl': 'assets/images/hotright.jpg', 'category': 'Trending Spotlight'},
   ];
@@ -105,51 +106,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _quickPlay(Map<String, String> item) async {
-    final title = (item['title'] ?? '').toLowerCase();
-    final currentTitle = (_audio.currentSong?.title ?? '').toLowerCase();
+    final title = item['title'] ?? '';
 
-    if (_audio.isPlaying && (currentTitle == title || _activeTitle.toLowerCase() == title)) {
+    if (_activeTitle == title && _audio.currentSong != null) {
       await _audio.togglePlayPause();
       setState(() {});
       return;
     }
 
-    if (!_audio.isPlaying && _audio.currentSong != null && _activeTitle.toLowerCase() == title) {
-      await _audio.togglePlayPause();
-      setState(() {});
-      return;
+    _activeTitle = title;
+
+    final allSongs = await SongService.fetchDeezerSongs();
+
+    if (allSongs.isNotEmpty) {
+      final targetSong = allSongs.firstWhere(
+        (song) => song.title.toLowerCase().contains(title.toLowerCase()),
+        orElse: () => allSongs.first,
+      );
+
+      await _audio.setPlaylist(
+        allSongs,
+        initialIndex: allSongs.indexOf(targetSong),
+        autoPlay: true,
+        playlistName: title,
+      );
     }
 
-    _activeTitle = item['title'] ?? '';
-
-    final found = PlaylistController.instance.userPlaylists.firstWhere(
-      (p) => (p['name'] ?? '').toLowerCase() == title,
-      orElse: () => {},
-    );
-
-    List<SongModel> songs = List<SongModel>.from(found['songs'] ?? []);
-
-    if (songs.isNotEmpty) {
-      await _audio.setPlaylist(songs, initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
-    } else {
-      try {
-        final deezer = await SongService.fetchDeezerSongs();
-        if (deezer.isNotEmpty) {
-          final idx = deezer.indexWhere((s) => s.title.toLowerCase().contains(title));
-          if (idx != -1) {
-            await _audio.setPlaylist([deezer[idx]], initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
-            setState(() {});
-            return;
-          }
-        }
-      } catch (e) {
-        debugPrint('Error: $e');
-      }
-
-      await _audio.setPlaylist([
-        SongModel(title: item['title'] ?? '', artist: item['subtitle'] ?? 'Various Artists', audioUrl: '', albumCover: item['imageUrl'] ?? '')
-      ], initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
-    }
     setState(() {});
   }
 
@@ -352,6 +334,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Memanggil Widget Baru: Quick Picks
+              if (_activeMoodIndex == 0) ...[
+                QuickPicks(
+                  items: HomeScreen.allPlaylists,
+                  activePlayingTitle: _activeTitle,
+                  isPlaying: _audio.isPlaying,
+                  onItemTap: _openDetail,
+                  onPlayTap: _quickPlay,
+                ),
+                const SizedBox(height: 26),
+              ],
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -391,7 +386,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Stack(
                                 children: [
-                                  // Foto latar belakang kartu spotlight
                                   Positioned(
                                     right: -25,
                                     bottom: -25,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/premium_controller.dart';
 import '../widgets/premium/premium_plan_card.dart';
+import '../widgets/premium/premium_comparison_table.dart';
 
 class PremiumScreen extends StatelessWidget {
   const PremiumScreen({super.key});
@@ -11,22 +12,22 @@ class PremiumScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E212B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(
           'Terms & Conditions',
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
+            color: isDark ? Colors.white : const Color(0xFF15181E),
             fontWeight: FontWeight.bold,
           ),
         ),
         content: SingleChildScrollView(
           child: Text(
             '1. Subscription access activates immediately once payment is verified.\n\n'
-            '2. Payments are non-refundable.\n\n'
-            '3. You can cancel your subscription plan at any time in Settings.\n\n'
-            '4. Offline listening and studio-quality audio remain active during the valid subscription period.',
+            '2. Completed payments are non-refundable.\n\n'
+            '3. You can cancel your subscription plan renewal at any time directly in Settings.\n\n'
+            '4. Smart offline storage and studio-grade acoustics remain fully functional throughout your billing period.',
             style: TextStyle(
-              color: isDark ? Colors.white70 : Colors.black87,
+              color: isDark ? Colors.white70 : const Color(0xFF4B5563),
               fontSize: 13,
               height: 1.45,
             ),
@@ -61,7 +62,7 @@ class PremiumScreen extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF1E212B) : Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -75,7 +76,7 @@ class PremiumScreen extends StatelessWidget {
                   Text(
                     'Subscribe to $planTitle',
                     style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: isDark ? Colors.white : const Color(0xFF15181E),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -84,8 +85,8 @@ class PremiumScreen extends StatelessWidget {
                   Text(
                     'Total: $price',
                     style: TextStyle(
-                      color: isDark ? Colors.amber : const Color(0xFFB45309),
-                      fontSize: 14,
+                      color: isDark ? Colors.amber : const Color(0xFFD97706),
+                      fontSize: 14.5,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -93,7 +94,7 @@ class PremiumScreen extends StatelessWidget {
                   Text(
                     'Select Payment Method:',
                     style: TextStyle(
-                      color: isDark ? Colors.white70 : Colors.black87,
+                      color: isDark ? Colors.white70 : const Color(0xFF4B5563),
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -114,13 +115,18 @@ class PremiumScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
                           color: isChosen
-                              ? (isDark ? Colors.white.withAlpha(25) : Colors.amber.withAlpha(35))
-                              : (isDark ? Colors.white.withAlpha(10) : Colors.grey.shade100),
-                          borderRadius: BorderRadius.circular(10),
+                              ? (isDark
+                                  ? Colors.white.withValues(alpha: 0.12)
+                                  : Colors.amber.withValues(alpha: 0.12))
+                              : (isDark
+                                  ? Colors.white.withValues(alpha: 0.04)
+                                  : Colors.grey.shade100),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isChosen
                                 ? (isDark ? Colors.amber : const Color(0xFFD97706))
                                 : (isDark ? Colors.white12 : Colors.grey.shade300),
+                            width: isChosen ? 1.4 : 1.0,
                           ),
                         ),
                         child: Row(
@@ -137,7 +143,7 @@ class PremiumScreen extends StatelessWidget {
                               child: Text(
                                 name,
                                 style: TextStyle(
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: isDark ? Colors.white : const Color(0xFF15181E),
                                   fontSize: 13,
                                   fontWeight: isChosen ? FontWeight.bold : FontWeight.normal,
                                 ),
@@ -148,7 +154,7 @@ class PremiumScreen extends StatelessWidget {
                               color: isChosen
                                   ? (isDark ? Colors.amber : const Color(0xFFD97706))
                                   : (isDark ? Colors.white30 : Colors.black26),
-                              size: 18,
+                              size: 19,
                             ),
                           ],
                         ),
@@ -158,12 +164,13 @@ class PremiumScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    height: 46,
+                    height: 48,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isDark ? Colors.white : Colors.black87,
+                        backgroundColor: isDark ? Colors.white : const Color(0xFF15181E),
                         foregroundColor: isDark ? Colors.black : Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                        elevation: 0,
                       ),
                       onPressed: () {
                         PremiumController.activatePremium(planTitle);
@@ -178,7 +185,7 @@ class PremiumScreen extends StatelessWidget {
                           ),
                         );
                       },
-                      child: const Text('Pay Now', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text('Pay Now', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -194,27 +201,27 @@ class PremiumScreen extends StatelessWidget {
     return Transform.rotate(
       angle: angle,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        width: 116,
-        height: 116,
+        margin: const EdgeInsets.symmetric(horizontal: 7),
+        width: 118,
+        height: 118,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withAlpha(40), width: 1.5),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.16), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha((elevation * 20).toInt().clamp(0, 255)),
-              blurRadius: 16,
+              color: Colors.black.withValues(alpha: (elevation * 0.05).clamp(0.0, 1.0)),
+              blurRadius: 18,
               offset: const Offset(0, 8),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(16),
           child: Image.network(
             url,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: Colors.grey.shade900,
+            errorBuilder: (_, _, _) => Container(
+              color: const Color(0xFF1E212B),
               child: const Icon(Icons.music_note_rounded, color: Colors.white54, size: 28),
             ),
           ),
@@ -227,7 +234,7 @@ class PremiumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
+    final textColor = isDark ? Colors.white : const Color(0xFF15181E);
     final bgColor = theme.scaffoldBackgroundColor;
 
     return Scaffold(
@@ -242,7 +249,7 @@ class PremiumScreen extends StatelessWidget {
                 Stack(
                   children: [
                     SizedBox(
-                      height: 250,
+                      height: 255,
                       width: double.infinity,
                       child: OverflowBox(
                         maxWidth: MediaQuery.of(context).size.width * 1.5,
@@ -263,11 +270,11 @@ class PremiumScreen extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            stops: const [0.0, 0.4, 0.8, 1.0],
+                            stops: const [0.0, 0.45, 0.82, 1.0],
                             colors: [
                               Colors.transparent,
-                              bgColor.withAlpha(130),
-                              bgColor.withAlpha(235),
+                              bgColor.withValues(alpha: 0.45),
+                              bgColor.withValues(alpha: 0.92),
                               bgColor,
                             ],
                           ),
@@ -276,6 +283,7 @@ class PremiumScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
@@ -286,7 +294,7 @@ class PremiumScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1DB954).withAlpha(isDark ? 45 : 30),
+                              color: const Color(0xFF1DB954).withValues(alpha: isDark ? 0.2 : 0.14),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.stars_rounded, color: Color(0xFF1DB954), size: 18),
@@ -295,28 +303,43 @@ class PremiumScreen extends StatelessWidget {
                           Text(
                             'Melodix Plus',
                             style: TextStyle(
-                              color: textColor,
-                              fontSize: 14,
+                              color: isDark ? const Color(0xFF1DB954) : const Color(0xFF15803D),
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
+                              letterSpacing: 0.6,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
+
                       Text(
                         'Listen without limits\nwith Melodix Standard.',
                         style: TextStyle(
                           color: textColor,
-                          fontSize: 26,
+                          fontSize: 27,
                           fontWeight: FontWeight.w800,
-                          height: 1.2,
+                          height: 1.18,
+                          letterSpacing: -0.4,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      SizedBox(
+
+                      Container(
                         width: double.infinity,
                         height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.15)
+                                  : Colors.black.withValues(alpha: 0.18),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
                         child: ElevatedButton(
                           onPressed: () => _showCheckoutDialog(
                             context,
@@ -324,7 +347,7 @@ class PremiumScreen extends StatelessWidget {
                             'IDR 59,900 / month',
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isDark ? Colors.white : Colors.black87,
+                            backgroundColor: isDark ? Colors.white : const Color(0xFF15181E),
                             foregroundColor: isDark ? Colors.black : Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -338,38 +361,48 @@ class PremiumScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
+
                       GestureDetector(
                         onTap: () => _showTermsDialog(context),
                         child: Text(
                           'Terms & conditions apply.',
                           style: TextStyle(
-                            color: isDark ? Colors.white70 : Colors.black54,
+                            color: isDark ? Colors.white70 : const Color(0xFF6B7280),
                             fontSize: 11.5,
                             decoration: TextDecoration.underline,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 26),
+
                       const PremiumBenefitsCard(),
-                      const SizedBox(height: 34),
+                      const SizedBox(height: 26),
+
+                      // Tabel Perbandingan Free vs Premium
+                      const PremiumComparisonTable(),
+                      const SizedBox(height: 36),
+
                       Text(
                         'Available Plans',
                         style: TextStyle(
                           color: textColor,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Plan 1: Standard
                       PremiumPlanCard(
                         title: 'Standard',
                         titleColor: const Color(0xFF1DB954),
                         price: 'IDR 59,900 / month',
                         features: const [
-                          '1 Melodix Standard Account',
-                          'Download music for offline listening',
-                          'Studio-grade audio format (~320kbps)',
-                          'Continuous music with no commercial ad breaks',
+                          '1 Melodix Standard account with full track autonomy',
+                          'Download albums for seamless offline listening',
+                          'Studio-grade acoustic resolution (~320kbps)',
+                          'Continuous streaming with zero commercial breaks',
                           'Cancel your subscription anytime',
                         ],
                         buttonText: 'Get Standard',
@@ -380,24 +413,30 @@ class PremiumScreen extends StatelessWidget {
                           'IDR 59,900 / month',
                         ),
                       ),
+
+                      // Plan 2: Platinum
                       PremiumPlanCard(
+                        badgeText: 'Ultimate Studio',
                         title: 'Platinum',
                         titleColor: const Color.fromARGB(255, 255, 191, 71),
                         price: 'IDR 119,900 / month',
                         features: const [
-                          'High-fidelity lossless audio (320 kbps)',
-                          'AI Smart Curator & Personalized Recommendations',
-                          'Exclusive releases & early song access',
+                          'Up to 3 high-definition listening profiles',
+                          'Hi-Res Lossless 24-bit audio format',
+                          'AI Smart Curator & tailored daily mix sessions',
+                          'Early access to exclusive tracks and live concerts',
                           'Cancel your subscription anytime',
                         ],
                         buttonText: 'Get Platinum',
                         buttonColor: const Color.fromARGB(255, 255, 191, 71),
+                        footerText: 'For up to 3 listeners residing in the same household.',
                         onSelect: () => _showCheckoutDialog(
                           context,
                           'Platinum',
                           'IDR 119,900 / month',
                         ),
                       ),
+
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -405,26 +444,42 @@ class PremiumScreen extends StatelessWidget {
               ],
             ),
           ),
-          // Back Button Navigation 
+
+          // Back
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 4.0),
-              child: IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(120),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
-                onPressed: () {
+              padding: const EdgeInsets.only(left: 12.0, top: 6.0),
+              child: GestureDetector(
+                onTap: () {
                   Navigator.of(context).maybePop();
                 },
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.55)
+                        : Colors.white.withValues(alpha: 0.8),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.15)
+                          : Colors.black.withValues(alpha: 0.08),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: isDark ? Colors.white : Colors.black87,
+                    size: 16,
+                  ),
+                ),
               ),
             ),
           ),

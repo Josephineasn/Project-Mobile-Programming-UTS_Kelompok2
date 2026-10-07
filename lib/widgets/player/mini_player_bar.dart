@@ -46,12 +46,31 @@ class MiniPlayerBar extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: currentSong.albumCover.isNotEmpty
-                      ? Image.network(
-                          currentSong.albumCover,
-                          width: 42,
-                          height: 42,
-                          fit: BoxFit.cover,
-                        )
+                      ? (currentSong.albumCover.startsWith('assets/')
+                          ? Image.asset(
+                              currentSong.albumCover,
+                              width: 42,
+                              height: 42,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Container(
+                                width: 42,
+                                height: 42,
+                                color: const Color(0xFF1DB954),
+                                child: const Icon(Icons.music_note, color: Colors.black),
+                              ),
+                            )
+                          : Image.network(
+                              currentSong.albumCover,
+                              width: 42,
+                              height: 42,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Container(
+                                width: 42,
+                                height: 42,
+                                color: const Color(0xFF1DB954),
+                                child: const Icon(Icons.music_note, color: Colors.black),
+                              ),
+                            ))
                       : Container(
                           width: 42,
                           height: 42,

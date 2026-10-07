@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song_model.dart';
+import '../screens/settings_screen.dart';
+import 'premium_controller.dart';
 
 class AudioController extends ChangeNotifier {
   static final AudioController instance = AudioController._internal();
@@ -25,6 +27,25 @@ class AudioController extends ChangeNotifier {
   bool _isShuffle = false;
   bool _isRepeat = false;
 
+  // Limit skip lagu
+  int _skipCount = 0;
+  static const int maxFreeSkips = 3;
+
+  /// Cek akun preemium apa ngga
+  bool get isCurrentAccountPremium {
+    final account = currentAccountNotifier.value;
+    return account.isPremium || PremiumController.isPremium.value;
+  }
+
+  int get skipCount => _skipCount;
+  int get remainingSkips => isCurrentAccountPremium ? 999 : (maxFreeSkips - _skipCount).clamp(0, maxFreeSkips);
+  bool get canSkip => isCurrentAccountPremium || _skipCount < maxFreeSkips;
+
+  void resetSkipCount() {
+    _skipCount = 0;
+    notifyListeners();
+  }
+
   List<SongModel> get playlist => _playlist;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
@@ -40,13 +61,18 @@ class AudioController extends ChangeNotifier {
           : null;
 
   void _initListeners() {
+    currentAccountNotifier.addListener(() {
+      _skipCount = 0;
+      notifyListeners();
+    });
+
     _player.onPlayerStateChanged.listen((state) {
       _isPlaying = state == PlayerState.playing;
       notifyListeners();
     });
 
     _player.onPlayerComplete.listen((_) {
-      playNext();
+      playNext(isUserInitiated: false);
     });
 
     _player.onPositionChanged.listen((position) {
@@ -74,7 +100,7 @@ class AudioController extends ChangeNotifier {
   void toggleRepeat() {
     _isRepeat = !_isRepeat;
     if (_isRepeat) {
-      _isShuffle = false; 
+      _isShuffle = false;
     }
     notifyListeners();
   }
@@ -82,8 +108,8 @@ class AudioController extends ChangeNotifier {
   Future<void> setPlaylist(
     List<SongModel> songs, {
     int initialIndex = 0,
-    bool autoPlay = true, 
-    String playlistName = '', 
+    bool autoPlay = true,
+    String playlistName = '',
   }) async {
     if (songs.isEmpty) return;
     _playlist = songs;
@@ -133,12 +159,20 @@ class AudioController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playNext() async {
-    if (_playlist.isEmpty) return;
+  Future<bool> playNext({bool isUserInitiated = true}) async {
+    if (_playlist.isEmpty) return false;
+
+    if (isUserInitiated && !isCurrentAccountPremium) {
+      if (_skipCount >= maxFreeSkips) {
+        notifyListeners();
+        return false;
+      }
+      _skipCount++;
+    }
 
     if (_isRepeat && currentSong != null) {
       await playSong(currentSong!);
-      return;
+      return true;
     }
 
     if (_currentIndex < _playlist.length - 1) {
@@ -147,6 +181,7 @@ class AudioController extends ChangeNotifier {
       _currentIndex = 0;
     }
     await playSong(_playlist[_currentIndex]);
+    return true;
   }
 
   Future<void> playPrevious() async {
