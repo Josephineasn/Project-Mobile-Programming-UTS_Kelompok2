@@ -40,12 +40,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   Future<void> _checkAndLoadSongs() async {
-    if (_audioController.currentSong == null) {
+    if (_audioController.currentSong == null && _audioController.playlist.isEmpty) {
       setState(() => _isLoading = true);
       try {
         final songs = await SongService.fetchDeezerSongs();
         if (songs.isNotEmpty) {
-          await _audioController.setPlaylist(songs, initialIndex: 0);
+          await _audioController.setPlaylist(songs, initialIndex: 0, autoPlay: false);
         }
       } catch (_) {
       } finally {
@@ -97,7 +97,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Belum Ada Lagu Diputar',
+                'No Song Playing',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -106,7 +106,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Pilih lagu dari Home atau Search untuk memutar',
+                'Select a song from Home or Search to play',
                 style: TextStyle(
                   color: isDark ? Colors.grey : Colors.grey.shade600,
                   fontSize: 13,
@@ -125,7 +125,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 onPressed: _checkAndLoadSongs,
                 icon: const Icon(Icons.refresh),
                 label: const Text(
-                  'Muat Sampel Lagu',
+                  'Load Sample Songs',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -135,18 +135,35 @@ class _PlayerScreenState extends State<PlayerScreen> {
       );
     }
 
+    final hasPlaylistName = _audioController.currentPlaylistName.isNotEmpty;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(
-          'Now Playing',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: contentColor,
-          ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              hasPlaylistName ? 'PLAYING FROM PLAYLIST' : 'NOW PLAYING',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.0,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              hasPlaylistName ? _audioController.currentPlaylistName : currentSong.title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: contentColor,
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
       ),
@@ -173,7 +190,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     Icons.shuffle,
                     color: _audioController.isShuffle
                         ? const Color(0xFF1DB954)
-                        : Colors.grey,
+                        : (isDark ? Colors.grey : Colors.grey.shade600),
                     size: 24,
                   ),
                   onPressed: () => _audioController.toggleShuffle(),
@@ -184,7 +201,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     Icons.repeat,
                     color: _audioController.isRepeat
                         ? const Color(0xFF1DB954)
-                        : Colors.grey,
+                        : (isDark ? Colors.grey : Colors.grey.shade600),
                     size: 24,
                   ),
                   onPressed: () => _audioController.toggleRepeat(),

@@ -20,6 +20,8 @@ class AudioController extends ChangeNotifier {
   bool _hasPlayedBefore = false;
   final List<SongModel> _likedSongs = [];
 
+  String _currentPlaylistName = '';
+
   bool _isShuffle = false;
   bool _isRepeat = false;
 
@@ -28,6 +30,7 @@ class AudioController extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
   bool get hasPlayedBefore => _hasPlayedBefore;
   List<SongModel> get likedSongs => _likedSongs;
+  String get currentPlaylistName => _currentPlaylistName;
   bool get isShuffle => _isShuffle;
   bool get isRepeat => _isRepeat;
 
@@ -47,9 +50,7 @@ class AudioController extends ChangeNotifier {
     });
 
     _player.onPositionChanged.listen((position) {
-      if (_isPlaying) {
-        _saveLastPlayedState(position);
-      }
+      _saveLastPlayedState(position);
     });
   }
 
@@ -61,7 +62,9 @@ class AudioController extends ChangeNotifier {
       _playlist.shuffle();
 
       if (playingSong != null) {
-        _currentIndex = _playlist.indexWhere((song) => song.title == playingSong.title);
+        _currentIndex = _playlist.indexWhere(
+          (song) => song.title.trim().toLowerCase() == playingSong.title.trim().toLowerCase(),
+        );
         if (_currentIndex == -1) _currentIndex = 0;
       }
     }
@@ -79,10 +82,18 @@ class AudioController extends ChangeNotifier {
   Future<void> setPlaylist(
     List<SongModel> songs, {
     int initialIndex = 0,
-    bool autoPlay = true,
+    bool autoPlay = true, 
+    String playlistName = '', 
   }) async {
+    if (songs.isEmpty) return;
     _playlist = songs;
-    _currentIndex = initialIndex;
+    _currentIndex = initialIndex >= 0 && initialIndex < songs.length ? initialIndex : 0;
+    if (playlistName.isNotEmpty) {
+      _currentPlaylistName = playlistName;
+    }
+    
+    await _saveLastPlayedState(Duration.zero);
+
     if (currentSong != null) {
       if (autoPlay) {
         await playSong(currentSong!);
@@ -98,8 +109,11 @@ class AudioController extends ChangeNotifier {
   Future<void> playSong(SongModel song) async {
     if (song.audioUrl.isEmpty) return;
     _hasPlayedBefore = true;
+    await _saveLastPlayedState(Duration.zero);
+
     await _player.stop();
     await _player.play(UrlSource(song.audioUrl));
+    _isPlaying = true;
     notifyListeners();
   }
 
@@ -146,8 +160,8 @@ class AudioController extends ChangeNotifier {
   }
 
   void toggleLike(SongModel song) {
-    if (_likedSongs.any((s) => s.title == song.title)) {
-      _likedSongs.removeWhere((s) => s.title == song.title);
+    if (_likedSongs.any((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase())) {
+      _likedSongs.removeWhere((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
     } else {
       _likedSongs.add(song);
     }
@@ -156,7 +170,7 @@ class AudioController extends ChangeNotifier {
   }
 
   bool isLiked(SongModel song) {
-    return _likedSongs.any((s) => s.title == song.title);
+    return _likedSongs.any((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
   }
 
   Future<void> _saveLikedSongs() async {
@@ -166,6 +180,8 @@ class AudioController extends ChangeNotifier {
       'artist': song.artist,
       'audioUrl': song.audioUrl,
       'albumCover': song.albumCover,
+      'preview': song.audioUrl,
+      'album_cover': song.albumCover,
     }).toList();
     
     await prefs.setString('liked_songs_json', jsonEncode(likedData));
@@ -178,11 +194,14 @@ class AudioController extends ChangeNotifier {
       final List<dynamic> decoded = jsonDecode(likedJson);
       _likedSongs.clear();
       for (var item in decoded) {
+        final url = (item['audioUrl'] ?? item['preview'] ?? '').toString();
+        final cover = (item['albumCover'] ?? item['album_cover'] ?? '').toString();
+
         _likedSongs.add(SongModel(
           title: item['title'] ?? '',
           artist: item['artist'] ?? '',
-          audioUrl: item['audioUrl'] ?? '',
-          albumCover: item['albumCover'] ?? '',
+          audioUrl: url,
+          albumCover: cover,
         ));
       }
       notifyListeners();
@@ -194,27 +213,55 @@ class AudioController extends ChangeNotifier {
     await prefs.setBool('has_played_before', true);
     await prefs.setInt('last_song_index', _currentIndex);
     await prefs.setInt('last_position_ms', position.inMilliseconds);
+    await prefs.setString('last_playlist_name', _currentPlaylistName);
+
+    final playlistData = _playlist.map((song) => {
+      'title': song.title,
+      'artist': song.artist,
+      'audioUrl': song.audioUrl,
+      'albumCover': song.albumCover,
+      'preview': song.audioUrl,
+      'album_cover': song.albumCover,
+    }).toList();
+    await prefs.setString('last_playlist_json', jsonEncode(playlistData));
   }
 
   Future<void> loadLastPlayedState() async {
-    if (_playlist.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
     _hasPlayedBefore = prefs.getBool('has_played_before') ?? false;
 
     if (!_hasPlayedBefore) return;
 
+    final String? playlistJson = prefs.getString('last_playlist_json');
     final savedIndex = prefs.getInt('last_song_index') ?? 0;
     final savedPositionMs = prefs.getInt('last_position_ms') ?? 0;
+    _currentPlaylistName = prefs.getString('last_playlist_name') ?? '';
 
-    if (savedIndex < _playlist.length) {
-      _currentIndex = savedIndex;
-      if (currentSong != null) {
-        await _player.setSource(UrlSource(currentSong!.audioUrl));
-        if (savedPositionMs > 0) {
-          await _player.seek(Duration(milliseconds: savedPositionMs));
+    if (playlistJson != null && playlistJson.isNotEmpty) {
+      final List<dynamic> decoded = jsonDecode(playlistJson);
+      if (decoded.isNotEmpty) {
+        _playlist = decoded.map((item) {
+          final url = (item['audioUrl'] ?? item['preview'] ?? '').toString();
+          final cover = (item['albumCover'] ?? item['album_cover'] ?? '').toString();
+          return SongModel(
+            title: item['title'] ?? '',
+            artist: item['artist'] ?? '',
+            audioUrl: url,
+            albumCover: cover,
+          );
+        }).toList();
+
+        if (savedIndex < _playlist.length) {
+          _currentIndex = savedIndex;
+          if (currentSong != null && currentSong!.audioUrl.isNotEmpty) {
+            await _player.setSource(UrlSource(currentSong!.audioUrl));
+            if (savedPositionMs > 0) {
+              await _player.seek(Duration(milliseconds: savedPositionMs));
+            }
+            await _player.pause();
+            _isPlaying = false;
+          }
         }
-        await _player.pause();
-        _isPlaying = false;
       }
     }
     notifyListeners();

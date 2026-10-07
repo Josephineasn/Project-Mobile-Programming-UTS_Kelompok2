@@ -5,38 +5,49 @@ import '../widgets/premium/premium_plan_card.dart';
 class PremiumScreen extends StatelessWidget {
   const PremiumScreen({super.key});
 
-  // Pop-up Terms & Apply
   void _showTermsDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E212B),
+        backgroundColor: isDark ? const Color(0xFF1E212B) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
+        title: Text(
           'Syarat & Ketentuan',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        content: const SingleChildScrollView(
+        content: SingleChildScrollView(
           child: Text(
-            '1. Langganan berlaku otomatis sesuai periode paket yang dipilih.\n\n'
-            '2. Pembayaran yang sudah berhasil tidak dapat dikembalikan (non-refundable).\n\n'
-            '3. Kamu dapat membatalkan langganan kapan saja sebelum tanggal jatuh tempo berikutnya.\n\n'
-            '4. Akses download offline dan kualitas audio tinggi aktif seketika setelah pembayaran terkonfirmasi.',
-            style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+            '1. Akses langganan aktif seketika setelah pembayaran berhasil diverifikasi.\n\n'
+            '2. Pembayaran bersifat final dan tidak dapat ditarik kembali (non-refundable).\n\n'
+            '3. Kamu bebas membatalkan perpanjangan paket kapan saja langsung lewat menu pengaturan.\n\n'
+            '4. Mode putar offline dan audio kualitas studio dapat dinikmati selama masa aktif akun berjalan.',
+            style: TextStyle(
+              color: isDark ? Colors.white70 : Colors.black87,
+              fontSize: 13,
+              height: 1.45,
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Tutup',
+              style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
   }
 
-  // Pop-up Pilihan Metode Pembayaran & Konfirmasi Bayar
   void _showCheckoutDialog(BuildContext context, String planTitle, String price) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     String selectedPayment = 'GoPay';
 
     final paymentMethods = [
@@ -50,11 +61,11 @@ class PremiumScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E212B),
+      backgroundColor: isDark ? const Color(0xFF1E212B) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) {
+      builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
@@ -65,8 +76,8 @@ class PremiumScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Langganan $planTitle',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -74,16 +85,23 @@ class PremiumScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Total tagihan: $price',
-                    style: const TextStyle(color: Colors.amber, fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: isDark ? Colors.amber : const Color(0xFFB45309),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Pilih Metode Pembayaran:',
-                    style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 10),
 
-                  // Daftar Pilihan Pembayaran
                   ...paymentMethods.map((pm) {
                     final name = pm['name'] as String;
                     final icon = pm['icon'] as IconData;
@@ -99,21 +117,31 @@ class PremiumScreen extends StatelessWidget {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isChosen ? Colors.white.withAlpha(25) : Colors.white.withAlpha(10),
+                          color: isChosen
+                              ? (isDark ? Colors.white.withAlpha(25) : Colors.amber.withAlpha(35))
+                              : (isDark ? Colors.white.withAlpha(10) : Colors.grey.shade100),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isChosen ? Colors.amber : Colors.white12,
+                            color: isChosen
+                                ? (isDark ? Colors.amber : const Color(0xFFD97706))
+                                : (isDark ? Colors.white12 : Colors.grey.shade300),
                           ),
                         ),
                         child: Row(
                           children: [
-                            Icon(icon, color: isChosen ? Colors.amber : Colors.white70, size: 20),
+                            Icon(
+                              icon,
+                              color: isChosen
+                                  ? (isDark ? Colors.amber : const Color(0xFFD97706))
+                                  : (isDark ? Colors.white70 : Colors.black54),
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 name,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: isDark ? Colors.white : Colors.black87,
                                   fontSize: 13,
                                   fontWeight: isChosen ? FontWeight.bold : FontWeight.normal,
                                 ),
@@ -121,7 +149,9 @@ class PremiumScreen extends StatelessWidget {
                             ),
                             Icon(
                               isChosen ? Icons.check_circle_rounded : Icons.radio_button_off,
-                              color: isChosen ? Colors.amber : Colors.white30,
+                              color: isChosen
+                                  ? (isDark ? Colors.amber : const Color(0xFFD97706))
+                                  : (isDark ? Colors.white30 : Colors.black26),
                               size: 18,
                             ),
                           ],
@@ -132,21 +162,19 @@ class PremiumScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Tombol Bayar Sekarang
                   SizedBox(
                     width: double.infinity,
                     height: 46,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
+                        backgroundColor: isDark ? Colors.white : Colors.black87,
+                        foregroundColor: isDark ? Colors.black : Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                       ),
                       onPressed: () {
-                        // Ubah status ke Premium!
                         PremiumController.activatePremium(planTitle);
 
-                        Navigator.pop(ctx);
+                        Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             backgroundColor: Colors.amber,
@@ -169,25 +197,36 @@ class PremiumScreen extends StatelessWidget {
     );
   }
 
-  // Cover album di header
-  Widget _buildAlbumTile(String url) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      width: 110,
-      height: 110,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black45,
-            blurRadius: 10,
-            offset: Offset(0, 4),
+  // Cover Album Header
+  Widget _buildAlbumTile(String url, double angle, double elevation) {
+    return Transform.rotate(
+      angle: angle,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: 116,
+        height: 116,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withAlpha(40), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha((elevation * 20).toInt().clamp(0, 255)),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: Colors.grey.shade900,
+              child: const Icon(Icons.music_note_rounded, color: Colors.white54, size: 28),
+            ),
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(url, fit: BoxFit.cover),
+        ),
       ),
     );
   }
@@ -202,41 +241,42 @@ class PremiumScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: bgColor,
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header Showcase
             Stack(
               children: [
                 SizedBox(
-                  height: 230,
+                  height: 250,
                   width: double.infinity,
                   child: OverflowBox(
-                    maxWidth: MediaQuery.of(context).size.width * 1.35,
-                    child: Transform.rotate(
-                      angle: -0.14,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildAlbumTile('https://picsum.photos/seed/phonk/250'),
-                          _buildAlbumTile('https://picsum.photos/seed/friday/250'),
-                          _buildAlbumTile('https://picsum.photos/seed/house/250'),
-                          _buildAlbumTile('https://picsum.photos/seed/reggae/250'),
-                        ],
-                      ),
+                    maxWidth: MediaQuery.of(context).size.width * 1.5,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildAlbumTile('https://i.pinimg.com/1200x/55/ed/d5/55edd5f8215e3e6ae9d842501ddeb296.jpg', -0.12, 4),
+                        _buildAlbumTile('https://i.pinimg.com/1200x/40/e0/51/40e051803c96da23aa787e846532f6a4.jpg', -0.04, 6),
+                        _buildAlbumTile('https://i.pinimg.com/1200x/62/cd/f5/62cdf5877dfa0115900fcc5ca0551368.jpg', 0.05, 8),
+                        _buildAlbumTile('https://i.pinimg.com/736x/28/60/7a/28607abee735a5c7ab04d1eb42a20aab.jpg', -0.08, 6),
+                      ],
                     ),
                   ),
                 ),
+
+                // Gradasi Latar
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        stops: const [0.0, 0.45, 0.85, 1.0],
+                        stops: const [0.0, 0.4, 0.8, 1.0],
                         colors: [
                           Colors.transparent,
-                          bgColor.withAlpha(153),
-                          bgColor.withAlpha(242),
+                          bgColor.withAlpha(130),
+                          bgColor.withAlpha(235),
                           bgColor,
                         ],
                       ),
@@ -246,41 +286,49 @@ class PremiumScreen extends StatelessWidget {
               ],
             ),
 
-            // Tulisan di header dan tombol premium
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Label Header
                   Row(
                     children: [
-                      Icon(Icons.album_outlined, color: textColor, size: 20),
-                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1DB954).withAlpha(isDark ? 45 : 30),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.stars_rounded, color: Color(0xFF1DB954), size: 18),
+                      ),
+                      const SizedBox(width: 8),
                       Text(
-                        'Premium',
+                        'Melodix Plus',
                         style: TextStyle(
                           color: textColor,
                           fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
 
-                  // Headline Besar
+                  // Headline Utama
                   Text(
-                    'Get more out of your\nmusic with Premium\nStandard.',
+                    'Dengarkan musik tanpa batas\ndengan Melodix Standard.',
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 27,
+                      fontSize: 26,
                       fontWeight: FontWeight.w800,
-                      height: 1.15,
+                      height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 20),
 
-                  // Tombol "Get Premium Standard"
+                  // Tombol pilih Standard
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -288,7 +336,7 @@ class PremiumScreen extends StatelessWidget {
                       onPressed: () => _showCheckoutDialog(
                         context,
                         'Standard',
-                        'IDR 59,900 / month',
+                        'IDR 59,900 / bulan',
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isDark ? Colors.white : Colors.black87,
@@ -299,42 +347,32 @@ class PremiumScreen extends StatelessWidget {
                         elevation: 0,
                       ),
                       child: const Text(
-                        'Get Premium Standard',
+                        'Pilih Melodix Standard',
                         style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
 
-                  // Syarat & Ketentuan (klik untuk pop-up)
                   GestureDetector(
                     onTap: () => _showTermsDialog(context),
                     child: Text(
-                      'Terms apply.',
+                      'Syarat & ketentuan berlaku.',
                       style: TextStyle(
                         color: isDark ? Colors.white70 : Colors.black54,
-                        fontSize: 11,
+                        fontSize: 11.5,
                         decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'See other plans below.',
-                    style: TextStyle(
-                      color: isDark ? Colors.white54 : Colors.black45,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
 
-                  // Kotak Why join Premium Standard?
                   const PremiumBenefitsCard(),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 34),
 
-                  // Available plans
+                  // Judul Paket
                   Text(
-                    'Available plans',
+                    'Pilihan Paket Melodix',
                     style: TextStyle(
                       color: textColor,
                       fontSize: 22,
@@ -347,86 +385,40 @@ class PremiumScreen extends StatelessWidget {
                   PremiumPlanCard(
                     title: 'Standard',
                     titleColor: const Color(0xFF1DB954),
-                    price: 'IDR 59,900 / month',
+                    price: 'IDR 59,900 / bulan',
                     features: const [
-                      '1 Standard account',
-                      'Download to listen offline',
-                      'Very high audio quality (up to ~320kbps)',
-                      'Cancel anytime',
+                      '1 Akun Melodix Standard',
+                      'Simpan lagu tanpa kuota internet',
+                      'Format audio studio jernih (~320kbps)',
+                      'Kendali bebas tanpa jeda sponsor',
+                      'Bisa berhenti langganan kapan saja',
                     ],
-                    buttonText: 'Get Premium Standard',
+                    buttonText: 'Pilih Standard',
                     buttonColor: const Color(0xFF1DB954),
                     onSelect: () => _showCheckoutDialog(
                       context,
                       'Standard',
-                      'IDR 59,900 / month',
+                      'IDR 59,900 / bulan',
                     ),
                   ),
 
                   // Paket 2: Platinum
                   PremiumPlanCard(
                     title: 'Platinum',
-                    titleColor: const Color(0xFFE8FD52),
-                    price: 'IDR 119,900 / month',
+                    titleColor: const Color.fromARGB(255, 255, 191, 71),
+                    price: 'IDR 119,900 / bulan',
                     features: const [
-                      'Up to 3 Platinum accounts',
-                      'Download to listen offline',
-                      'Lossless audio quality (up to ~24-bit/\n44.1kHz)',
-                      'Mix your playlists',
-                      'Your personal AI DJ',
-                      'AI playlist creation',
-                      'Connect your DJ software',
-                      'Cancel anytime',
+                      'Audio resolusi tinggi (320 kbps)',
+                      'Asisten Kurasi Cerdas & Rekomendasi Pintar',
+                      'Akses rilis eksklusif & audio tanpa kompresi',
+                      'Bisa berhenti langganan kapan saja',
                     ],
-                    buttonText: 'Get Premium Platinum',
-                    buttonColor: const Color(0xFFE8FD52),
-                    footerText: 'For up to 3 individuals residing at the same address. Terms apply.',
+                    buttonText: 'Pilih Platinum',
+                    buttonColor: const Color.fromARGB(255, 255, 191, 71),
                     onSelect: () => _showCheckoutDialog(
                       context,
                       'Platinum',
-                      'IDR 119,900 / month',
-                    ),
-                  ),
-
-                  // Paket 3: Student
-                  PremiumPlanCard(
-                    badgeText: 'Savings available',
-                    title: 'Student',
-                    titleColor: const Color(0xFF7AE7A7),
-                    price: 'IDR 29,900 / month',
-                    features: const [
-                      '1 verified Standard account',
-                      'Download to listen offline',
-                      'Very high audio quality (up to ~320kbps)',
-                      'Cancel anytime',
-                    ],
-                    buttonText: 'Get Premium Student',
-                    buttonColor: const Color(0xFF1DB954),
-                    onSelect: () => _showCheckoutDialog(
-                      context,
-                      'Student',
-                      'IDR 29,900 / month',
-                    ),
-                  ),
-
-                  // Paket 4: Family
-                  PremiumPlanCard(
-                    title: 'Family',
-                    titleColor: const Color(0xFF579FF4),
-                    price: 'IDR 86,900 / month',
-                    features: const [
-                      'Up to 6 Premium accounts',
-                      'Block explicit music',
-                      'Download to listen offline',
-                      'Cancel anytime',
-                    ],
-                    buttonText: 'Get Premium Family',
-                    buttonColor: const Color(0xFF579FF4),
-                    footerText: 'For up to 6 family members living under one roof. Terms apply.',
-                    onSelect: () => _showCheckoutDialog(
-                      context,
-                      'Family',
-                      'IDR 86,900 / month',
+                      'IDR 119,900 / bulan',
                     ),
                   ),
 

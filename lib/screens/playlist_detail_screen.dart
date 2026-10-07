@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+
 import '../models/song_model.dart';
 import '../services/song_service.dart';
 import '../services/audio_controller.dart';
 import '../widgets/player/mini_player_bar.dart';
+import '../services/playlist_controller.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final Map<String, dynamic> playlist;
@@ -17,18 +20,26 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   final AudioController _audioController = AudioController.instance;
   bool _isLoading = false;
 
-  bool get _isLikedSongsPlaylist => widget.playlist['name'] == 'Liked Songs';
+  bool get _isLikedSongsPlaylist =>
+      widget.playlist['name'] == 'Liked Songs' ||
+      widget.playlist['isLikedSongs'] == true;
 
   @override
   void initState() {
     super.initState();
     _audioController.addListener(_onAudioControllerChanged);
 
+    if (widget.playlist['songs'] == null) {
+      widget.playlist['songs'] = <SongModel>[];
+    }
+
     List<SongModel> currentSongs = List<SongModel>.from(
-      widget.playlist['songs'] ?? [],
+      _activeSongList,
     );
 
-    if (currentSongs.isEmpty && !_isLikedSongsPlaylist) {
+    final bool isUserCreated = widget.playlist['isUserCreated'] == true;
+
+    if (currentSongs.isEmpty && !_isLikedSongsPlaylist && !isUserCreated) {
       _loadInitialSongs();
     }
   }
@@ -61,13 +72,31 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     }
   }
 
+  List<SongModel> get _activeSongList {
+    if (_isLikedSongsPlaylist) {
+      return _audioController.likedSongs;
+    }
+    return List<SongModel>.from(widget.playlist['songs'] ?? []);
+  }
+  
   Future<void> _playPauseSong(SongModel song) async {
-    if (_audioController.currentSong?.title == song.title) {
+    final songsList = _activeSongList;
+    if (songsList.isEmpty) return;
+
+    final isSameSong = _audioController.currentSong?.title.trim().toLowerCase() ==
+        song.title.trim().toLowerCase();
+
+    if (isSameSong && _audioController.hasPlayedBefore && _audioController.player.state != PlayerState.stopped) {
       await _audioController.togglePlayPause();
     } else {
-      _audioController.setPlaylist(
-        List<SongModel>.from(widget.playlist['songs'] ?? []),
-        initialIndex: (widget.playlist['songs'] as List).indexOf(song),
+      final targetIndex = songsList.indexWhere(
+        (s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase(),
+      );
+
+      await _audioController.setPlaylist(
+        songsList,
+        initialIndex: targetIndex != -1 ? targetIndex : 0,
+        playlistName: widget.playlist['name'] ?? '',
       );
     }
   }
@@ -175,9 +204,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 );
               }
 
-              List<SongModel> currentPlaylistSongs = List<SongModel>.from(
-                widget.playlist['songs'] ?? [],
-              );
+              List<SongModel> currentPlaylistSongs = _activeSongList;
 
               return ListView.builder(
                 shrinkWrap: true,
@@ -185,7 +212,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 itemBuilder: (context, index) {
                   final song = apiSongs[index];
                   final isAlreadyInPlaylist = currentPlaylistSongs.any(
-                    (s) => s.title == song.title,
+                    (s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase(),
                   );
 
                   return ListTile(
@@ -224,9 +251,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               if (_isLikedSongsPlaylist) {
                                 _audioController.toggleLike(song);
                               } else {
-                                setState(
-                                  () => widget.playlist['songs'].add(song),
+                                PlaylistController.instance.addSongToPlaylist(
+                                  widget.playlist['name'],
+                                  song,
                                 );
+                                setState(() {
+                                  if (widget.playlist['songs'] == null) {
+                                    widget.playlist['songs'] = <SongModel>[];
+                                  }
+                                  (widget.playlist['songs'] as List).add(song);
+                                });
                               }
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -282,11 +316,23 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              setState(() => widget.playlist['songs'].remove(song));
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Delete "${song.title}"')),
+              PlaylistController.instance.removeSongFromPlaylist(
+                widget.playlist['name'],
+                song,
               );
+
+              setState(() {
+                if (widget.playlist['songs'] != null) {
+                  (widget.playlist['songs'] as List).removeWhere(
+                    (s) => s.title == song.title,
+                  );
+                }
+              });
+
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Delete "${song.title}"')));
             },
             child: const Text(
               'Delete',
@@ -305,12 +351,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    
-    List<SongModel> songs = List<SongModel>.from(
-      _isLikedSongsPlaylist
-          ? _audioController.likedSongs
-          : (widget.playlist['songs'] ?? []),
-    );
+
+    List<SongModel> songs = _activeSongList;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -342,14 +384,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    _isLikedSongsPlaylist ? Icons.favorite_border : Icons.music_off,
+                    _isLikedSongsPlaylist
+                        ? Icons.favorite_border
+                        : Icons.music_off,
                     size: 64,
                     color: Colors.grey,
                   ),
                   const SizedBox(height: 12),
                   Text(
                     _isLikedSongsPlaylist
-                        ? 'Belum ada lagu yang disukai'
+                        ? 'No liked songs yet'
                         : 'Playlist is empty',
                     style: const TextStyle(color: Colors.grey, fontSize: 16),
                   ),
@@ -376,7 +420,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               itemBuilder: (context, index) {
                 SongModel song = songs[index];
                 final isCurrentPlaying =
-                    _audioController.currentSong?.title == song.title;
+                    _audioController.currentSong?.title.trim().toLowerCase() ==
+                        song.title.trim().toLowerCase();
 
                 return ListTile(
                   onTap: () => _playPauseSong(song),
@@ -420,7 +465,10 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   ),
                   subtitle: Text(
                     song.artist,
-                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    style: TextStyle(
+                      color: isDark ? Colors.grey : Colors.grey.shade600,
+                      fontSize: 13,
+                    ),
                   ),
                   trailing: _isLikedSongsPlaylist
                       ? Row(
@@ -485,7 +533,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 );
               },
             ),
-
       bottomNavigationBar: const MiniPlayerBar(),
     );
   }

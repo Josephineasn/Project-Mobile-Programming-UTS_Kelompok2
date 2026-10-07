@@ -20,55 +20,68 @@ class _SongProgressBarState extends State<SongProgressBar> {
   @override
   void initState() {
     super.initState();
+    _initAudioListeners();
+  }
 
-    // Dengarkan perubahan posisi detik lagu secara real-time
-    widget.audioPlayer.onPositionChanged.listen((newPosition) {
-      if (mounted) {
+  void _initAudioListeners() {
+    widget.audioPlayer.getDuration().then((dur) {
+      if (dur != null && mounted) {
         setState(() {
-          _position = newPosition;
+          _duration = dur;
         });
       }
     });
 
-    // Dengarkan total durasi lagu dari API
-    widget.audioPlayer.onDurationChanged.listen((newDuration) {
+    widget.audioPlayer.onPositionChanged.listen((p) {
       if (mounted) {
         setState(() {
-          _duration = newDuration;
+          _position = p;
+        });
+      }
+    });
+
+    widget.audioPlayer.onDurationChanged.listen((d) {
+      if (mounted) {
+        setState(() {
+          _duration = d;
         });
       }
     });
   }
 
-  // Format durasi detik ke format waktu mm:ss (contoh 0:15)
   String _formatDuration(Duration duration) {
-    String minutes = duration.inMinutes.remainder(60).toString().padLeft(1, '0');
-    String seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
     return '$minutes:$seconds';
   }
 
   @override
   Widget build(BuildContext context) {
-    final double maxDuration = _duration.inSeconds.toDouble();
-    final double currentPosition = _position.inSeconds.toDouble();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final maxMs = _duration.inMilliseconds.toDouble();
+    final currentMs = _position.inMilliseconds.toDouble();
+
+    final safeMax = maxMs > 0 ? maxMs : 1.0;
+    final safeValue = currentMs.clamp(0.0, safeMax);
 
     return Column(
       children: [
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+            trackHeight: 3.0,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12.0),
             activeTrackColor: const Color(0xFF1DB954),
-            inactiveTrackColor: Colors.grey[800],
+            inactiveTrackColor: isDark ? Colors.white24 : Colors.black12,
             thumbColor: const Color(0xFF1DB954),
           ),
           child: Slider(
-            value: currentPosition.clamp(0.0, maxDuration > 0 ? maxDuration : 1.0),
             min: 0.0,
-            max: maxDuration > 0 ? maxDuration : 1.0,
-            onChanged: (double value) async {
-              final newPosition = Duration(seconds: value.toInt());
+            max: safeMax,
+            value: safeValue,
+            onChanged: (value) async {
+              final newPosition = Duration(milliseconds: value.toInt());
               await widget.audioPlayer.seek(newPosition);
             },
           ),
@@ -80,11 +93,17 @@ class _SongProgressBarState extends State<SongProgressBar> {
             children: [
               Text(
                 _formatDuration(_position),
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey : Colors.grey.shade600,
+                ),
               ),
               Text(
                 _formatDuration(_duration),
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey : Colors.grey.shade600,
+                ),
               ),
             ],
           ),

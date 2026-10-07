@@ -152,7 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Notifikasi (Pop-up di atas sheet & pilihan tersimpan)
+  // Notifikasi
   void _showNotificationsSettings() {
     _showSettingsBottomSheet(
       title: 'Notifikasi',
@@ -163,7 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SwitchListTile(
                 title: const Text('Push Notifications'),
                 subtitle: const Text('Recommendation music & New playlist'),
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
                 value: _pushNotif,
                 onChanged: (val) {
                   setModalState(() => _pushNotif = val);
@@ -176,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SwitchListTile(
                 title: const Text('Email Updates'),
                 subtitle: const Text('Notification promo & fitur terbaru'),
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
                 value: _emailUpdates,
                 onChanged: (val) {
                   setModalState(() => _emailUpdates = val);
@@ -193,7 +193,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Kualitas Audio (Pop-up Premium -> Pindah ke Halaman Premium)
+  // Kualitas Audio
   void _showAudioQualitySettings() {
     final listKualitas = [
       'Otomatis',
@@ -261,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Privasi & Sosial (Pop-up di atas sheet & pilihan tersimpan)
+  // Privasi & Sosial
   void _showPrivacySocialSettings() {
     _showSettingsBottomSheet(
       title: 'Privasi & Sosial',
@@ -272,7 +272,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SwitchListTile(
                 title: const Text('Sesi Pribadi (Private Session)'),
                 subtitle: const Text('Dengarkan musik tanpa terlihat teman'),
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
                 value: _privateSession,
                 onChanged: (val) {
                   setModalState(() => _privateSession = val);
@@ -285,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SwitchListTile(
                 title: const Text('Listening activity'),
                 subtitle: const Text('Share what you play with your followers'),
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
                 value: _showListening,
                 onChanged: (val) {
                   setModalState(() => _showListening = val);

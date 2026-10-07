@@ -1,129 +1,167 @@
 import 'package:flutter/material.dart';
 
-// Container Iklan (Why join Premium Standard?)
+// Kotak Benefit
 class PremiumBenefitsCard extends StatelessWidget {
   const PremiumBenefitsCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final cardBgColor = isDark ? const Color(0xFF171A24) : Colors.white;
+    final cardBorderColor = isDark ? Colors.white.withAlpha(20) : Colors.grey.shade200;
+    final titleTextColor = isDark ? Colors.white : const Color(0xFF191B22);
+    final subtitleTextColor = isDark ? Colors.white60 : Colors.black54;
+
+    final benefitItems = [
+      {
+        'title': 'Bebas Jeda Iklan',
+        'desc': 'Musik mengalir terus tanpa jeda audio sponsor komersial.',
+        'icon': Icons.all_inclusive_rounded,
+        'color': const Color(0xFF1DB954),
+      },
+      {
+        'title': 'Kendali Trek Penuh',
+        'desc': 'Bebas pilih dan putar lagu mana saja tanpa sistem acak paksa.',
+        'icon': Icons.tune_rounded,
+        'color': const Color(0xFF579FF4),
+      },
+      {
+        'title': 'Kualitas Studio Master',
+        'desc': 'Vokal lebih tebal dan bass lebih bulat di headphone kesayanganmu.',
+        'icon': Icons.graphic_eq_rounded,
+        'color': const Color(0xFFC084FC),
+      },
+      {
+        'title': 'Mode Offline Cerdas',
+        'desc': 'Simpan playlist ke memori lokal, tetap asyik walau tanpa kuota.',
+        'icon': Icons.download_done_rounded,
+        'color': const Color(0xFFFBBF24),
+      },
+      {
+        'title': 'Sesi Dengar Bersama',
+        'desc': 'Putar lagu bareng teman secara sinkron dan real-time.',
+        'icon': Icons.group_rounded,
+        'color': const Color(0xFFFF758F),
+      },
+    ];
+
     return Container(
       width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E212B), Color(0xFF161822)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x14FFFFFF)),
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: cardBorderColor, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black45 : Colors.grey.shade300.withAlpha(120),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Kartu
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Color(0x26FFC107), 
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withAlpha(isDark ? 45 : 35),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Why join Premium Standard?',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(color: Color(0x0FFFFFFF), height: 1),
-
-          // Benefits
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                PremiumFeatureItem(
-                  icon: Icons.speaker_notes_off_outlined,
-                  title: 'Ad-free music listening',
-                ),
-                PremiumFeatureItem(
-                  icon: Icons.shuffle,
-                  title: 'Play songs in any order',
-                ),
-                PremiumFeatureItem(
-                  icon: Icons.headphones_outlined,
-                  title: 'Very high audio quality',
-                ),
-                PremiumFeatureItem(
-                  icon: Icons.group_outlined,
-                  title: 'Listen with friends in real time',
-                ),
-                PremiumFeatureItem(
-                  icon: Icons.smart_display_outlined,
-                  title: 'Watch videos with fewer ads',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Ukuran dan warna untuk icon dan teks
-class PremiumFeatureItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-
-  const PremiumFeatureItem({
-    super.key,
-    required this.icon,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0x0DFFFFFF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.white70, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13.5,
-                fontWeight: FontWeight.w500,
+                child: const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Keuntungan Eksklusif Melodix',
+                      style: TextStyle(
+                        color: titleTextColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Rasakan pengalaman audio terbaik setiap hari',
+                      style: TextStyle(
+                        color: subtitleTextColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 16),
+          Divider(color: isDark ? Colors.white12 : Colors.grey.shade200, height: 1),
+          const SizedBox(height: 14),
+
+          // Daftar Benefit
+          ...benefitItems.map((item) {
+            final iconColor = item['color'] as Color;
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: iconColor.withAlpha(isDark ? 35 : 25),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      item['icon'] as IconData,
+                      color: iconColor,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['title'] as String,
+                          style: TextStyle(
+                            color: titleTextColor,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item['desc'] as String,
+                          style: TextStyle(
+                            color: subtitleTextColor,
+                            fontSize: 12,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
   }
 }
 
-// Plans
+// Paket Langganan Premium
 class PremiumPlanCard extends StatelessWidget {
   final String? badgeText;
   final String title;
@@ -152,123 +190,131 @@ class PremiumPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final cardBgColor = isDark ? const Color(0xFF151821) : Colors.white;
+    final cardBorderColor = isDark ? titleColor.withAlpha(90) : titleColor.withAlpha(140);
+    final titleTextColor = isDark ? Colors.white : const Color(0xFF191B22);
+    final featureTextColor = isDark ? Colors.white70 : Colors.black87;
+    final dividerColor = isDark ? Colors.white12 : Colors.grey.shade200;
+    final footerColor = isDark ? Colors.white38 : Colors.black45;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 18),
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            titleColor.withAlpha(30),
-            const Color(0xFF14161F),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: titleColor.withAlpha(90),
-          width: 1.2,
+          color: cardBorderColor,
+          width: 1.4,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: titleColor.withAlpha(isDark ? 30 : 35),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header Gradasi Aksen Paket
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            decoration: BoxDecoration(
+              color: titleColor.withAlpha(isDark ? 35 : 25),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.album_outlined, color: titleColor, size: 17),
+                    const SizedBox(width: 6),
+                    Text(
+                      'MELODIX PLAN',
+                      style: TextStyle(
+                        color: titleColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ],
+                ),
+                if (badgeText != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: titleColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      badgeText!,
+                      style: TextStyle(
+                        color: buttonTextColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
           Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header mini
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.album_outlined,
-                          color: titleColor,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          'Premium',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (badgeText != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: titleColor.withAlpha(50),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: titleColor, width: 1),
-                        ),
-                        child: Text(
-                          badgeText!,
-                          style: TextStyle(
-                            color: titleColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                // Nama Paket
                 Text(
                   title,
                   style: TextStyle(
-                    color: titleColor,
+                    color: titleTextColor,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
-
-                // Harga Paket
+                const SizedBox(height: 3),
                 Text(
                   price,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
+                const SizedBox(height: 12),
+
+                Divider(color: dividerColor, height: 1),
                 const SizedBox(height: 14),
 
-                const Divider(color: Color(0x14FFFFFF), height: 1),
-                const SizedBox(height: 14),
-
-                // List Fitur
+                // Daftar Fitur
                 ...features.map(
                   (feature) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: 9),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: Icon(
-                            Icons.check_circle_outline_rounded,
-                            color: titleColor.withAlpha(215),
-                            size: 15,
+                            Icons.check_circle_rounded,
+                            color: titleColor,
+                            size: 16,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 9),
                         Expanded(
                           child: Text(
                             feature,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: featureTextColor,
                               fontSize: 13,
-                              height: 1.3,
+                              height: 1.35,
                             ),
                           ),
                         ),
@@ -303,16 +349,15 @@ class PremiumPlanCard extends StatelessWidget {
                   ),
                 ),
 
-                // Keterangan Terms Bawah
                 if (footerText != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   Center(
                     child: Text(
                       footerText!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white38,
-                        fontSize: 10,
+                      style: TextStyle(
+                        color: footerColor,
+                        fontSize: 10.5,
                       ),
                     ),
                   ),
