@@ -3,6 +3,7 @@ import 'package:video_player/video_player.dart';
 
 import '../models/song_model.dart';
 import '../services/audio_controller.dart';
+import '../widgets/player/queue_action_button.dart';
 
 class HashtagFeedScreen extends StatefulWidget {
   final String title;
@@ -52,15 +53,15 @@ class _HashtagFeedScreenState extends State<HashtagFeedScreen> {
 
     if (_audioController.currentSong?.audioUrl == song.audioUrl) {
       await _audioController.togglePlayPause();
-      return;
+    } else {
+      await _audioController.setPlaylist(
+        songs,
+        initialIndex: index,
+        autoPlay: true,
+        playlistName: widget.title,
+      );
     }
 
-    await _audioController.setPlaylist(
-      songs,
-      initialIndex: index,
-      autoPlay: true,
-      playlistName: widget.title,
-    );
   }
 
   @override
@@ -276,6 +277,11 @@ class _FeedPost extends StatelessWidget {
                             color: Colors.white,
                             size: 42,
                           ),
+                        ),
+                        QueueActionButton(
+                          song: song,
+                          size: 30,
+                          color: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         const Icon(
