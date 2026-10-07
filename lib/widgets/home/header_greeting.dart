@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
 import '../../screens/settings_screen.dart';
+import '../../screens/history_screen.dart';
 
 class HeaderGreetingWidget extends StatelessWidget {
   final String salam;
@@ -117,7 +118,7 @@ class HeaderGreetingWidget extends StatelessWidget {
               return ListView.separated(
                 shrinkWrap: true,
                 itemCount: list.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, idx) {
                   final notif = list[idx];
                   IconData icon = Icons.info_outline;
@@ -256,7 +257,14 @@ class HeaderGreetingWidget extends StatelessWidget {
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.symmetric(horizontal: 6),
             icon: Icon(Icons.history, color: contentColor, size: 24),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoryScreen(),
+                ),
+              );
+            },
           ),
           IconButton(
             constraints: const BoxConstraints(),
