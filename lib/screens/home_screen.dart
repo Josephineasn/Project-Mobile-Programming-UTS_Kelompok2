@@ -128,11 +128,86 @@ class _HomeScreenState extends State<HomeScreen> {
         allSongs,
         initialIndex: allSongs.indexOf(targetSong),
         autoPlay: true,
-        playlistName: title,
+        playlistName: '',
       );
     }
 
     setState(() {});
+  }
+
+  Future<void> _addRecentItemToQueue(Map<String, String> item) async {
+    final title = item['title'] ?? '';
+    final artist = item['subtitle'] ?? '';
+    if (title.isEmpty) return;
+
+    Map<String, dynamic>? historyItem;
+    for (final entry in _audio.recentlyPlayedHistory) {
+      final entrySong = entry['song'];
+      if (entry['title']?.toString().trim().toLowerCase() ==
+              title.trim().toLowerCase() &&
+          entrySong is SongModel) {
+        historyItem = entry;
+        break;
+      }
+    }
+
+    SongModel? song = historyItem?['song'] as SongModel?;
+
+    if (song == null) {
+      try {
+        final results = await SongService.searchDeezerSongs(title);
+        for (final result in results) {
+          if (result.title.trim().toLowerCase() == title.trim().toLowerCase() &&
+              (artist.isEmpty ||
+                  result.artist.trim().toLowerCase() ==
+                      artist.trim().toLowerCase())) {
+            song = result;
+            break;
+          }
+        }
+        song ??= results.isNotEmpty ? results.first : null;
+      } catch (_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menambahkan lagu ke queue'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+    }
+
+    if (song == null) return;
+
+    if (_audio.isCurrentlyPlayingSong(song)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Already playing "${song.title}"'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    if (_audio.isInQueue(song)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Already in queue: "${song.title}"'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    _audio.addToQueue(song);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added "${song.title}" to queue'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _openDetail(Map<String, String> item) {
@@ -485,6 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onSeeAll: () => _openGrid('Recently played', HomeScreen.recentlyPlayed),
                 onItemTap: _openDetail,
                 onPlayTap: _quickPlay,
+                onQueueTap: _addRecentItemToQueue,
                 activePlayingTitle: _activeTitle,
               ),
               const SizedBox(height: 24),
