@@ -9,16 +9,18 @@ import '../widgets/settings/account_setting_tile.dart';
 import '../widgets/settings/theme_toggle_switch.dart';
 import '../widgets/settings/logout_button.dart';
 
-// Model data akun
+// Model data akun dengan autentikasi password
 class UserAccountData {
   final String name;
   final String email;
+  final String password;
   final bool isLoggedIn;
   final bool isPremium;
 
   const UserAccountData({
     required this.name,
     required this.email,
+    required this.password,
     required this.isLoggedIn,
     this.isPremium = false,
   });
@@ -26,19 +28,21 @@ class UserAccountData {
   UserAccountData copyWith({
     String? name,
     String? email,
+    String? password,
     bool? isLoggedIn,
     bool? isPremium,
   }) {
     return UserAccountData(
       name: name ?? this.name,
       email: email ?? this.email,
+      password: password ?? this.password,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       isPremium: isPremium ?? this.isPremium,
     );
   }
 }
 
-//read indicator
+// Model item notifikasi
 class AppNotificationItem {
   final String id;
   final String title;
@@ -57,6 +61,7 @@ class AppNotificationItem {
   });
 }
 
+// Service Notifikasi Melodix
 class AppNotificationService {
   static final ValueNotifier<bool> notificationEnabled = ValueNotifier<bool>(true);
   static final ValueNotifier<List<AppNotificationItem>> notifications =
@@ -92,7 +97,7 @@ class AppNotificationService {
         desc: desc,
         time: 'Just now',
         type: type,
-        isRead: false, //Green indicator
+        isRead: false,
       ),
     );
 
@@ -107,7 +112,6 @@ class AppNotificationService {
     notifications.value = List<AppNotificationItem>.from(updatedList);
   }
 
-  // Clear all notification history
   static void clearAllNotifications() {
     _lastPlayingSong = '';
     notifications.value = [];
@@ -169,27 +173,27 @@ class AppNotificationService {
   }
 }
 
-// Master Akun Terdaftar (Database)
+// Master Akun Terdaftar (Database / Authentication Registry)
 final List<UserAccountData> registeredAccountsRegistry = [
-  const UserAccountData(name: 'Josephine', email: 'josephine@example.com', isLoggedIn: false, isPremium: false),
-  const UserAccountData(name: 'Gading ', email: 'gading@example.com', isLoggedIn: true, isPremium: true),
-  const UserAccountData(name: 'Sarah Jenkins', email: 'sarah.j@example.com', isLoggedIn: false, isPremium: false),
-  const UserAccountData(name: 'Calvin', email: 'calvin@example.com', isLoggedIn: false, isPremium: false),
-  const UserAccountData(name: 'Hans', email: 'hans@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Josephine', email: 'josephine@example.com', password: 'josephine123', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Gading', email: 'gading@example.com', password: 'gading123', isLoggedIn: true, isPremium: true),
+  const UserAccountData(name: 'Sherly', email: 'sherly@example.com', password: 'sherly123', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Calvin', email: 'calvin@example.com', password: 'calvin123', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Hans', email: 'hans@example.com', password: 'hans123', isLoggedIn: false, isPremium: false),
 ];
 
-// Akun Tersimpan di Device
+// Akun Tersimpan di Perangkat (Saved Accounts Shortcut)
 final ValueNotifier<List<UserAccountData>> savedAccountsNotifier = ValueNotifier<List<UserAccountData>>([
-  const UserAccountData(name: 'Josephine', email: 'josephine@example.com', isLoggedIn: false, isPremium: false),
-  const UserAccountData(name: 'Gading ', email: 'gading@example.com', isLoggedIn: true, isPremium: true),
-  const UserAccountData(name: 'Sherli ', email: 'sherli.j@example.com', isLoggedIn: false, isPremium: false),
-  const UserAccountData(name: 'Calvin', email: 'calvin@example.com', isLoggedIn: false, isPremium: false),
-  const UserAccountData(name: 'Hans', email: 'hans@example.com', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Josephine', email: 'josephine@example.com', password: 'josephine123', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Gading', email: 'gading@example.com', password: 'gading123', isLoggedIn: true, isPremium: true),
+  const UserAccountData(name: 'Sherly', email: 'sherly@example.com', password: 'sherly123', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Calvin', email: 'calvin@example.com', password: 'calvin123', isLoggedIn: false, isPremium: false),
+  const UserAccountData(name: 'Hans', email: 'hans@example.com', password: 'hans123', isLoggedIn: false, isPremium: false),
 ]);
 
-// Akun yang sedang login
+// Akun Aktif
 final ValueNotifier<UserAccountData> currentAccountNotifier = ValueNotifier<UserAccountData>(
-  const UserAccountData(name: 'Gading ', email: 'gading@example.com', isLoggedIn: true, isPremium: true),
+  const UserAccountData(name: 'Gading', email: 'gading@example.com', password: 'gading123', isLoggedIn: true, isPremium: true),
 );
 
 class SettingsScreen extends StatefulWidget {
@@ -225,12 +229,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (currentAccountNotifier.value.isLoggedIn) {
       currentAccountNotifier.value = currentAccountNotifier.value.copyWith(isPremium: isPrem);
 
-      final idx = registeredAccountsRegistry.indexWhere((a) => a.email == currentAccountNotifier.value.email);
+      final idx = registeredAccountsRegistry.indexWhere((a) => a.email.toLowerCase() == currentAccountNotifier.value.email.toLowerCase());
       if (idx != -1) {
         registeredAccountsRegistry[idx] = registeredAccountsRegistry[idx].copyWith(isPremium: isPrem);
       }
 
-      final savedIdx = savedAccountsNotifier.value.indexWhere((a) => a.email == currentAccountNotifier.value.email);
+      final savedIdx = savedAccountsNotifier.value.indexWhere((a) => a.email.toLowerCase() == currentAccountNotifier.value.email.toLowerCase());
       if (savedIdx != -1) {
         final list = List<UserAccountData>.from(savedAccountsNotifier.value);
         list[savedIdx] = list[savedIdx].copyWith(isPremium: isPrem);
@@ -313,7 +317,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  // 1. Auth Options (Create Account atau I Already Have an Account)
+  // 1. Auth Options (Create Account vs I Already Have an Account)
   void _showAuthOptionsSheet() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -393,44 +397,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Create Account 
+  // Create an Account: Memerlukan Name, Email, dan Password dengan Show/Hide
   void _showRegistrationDialog() {
     final nameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
+    final passCtrl = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    bool obscurePassword = true;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
-        title: const Text('Create an Account'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Full Name'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+          title: const Text('Create an Account'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Full Name'),
+                ),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: 'Email Address'),
+                ),
+                TextField(
+                  controller: passCtrl,
+                  obscureText: obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                      onPressed: () {
+                        setDialogState(() {
+                          obscurePassword = !obscurePassword;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: 'Email Address'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
-            onPressed: () {
-              final name = nameCtrl.text.trim();
-              final email = emailCtrl.text.trim();
-              if (name.isNotEmpty && email.isNotEmpty) {
-                final newAccount = UserAccountData(name: name, email: email, isLoggedIn: true, isPremium: false);
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
+              onPressed: () {
+                final name = nameCtrl.text.trim();
+                final email = emailCtrl.text.trim();
+                final pass = passCtrl.text;
+
+                if (name.isEmpty || email.isEmpty || pass.isEmpty) {
+                  _showNotification('Please fill in all fields', bottomPosition: 200);
+                  return;
+                }
+
+                final exists = registeredAccountsRegistry.any((a) => a.email.toLowerCase() == email.toLowerCase());
+                if (exists) {
+                  _showNotification('An account with this email already exists', bottomPosition: 200);
+                  return;
+                }
+
+                final newAccount = UserAccountData(
+                  name: name,
+                  email: email,
+                  password: pass,
+                  isLoggedIn: true,
+                  isPremium: false,
+                );
 
                 registeredAccountsRegistry.add(newAccount);
+
                 final updatedSaved = List<UserAccountData>.from(savedAccountsNotifier.value)..add(newAccount);
                 savedAccountsNotifier.value = updatedSaved;
 
@@ -442,15 +489,108 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pop(ctx);
                 setState(() {});
                 _showNotification('Account created successfully', bottomPosition: 200);
-              }
-            },
-            child: const Text('Sign Up', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          ),
-        ],
+              },
+              child: const Text('Sign Up', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  // Dialog Password untuk Akun yang Dipilih (Password Only) dengan Show/Hide
+  void _showPasswordPromptDialog(UserAccountData acc, BuildContext parentModalCtx) {
+    final passCtrl = TextEditingController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    bool obscurePassword = true;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+          title: Text('Enter Password for ${acc.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                acc.email,
+                style: TextStyle(color: isDark ? Colors.white60 : Colors.black54, fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: passCtrl,
+                autofocus: true,
+                obscureText: obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                    onPressed: () {
+                      setDialogState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
+              onPressed: () {
+                final enteredPass = passCtrl.text;
+                if (enteredPass.isEmpty) {
+                  _showNotification('Password is required', bottomPosition: 200);
+                  return;
+                }
+
+                final registered = registeredAccountsRegistry.firstWhere(
+                  (a) => a.email.toLowerCase() == acc.email.toLowerCase(),
+                  orElse: () => acc,
+                );
+
+                if (registered.password != enteredPass) {
+                  Navigator.pop(ctx);
+                  _showNotification('Incorrect password.', bottomPosition: 200);
+                  return;
+                }
+
+                final updatedAcc = registered.copyWith(isLoggedIn: true);
+                currentAccountNotifier.value = updatedAcc;
+
+                if (updatedAcc.isPremium) {
+                  PremiumController.activatePremium('Melodix Premium');
+                } else {
+                  PremiumController.cancelPremium();
+                }
+
+                AppNotificationService.handleLoginEvent(updatedAcc.name, updatedAcc.email);
+
+                Navigator.pop(ctx);
+                Navigator.pop(parentModalCtx);
+                setState(() {});
+                _showNotification('Signed in as ${updatedAcc.name}', bottomPosition: 200);
+              },
+              child: const Text('Continue', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Remove Account Dialog
   void _showRemoveAccountConfirmDialog(UserAccountData acc) {
     showDialog(
       context: context,
@@ -488,16 +628,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _removeSavedAccount(UserAccountData acc) {
     final updatedList = List<UserAccountData>.from(savedAccountsNotifier.value)
-      ..removeWhere((a) => a.email == acc.email);
+      ..removeWhere((a) => a.email.toLowerCase() == acc.email.toLowerCase());
     savedAccountsNotifier.value = updatedList;
 
-    if (currentAccountNotifier.value.isLoggedIn && currentAccountNotifier.value.email == acc.email) {
+    if (currentAccountNotifier.value.isLoggedIn &&
+        currentAccountNotifier.value.email.toLowerCase() == acc.email.toLowerCase()) {
       AudioController.instance.player.stop();
       AppNotificationService.clearMusicNotification();
 
       currentAccountNotifier.value = const UserAccountData(
         name: 'Guest',
         email: 'guest@melodix.com',
+        password: '',
         isLoggedIn: false,
         isPremium: false,
       );
@@ -508,6 +650,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showNotification('Account removed from saved list', bottomPosition: 200);
   }
 
+  // Modal Sheet: Choose Account
   void _showChooseAccountPicker() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -550,7 +693,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ...savedList.map((acc) {
                         final isCurrent = currentAccountNotifier.value.isLoggedIn &&
-                            currentAccountNotifier.value.email == acc.email;
+                            currentAccountNotifier.value.email.toLowerCase() == acc.email.toLowerCase();
 
                         return ListTile(
                           leading: CircleAvatar(
@@ -580,20 +723,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ],
                           ),
                           onTap: () {
-                            final updatedAcc = acc.copyWith(isLoggedIn: true);
-                            currentAccountNotifier.value = updatedAcc;
-
-                            if (acc.isPremium) {
-                              PremiumController.activatePremium('Melodix Premium');
-                            } else {
-                              PremiumController.cancelPremium();
+                            if (isCurrent) {
+                              Navigator.pop(ctx);
+                              return;
                             }
-
-                            AppNotificationService.handleLoginEvent(acc.name, acc.email);
-
-                            Navigator.pop(ctx);
-                            setState(() {});
-                            _showNotification('Signed in as ${acc.name}', bottomPosition: 200);
+                            _showPasswordPromptDialog(acc, ctx);
                           },
                         );
                       }),
@@ -619,79 +753,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  //Sign in with another account
+  // Sign in with another account: Name + Email + Password dengan Show/Hide
   void _showManualSignInDialog() {
     final nameCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
+    final passCtrl = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    bool obscurePassword = true;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
-        title: const Text('Sign In'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Name'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
+          title: const Text('Sign In'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Full Name'),
+                ),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: 'Email Address'),
+                ),
+                TextField(
+                  controller: passCtrl,
+                  obscureText: obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                      onPressed: () {
+                        setDialogState(() {
+                          obscurePassword = !obscurePassword;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: 'Email Address'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
-            onPressed: () {
-              final name = nameCtrl.text.trim();
-              final email = emailCtrl.text.trim();
-              if (name.isNotEmpty && email.isNotEmpty) {
-                final existingIdx = registeredAccountsRegistry.indexWhere((a) => a.email == email);
-                UserAccountData acc;
-                if (existingIdx != -1) {
-                  // Pulihkan status Premium dan data akun dari database
-                  acc = registeredAccountsRegistry[existingIdx].copyWith(name: name, isLoggedIn: true);
-                } else {
-                  // Registrasi akun baru 
-                  acc = UserAccountData(name: name, email: email, isLoggedIn: true, isPremium: false);
-                  registeredAccountsRegistry.add(acc);
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1DB954)),
+              onPressed: () {
+                final name = nameCtrl.text.trim();
+                final email = emailCtrl.text.trim();
+                final pass = passCtrl.text;
+
+                if (name.isEmpty || email.isEmpty || pass.isEmpty) {
+                  _showNotification('Please fill in all fields', bottomPosition: 200);
+                  return;
                 }
 
+                // Validasi Kredensial: Name, Email, Password HARUS COCOK
+                final matchIdx = registeredAccountsRegistry.indexWhere((a) =>
+                    a.email.toLowerCase() == email.toLowerCase() &&
+                    a.name.trim().toLowerCase() == name.toLowerCase() &&
+                    a.password == pass);
+
+                if (matchIdx == -1) {
+                  _showNotification('Invalid name, email, or password.', bottomPosition: 200);
+                  return;
+                }
+
+                final matchedAcc = registeredAccountsRegistry[matchIdx].copyWith(isLoggedIn: true);
+
                 final currentSaved = List<UserAccountData>.from(savedAccountsNotifier.value);
-                final savedIdx = currentSaved.indexWhere((a) => a.email == email);
+                final savedIdx = currentSaved.indexWhere((a) => a.email.toLowerCase() == email.toLowerCase());
                 if (savedIdx == -1) {
-                  currentSaved.add(acc);
+                  currentSaved.add(matchedAcc);
                 } else {
-                  currentSaved[savedIdx] = acc;
+                  currentSaved[savedIdx] = matchedAcc;
                 }
                 savedAccountsNotifier.value = currentSaved;
 
-                // Set sebagai active account
-                currentAccountNotifier.value = acc;
-                if (acc.isPremium) {
+                currentAccountNotifier.value = matchedAcc;
+                if (matchedAcc.isPremium) {
                   PremiumController.activatePremium('Melodix Premium');
                 } else {
                   PremiumController.cancelPremium();
                 }
 
-                AppNotificationService.handleLoginEvent(name, email);
+                AppNotificationService.handleLoginEvent(matchedAcc.name, matchedAcc.email);
 
                 Navigator.pop(ctx);
                 setState(() {});
-                _showNotification('Signed in as $name', bottomPosition: 200);
-              }
-            },
-            child: const Text('Sign In', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-          ),
-        ],
+                _showNotification('Signed in as ${matchedAcc.name}', bottomPosition: 200);
+              },
+              child: const Text('Sign In', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -733,10 +898,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 final updated = currentAccountNotifier.value.copyWith(name: newName, email: newEmail);
                 currentAccountNotifier.value = updated;
 
-                final regIdx = registeredAccountsRegistry.indexWhere((a) => a.email == updated.email);
+                final regIdx = registeredAccountsRegistry.indexWhere((a) => a.email.toLowerCase() == updated.email.toLowerCase());
                 if (regIdx != -1) registeredAccountsRegistry[regIdx] = updated;
 
-                final savedIdx = savedAccountsNotifier.value.indexWhere((a) => a.email == updated.email);
+                final savedIdx = savedAccountsNotifier.value.indexWhere((a) => a.email.toLowerCase() == updated.email.toLowerCase());
                 if (savedIdx != -1) {
                   final list = List<UserAccountData>.from(savedAccountsNotifier.value);
                   list[savedIdx] = updated;
@@ -1112,10 +1277,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     AudioController.instance.player.stop();
     AppNotificationService.clearMusicNotification();
 
-    // Reset active session
     currentAccountNotifier.value = const UserAccountData(
       name: 'Guest',
       email: 'guest@melodix.com',
+      password: '',
       isLoggedIn: false,
       isPremium: false,
     );
