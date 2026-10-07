@@ -11,152 +11,162 @@ class PlaylistController extends ChangeNotifier {
       'name': 'Top Hits Indonesia',
       'isPinned': true,
       'songs': <SongModel>[],
-      'imageUrl': 'https://i.pinimg.com/1200x/5e/73/1a/5e731a8079818156c4ebe3e928c9e173.jpg',
+      'imageUrl': 'assets/images/tophits.jpg',
+      'subtitle': 'Popular songs in this week.',
     },
     {
-      'name': 'Calm Night Mix',
-      'isPinned': true,
-      'songs': <SongModel>[],
-      'imageUrl': 'https://i.pinimg.com/1200x/0a/1b/9c/0a1b9c9ba6956f06f7358d9efc9b3949.jpg',
-    },
-    {
-      'name': 'Daily Mix',
-      'isPinned': true,
-      'songs': <SongModel>[],
-      'imageUrl': 'https://i.pinimg.com/736x/fb/4a/67/fb4a67c491ed6c28c0d12eb686f7c395.jpg',
-    },
-    {
-      'name': 'Soft Mix',
+      'name': 'Night Drift',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://i.pinimg.com/736x/11/4f/e3/114fe33c7abd274985eeb90096a55960.jpg',
+      'imageUrl': 'assets/images/nightdrift.jpg',
+      'subtitle': 'Empty streets and midnight thoughts.',
     },
     {
-      'name': 'My Playlist #17',
+      'name': 'Daydream Mix',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://i.pinimg.com/736x/8c/ae/65/8cae65c1e73246ede11231230671b11b.jpg',
+      'imageUrl': 'assets/images/daydream.jpg',
+      'subtitle': 'Lost in thoughts, one track at a time.',
     },
     {
-      'name': 'Discover Weekly',
+      'name': 'Soft Fade',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://i.pinimg.com/736x/e0/10/d4/e010d45a9468f1265eac61d58dfaec94.jpg',
+      'imageUrl': 'assets/images/softfade.jpg',
+      'subtitle': 'Gentle notes for quiet heartbreak.',
+    },
+    {
+      'name': 'Trending Now',
+      'isPinned': false,
+      'songs': <SongModel>[],
+      'imageUrl': 'assets/images/trending.jpg',
+      'subtitle': 'What the world is listening to today.',
+    },
+    {
+      'name': 'Chart Climbers',
+      'isPinned': false,
+      'songs': <SongModel>[],
+      'imageUrl': 'assets/images/chart.jpg',
+      'subtitle': 'The biggest tracks blowing up right now.',
     },
     {
       'name': 'Viva La Vida',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://picsum.photos/seed/coldplay/250',
+      'imageUrl': 'assets/images/vivalavida.jpg',
+      'subtitle': 'Coldplay',
     },
     {
       'name': 'Starboy',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://picsum.photos/seed/weeknd/250',
+      'imageUrl': 'assets/images/starboy.jpg',
+      'subtitle': 'The Weeknd',
     },
     {
       'name': 'Bohemian Rhapsody',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://picsum.photos/seed/queen/250',
+      'imageUrl': 'assets/images/bohemian.jpg',
+      'subtitle': 'Queen',
     },
     {
       'name': 'Monokrom',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'https://picsum.photos/seed/tulus/250',
+      'imageUrl': 'assets/images/monokrom.jpg',
+      'subtitle': 'Tulus',
     },
     {
-      'name': 'Hopeless Romantic Love Mix',
-      'subtitle': 'Hopeless Romantic Love music for you.',
+      'name': 'Blue Hour',
+      'subtitle': 'Soft melodies for heavy feelings.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/hopeless-romantic.jpg',
+      'imageUrl': 'assets/images/bluehour.jpg',
     },
     {
-      'name': 'Yearning Mix',
-      'subtitle': 'Yearning music for you.',
+      'name': 'Starlight',
+      'subtitle': 'Sountrack for your late-night strolls.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/yearning.jpg',
+      'imageUrl': 'assets/images/starlight.jpg',
     },
     {
-      'name': 'Delulu Mix',
-      'subtitle': 'Delulu music for you.',
+      'name': 'After Hours',
+      'subtitle': 'Neon lights and quiet beats.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/delulu.jpg',
+      'imageUrl': 'assets/images/afterhours.jpg',
     },
     {
-      'name': 'Gentle Love Mix',
-      'subtitle': 'Gentle Love music for you.',
+      'name': 'Melancholy',
+      'subtitle': 'Raw, honest songs that understand.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/gentle-love.jpg',
+      'imageUrl': 'assets/images/melancholy.jpg',
     },
     {
-      'name': 'Situationship Mix',
-      'subtitle': 'Situationship for you.',
-      'isPinned': false,
+      'name': 'Focus Flow',
+      'subtitle': 'Zero distractions, pure productivity.',
+      'isPinned': true,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/situationship.jpg',
+      'imageUrl': 'assets/images/focus.jpg',
     },
     {
-      'name': 'Crying Sad Mix',
-      'subtitle': 'Crying Sad Music for you.',
+      'name': 'Deep Zone',
+      'subtitle': 'Ambient soundscapes to lock you in.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/crying-sad.jpg',
+      'imageUrl': 'assets/images/deepzone.jpg',
     },
     {
-      'name': 'Moody Sad Mix',
-      'subtitle': 'Moody Sad music for you.',
+      'name': 'Hot Right Now',
+      'subtitle': 'Viral anthems you cannot skip.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/moody-sad.jpg',
+      'imageUrl': 'assets/images/hotright.jpg',
     },
     {
-      'name': 'Masterpiece Mix',
-      'subtitle': 'Masterpiece music for you.',
+      'name': 'Power Rush',
+      'subtitle': 'High energy to crush your limits.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/masterpiece.jpg',
+      'imageUrl': 'assets/images/powerrush.jpg',
     },
     {
-      'name': 'Comforting Mix',
-      'subtitle': 'Comforting music for you.',
+      'name': 'Hype Mix',
+      'subtitle': 'Upbeat tracks for maximum drive.',
       'isPinned': false,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/comforting.jpg',
+      'imageUrl': 'assets/images/hypemix.jpg',
     },
     {
-      'name': 'Fomo Mix',
-      'subtitle': 'Fomo music for you.',
-      'isPinned': false,
+      'name': 'Beast Mode',
+      'subtitle': 'Heavy bass to fuel the grind.',
+      'isPinned': true,
       'songs': <SongModel>[],
-      'imageUrl': 'assets/images/fomo.jpg',
-    },
-    {
-      'name': 'Main Character Mix',
-      'subtitle': 'Main Character music for you.',
-      'isPinned': false,
-      'songs': <SongModel>[],
-      'imageUrl': 'assets/images/main-character.jpg',
-    },
-    {
-      'name': 'Rizz Mix',
-      'subtitle': 'Rizz music for you.',
-      'isPinned': false,
-      'songs': <SongModel>[],
-      'imageUrl': 'assets/images/rizz.jpg',
+      'imageUrl': 'assets/images/beastmode.jpg',
     },
   ];
 
   List<Map<String, dynamic>> get userPlaylists => _userPlaylists;
 
+  int _findPlaylistIndex(dynamic keyOrName) {
+    return _userPlaylists.indexWhere(
+      (p) => p['id'] == keyOrName || p['name'] == keyOrName,
+    );
+  }
+
+  void togglePin(String playlistName) {
+    final index = _findPlaylistIndex(playlistName);
+    if (index != -1) {
+      _userPlaylists[index]['isPinned'] = !(_userPlaylists[index]['isPinned'] ?? false);
+      notifyListeners();
+    }
+  }
+
   void addSongToPlaylist(String playlistName, SongModel song) {
-    final index = _userPlaylists.indexWhere((p) => p['name'] == playlistName);
+    final index = _findPlaylistIndex(playlistName);
     if (index != -1) {
       final List<SongModel> songs = List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
       final exists = songs.any((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
@@ -169,7 +179,7 @@ class PlaylistController extends ChangeNotifier {
   }
 
   void removeSongFromPlaylist(String playlistName, SongModel song) {
-    final index = _userPlaylists.indexWhere((p) => p['name'] == playlistName);
+    final index = _findPlaylistIndex(playlistName);
     if (index != -1) {
       final List<SongModel> songs = List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
       songs.removeWhere((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
@@ -180,15 +190,36 @@ class PlaylistController extends ChangeNotifier {
 
   void createNewPlaylist(String name) {
     _userPlaylists.add({
+      'id': 'user_playlist_${DateTime.now().millisecondsSinceEpoch}',
       'name': name,
       'isPinned': false,
+      'isUserCreated': true,
       'songs': <SongModel>[],
     });
     notifyListeners();
   }
 
-  void deletePlaylist(Map<String, dynamic> item) {
-    _userPlaylists.remove(item);
+  /// Mengubah nama playlist berdasarkan nama lama atau ID
+  void renamePlaylist(String oldNameOrId, String newName) {
+    final index = _findPlaylistIndex(oldNameOrId);
+    if (index != -1) {
+      _userPlaylists[index]['name'] = newName;
+      notifyListeners();
+    }
+  }
+
+  /// Menghapus playlist (Menerima parameter berupa `Map<String, dynamic>` atau `String` ID/Name)
+  void deletePlaylist(dynamic itemOrKey) {
+    if (itemOrKey is Map<String, dynamic>) {
+      _userPlaylists.removeWhere(
+        (p) => (itemOrKey['id'] != null && p['id'] == itemOrKey['id']) ||
+            p['name'] == itemOrKey['name'],
+      );
+    } else if (itemOrKey is String) {
+      _userPlaylists.removeWhere(
+        (p) => p['id'] == itemOrKey || p['name'] == itemOrKey,
+      );
+    }
     notifyListeners();
   }
 }
