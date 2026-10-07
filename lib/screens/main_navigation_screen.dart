@@ -6,7 +6,6 @@ import '../widgets/player/mini_player_bar.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'library_screen.dart';
-import 'player_screen.dart';
 import 'premium_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
@@ -30,7 +29,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
     HomeScreen(),
     SearchScreen(),
     YourLibraryScreen(),
-    PlayerScreen(),
     PremiumScreen(),
   ];
 
@@ -91,7 +89,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (_currentIndex != 3) const MiniPlayerBar(),
+              const MiniPlayerBar(),
               BottomNavigationBar(
                 currentIndex: _currentIndex,
                 onTap: (index) {
@@ -115,10 +113,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
                   BottomNavigationBarItem(
                     icon: Icon(Icons.library_music),
                     label: 'Your Library',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.play_circle_fill),
-                    label: 'Player',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.workspace_premium),

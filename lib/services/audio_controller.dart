@@ -18,6 +18,10 @@ class AudioController extends ChangeNotifier {
 
   List<SongModel> _playlist = [];
   int _currentIndex = 0;
+
+  final List<SongModel> _queue = [];
+  SongModel? _queueCurrentSong;
+  bool _isQueuePlayback = false;
   bool _isPlaying = false;
   bool _hasPlayedBefore = false;
   final List<SongModel> _likedSongs = [];
@@ -69,6 +73,8 @@ class AudioController extends ChangeNotifier {
   }
 
   List<SongModel> get playlist => _playlist;
+  List<SongModel> get queue => List.unmodifiable(_queue);
+  bool get isQueuePlayback => _isQueuePlayback;
   int get currentIndex => _currentIndex;
   bool get isPlaying => _isPlaying;
   bool get hasPlayedBefore => _hasPlayedBefore;
@@ -77,10 +83,44 @@ class AudioController extends ChangeNotifier {
   bool get isShuffle => _isShuffle;
   bool get isRepeat => _isRepeat;
 
-  SongModel? get currentSong =>
-      _playlist.isNotEmpty && _currentIndex < _playlist.length
-          ? _playlist[_currentIndex]
-          : null;
+  SongModel? get currentSong {
+    if (_queueCurrentSong != null) return _queueCurrentSong;
+    if (_playlist.isNotEmpty && _currentIndex < _playlist.length) {
+      return _playlist[_currentIndex];
+    }
+    return null;
+  }
+
+  bool isInQueue(SongModel song) {
+    final title = song.title.trim().toLowerCase();
+    return _queue.any((item) => item.title.trim().toLowerCase() == title);
+  }
+
+  bool isCurrentlyPlayingSong(SongModel song) {
+    final current = currentSong;
+    if (current == null) return false;
+    return current.title.trim().toLowerCase() == song.title.trim().toLowerCase();
+  }
+
+  bool addToQueue(SongModel song) {
+    if (isCurrentlyPlayingSong(song) || isInQueue(song)) return false;
+    _queue.add(song);
+    notifyListeners();
+    return true;
+  }
+
+  void removeFromQueue(SongModel song) {
+    _queue.removeWhere(
+      (item) => item.title.trim().toLowerCase() == song.title.trim().toLowerCase(),
+    );
+    notifyListeners();
+  }
+
+  void clearQueue() {
+    if (_queue.isEmpty) return;
+    _queue.clear();
+    notifyListeners();
+  }
 
   void _initListeners() {
     currentAccountNotifier.addListener(() {
@@ -98,7 +138,9 @@ class AudioController extends ChangeNotifier {
     });
 
     _player.onPositionChanged.listen((position) {
-      _saveLastPlayedState(position);
+      if (!_isQueuePlayback) {
+        _saveLastPlayedState(position);
+      }
     });
   }
 
@@ -106,7 +148,7 @@ class AudioController extends ChangeNotifier {
     _isShuffle = !_isShuffle;
     if (_isShuffle) {
       _isRepeat = false;
-      final playingSong = currentSong;
+      final playingSong = _isQueuePlayback ? null : currentSong;
       _playlist.shuffle();
 
       if (playingSong != null) {
@@ -146,11 +188,11 @@ class AudioController extends ChangeNotifier {
     String playlistName = '',
   }) async {
     if (songs.isEmpty) return;
+    _queueCurrentSong = null;
+    _isQueuePlayback = false;
     _playlist = songs;
     _currentIndex = initialIndex >= 0 && initialIndex < songs.length ? initialIndex : 0;
-    if (playlistName.isNotEmpty) {
-      _currentPlaylistName = playlistName;
-    }
+    _currentPlaylistName = playlistName;
     
     await _saveLastPlayedState(Duration.zero);
 
@@ -167,6 +209,21 @@ class AudioController extends ChangeNotifier {
   }
 
   Future<void> playSong(SongModel song) async {
+    _queueCurrentSong = null;
+    _isQueuePlayback = false;
+    await _playSongInternal(song);
+  }
+
+  Future<void> _playQueueSong(SongModel song) async {
+    _queueCurrentSong = song;
+    _isQueuePlayback = true;
+    await _playSongInternal(song, saveLastPlayedState: false);
+  }
+
+  Future<void> _playSongInternal(
+    SongModel song, {
+    bool saveLastPlayedState = true,
+  }) async {
     if (song.audioUrl.isEmpty) return;
     _hasPlayedBefore = true;
 
@@ -177,7 +234,9 @@ class AudioController extends ChangeNotifier {
       song: song,
     );
 
-    await _saveLastPlayedState(Duration.zero);
+    if (saveLastPlayedState) {
+      await _saveLastPlayedState(Duration.zero);
+    }
 
     await _player.stop();
     await _player.play(UrlSource(song.audioUrl));
@@ -193,6 +252,8 @@ class AudioController extends ChangeNotifier {
         _hasPlayedBefore = true;
         if (_player.state == PlayerState.paused) {
           await _player.resume();
+        } else if (_isQueuePlayback) {
+          await _playSongInternal(currentSong!, saveLastPlayedState: false);
         } else {
           await playSong(currentSong!);
         }
@@ -202,7 +263,25 @@ class AudioController extends ChangeNotifier {
   }
 
   Future<bool> playNext({bool isUserInitiated = true}) async {
-    if (_playlist.isEmpty) return false;
+    if (currentSong == null && _playlist.isEmpty) return false;
+
+    if (_isRepeat && currentSong != null) {
+      if (_isQueuePlayback) {
+        await _playSongInternal(currentSong!, saveLastPlayedState: false);
+      } else {
+        await playSong(currentSong!);
+      }
+      return true;
+    }
+
+    if (_isQueuePlayback && _queue.isEmpty) {
+      if (!isUserInitiated) {
+        await _player.stop();
+        _isPlaying = false;
+        notifyListeners();
+      }
+      return true;
+    }
 
     if (isUserInitiated && !isCurrentAccountPremium) {
       if (_skipCount >= maxFreeSkips) {
@@ -212,10 +291,18 @@ class AudioController extends ChangeNotifier {
       _skipCount++;
     }
 
-    if (_isRepeat && currentSong != null) {
-      await playSong(currentSong!);
+    if (_queue.isNotEmpty) {
+      final nextQueueSong = _queue.removeAt(0);
+      await _playQueueSong(nextQueueSong);
+      notifyListeners();
       return true;
     }
+
+    if (_isQueuePlayback) {
+      return true;
+    }
+
+    if (_playlist.isEmpty) return false;
 
     if (_currentIndex < _playlist.length - 1) {
       _currentIndex++;
@@ -227,6 +314,7 @@ class AudioController extends ChangeNotifier {
   }
 
   Future<void> playPrevious() async {
+    if (_isQueuePlayback) return;
     if (_playlist.isEmpty) return;
     if (_currentIndex > 0) {
       _currentIndex--;

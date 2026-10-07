@@ -5,6 +5,7 @@ import '../models/song_model.dart';
 import '../services/song_service.dart';
 import '../services/audio_controller.dart';
 import '../widgets/player/mini_player_bar.dart';
+import '../widgets/player/queue_action_button.dart';
 import '../services/playlist_controller.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
@@ -99,6 +100,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         playlistName: widget.playlist['name'] ?? '',
       );
     }
+
   }
 
   void _confirmUnlikeSong(SongModel song) {
@@ -474,6 +476,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       ? Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            QueueActionButton(song: song, size: 24, color: const Color(0xFF1DB954)),
                             IconButton(
                               icon: Icon(
                                 isCurrentPlaying && _audioController.isPlaying
@@ -512,6 +515,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       : Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            QueueActionButton(song: song, size: 24),
                             IconButton(
                               icon: Icon(
                                 isCurrentPlaying && _audioController.isPlaying
