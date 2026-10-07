@@ -50,7 +50,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
   List<Map<String, dynamic>> get sortedPlaylists {
   List<Map<String, dynamic>> rawPlaylists = [
-    // --- LIKED SONGS ---
     {
       'id': 'liked_songs',
       'name': 'Liked Songs',
@@ -62,8 +61,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       'imageUrl': 'assets/images/likedsongs.png',
       'subtitle': 'Your favorite tracks, all in one place.',
     },
-
-    // --- DEEP FOCUS ---
     {
       'id': 'daydream_mix',
       'name': 'Daydream Mix',
@@ -89,8 +86,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       'subtitle': 'Ambient soundscapes to lock you in.',
       'imageUrl': 'assets/images/deepzone.jpg',
     },
-
-    // --- MIDNIGHT WALK ---
     {
       'id': 'night_drift',
       'name': 'Night Drift',
@@ -115,8 +110,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       'subtitle': 'Neon lights and quiet beats.',
       'imageUrl': 'assets/images/afterhours.jpg',
     },
-
-    // --- WORKOUT BOOST ---
     {
       'id': 'power_rush',
       'name': 'Power Rush',
@@ -142,8 +135,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       'subtitle': 'Upbeat tracks for maximum drive.',
       'imageUrl': 'assets/images/hypemix.jpg',
     },
-
-    // --- MELANCHOLY ---
     {
       'id': 'blue_hour',
       'name': 'Blue Hour',
@@ -168,8 +159,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       'subtitle': 'Raw, honest songs that understand.',
       'imageUrl': 'assets/images/melancholy.jpg',
     },
-
-    // --- TRENDING SPOTLIGHT ---
     {
       'id': 'trending_now',
       'name': 'Trending Now',
@@ -203,8 +192,6 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       'subtitle': 'Viral anthems you cannot skip.',
       'imageUrl': 'assets/images/hotright.jpg',
     },
-
-    // Playlist buatan user
     ..._playlistController.userPlaylists.map((p) {
       return {
         'type': 'Playlists',
@@ -214,7 +201,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     }),
   ];
 
-  // Hapus item dengan nama/id yang sama
+  // Hapus item
   final Set<String> seenNames = {};
   List<Map<String, dynamic>> uniquePlaylists = [];
 
