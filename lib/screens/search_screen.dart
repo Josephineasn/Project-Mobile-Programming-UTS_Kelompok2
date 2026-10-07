@@ -217,7 +217,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             if (isCurrent) {
                               _audioController.togglePlayPause();
                             } else {
-                              _audioController.setPlaylist(_searchResults, initialIndex: index);
+                              _audioController.setPlaylist(_searchResults, initialIndex: index, autoPlay: true, playlistName: 'Search');
                             }
                           },
                         ),
@@ -225,7 +225,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           if (isCurrent) {
                             _audioController.togglePlayPause();
                           } else {
-                            _audioController.setPlaylist(_searchResults, initialIndex: index);
+                            _audioController.setPlaylist(_searchResults, initialIndex: index, autoPlay: true, playlistName: 'Search');
                           }
                         },
                       );
@@ -465,7 +465,7 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
               if (isCurrent) {
                 _audioController.togglePlayPause();
               } else {
-                _audioController.setPlaylist(widget.songs, initialIndex: index);
+                _audioController.setPlaylist(widget.songs, initialIndex: index, autoPlay: true, playlistName: widget.title);
               }
             },
           );

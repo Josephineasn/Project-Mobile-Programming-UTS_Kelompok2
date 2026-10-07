@@ -107,11 +107,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void _quickPlay(Map<String, String> item) async {
     final title = (item['title'] ?? '').toLowerCase();
     final currentTitle = (_audio.currentSong?.title ?? '').toLowerCase();
+
     if (_audio.isPlaying && (currentTitle == title || _activeTitle.toLowerCase() == title)) {
       await _audio.togglePlayPause();
       setState(() {});
       return;
     }
+
     if (!_audio.isPlaying && _audio.currentSong != null && _activeTitle.toLowerCase() == title) {
       await _audio.togglePlayPause();
       setState(() {});
@@ -128,15 +130,17 @@ class _HomeScreenState extends State<HomeScreen> {
     List<SongModel> songs = List<SongModel>.from(found['songs'] ?? []);
 
     if (songs.isNotEmpty) {
-      await _audio.setPlaylist(songs, initialIndex: 0);
+      await _audio.setPlaylist(songs, initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
     } else {
       try {
         final deezer = await SongService.fetchDeezerSongs();
         if (deezer.isNotEmpty) {
           final idx = deezer.indexWhere((s) => s.title.toLowerCase().contains(title));
-          await _audio.setPlaylist(deezer, initialIndex: idx != -1 ? idx : 0);
-          setState(() {});
-          return;
+          if (idx != -1) {
+            await _audio.setPlaylist([deezer[idx]], initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
+            setState(() {});
+            return;
+          }
         }
       } catch (e) {
         debugPrint('Error: $e');
@@ -144,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       await _audio.setPlaylist([
         SongModel(title: item['title'] ?? '', artist: item['subtitle'] ?? 'Various Artists', audioUrl: '', albumCover: item['imageUrl'] ?? '')
-      ], initialIndex: 0);
+      ], initialIndex: 0, autoPlay: true, playlistName: item['title'] ?? '');
     }
     setState(() {});
   }
@@ -492,7 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 24),
               // Made For You
               HorizontalPlaylistSection(
-                title: activeTitle == 'All' ? 'Made for you' : 'Made for you   $activeTitle',
+                title: activeTitle == 'All' ? 'Made for you' : 'Made for you • $activeTitle',
                 items: selectedItems,
                 onSeeAll: () => _openGrid(activeTitle == 'All' ? 'Made for you' : 'Made for you ($activeTitle)', selectedItems),
                 onItemTap: _openDetail,

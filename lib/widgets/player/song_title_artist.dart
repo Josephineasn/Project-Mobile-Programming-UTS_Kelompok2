@@ -129,6 +129,8 @@ class SongTitleArtist extends StatelessWidget {
           return songs.any((s) => s.title.trim().toLowerCase() == activeSong.title.trim().toLowerCase());
         });
 
+        final defaultIconColor = isDark ? Colors.white : Colors.black87;
+
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -152,8 +154,8 @@ class SongTitleArtist extends StatelessWidget {
                     activeSong.artist,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: isDark ? Colors.grey : Colors.grey.shade600,
                       fontSize: 14,
                     ),
                   ),
@@ -170,7 +172,7 @@ class SongTitleArtist extends StatelessWidget {
                         : Icons.add_circle_outline,
                     color: isAddedToAnyPlaylist
                         ? const Color(0xFF1DB954)
-                        : (isDark ? Colors.grey.shade400 : Colors.black54),
+                        : defaultIconColor, 
                     size: 26,
                   ),
                   onPressed: () => _showAddToPlaylistBottomSheet(context),
@@ -178,7 +180,9 @@ class SongTitleArtist extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? const Color(0xFF1DB954) : Colors.white,
+                    color: isLiked
+                        ? const Color(0xFF1DB954)
+                        : defaultIconColor, 
                     size: 26,
                   ),
                   onPressed: () => audioController.toggleLike(activeSong),
