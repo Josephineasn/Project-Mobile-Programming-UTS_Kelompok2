@@ -70,7 +70,6 @@ class FilterChipRow extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              // Jika ditekan lagi saat aktif, batalkan pilihan (reset filter ke '')
               onFilterSelected(isSelected ? '' : label);
             },
             child: AnimatedContainer(

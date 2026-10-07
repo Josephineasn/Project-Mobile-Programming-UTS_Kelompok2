@@ -256,10 +256,10 @@ class PremiumScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildAlbumTile('https://picsum.photos/seed/phonk/300', -0.12, 4),
-                        _buildAlbumTile('https://picsum.photos/seed/friday/300', -0.04, 6),
-                        _buildAlbumTile('https://picsum.photos/seed/house/300', 0.05, 8),
-                        _buildAlbumTile('https://picsum.photos/seed/reggae/300', -0.08, 6),
+                        _buildAlbumTile('https://i.pinimg.com/1200x/55/ed/d5/55edd5f8215e3e6ae9d842501ddeb296.jpg', -0.12, 4),
+                        _buildAlbumTile('https://i.pinimg.com/1200x/40/e0/51/40e051803c96da23aa787e846532f6a4.jpg', -0.04, 6),
+                        _buildAlbumTile('https://i.pinimg.com/1200x/62/cd/f5/62cdf5877dfa0115900fcc5ca0551368.jpg', 0.05, 8),
+                        _buildAlbumTile('https://i.pinimg.com/736x/28/60/7a/28607abee735a5c7ab04d1eb42a20aab.jpg', -0.08, 6),
                       ],
                     ),
                   ),
