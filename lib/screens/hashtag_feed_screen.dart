@@ -1,8 +1,8 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../models/song_model.dart';
+import '../services/audio_controller.dart';
 
 class HashtagFeedScreen extends StatefulWidget {
   final String title;
@@ -21,29 +21,46 @@ class HashtagFeedScreen extends StatefulWidget {
 }
 
 class _HashtagFeedScreenState extends State<HashtagFeedScreen> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioController _audioController = AudioController.instance;
   final PageController _pageController = PageController();
   int _currentIndex = 0;
-  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioController.addListener(_onAudioChanged);
+  }
+
+  void _onAudioChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
+    _audioController.removeListener(_onAudioChanged);
     _pageController.dispose();
-    _audioPlayer.dispose();
     super.dispose();
   }
 
-  Future<void> _toggleSong(SongModel song) async {
+  bool _isPlayingSong(SongModel song) =>
+      _audioController.isPlaying &&
+      _audioController.currentSong?.audioUrl == song.audioUrl;
+
+  Future<void> _toggleSong(List<SongModel> songs, int index) async {
+    final song = songs[index];
     if (song.audioUrl.isEmpty) return;
 
-    if (_isPlaying) {
-      await _audioPlayer.pause();
-      if (mounted) setState(() => _isPlaying = false);
+    if (_audioController.currentSong?.audioUrl == song.audioUrl) {
+      await _audioController.togglePlayPause();
       return;
     }
 
-    await _audioPlayer.play(UrlSource(song.audioUrl));
-    if (mounted) setState(() => _isPlaying = true);
+    await _audioController.setPlaylist(
+      songs,
+      initialIndex: index,
+      autoPlay: true,
+      playlistName: widget.title,
+    );
   }
 
   @override
@@ -77,11 +94,13 @@ class _HashtagFeedScreenState extends State<HashtagFeedScreen> {
             scrollDirection: Axis.vertical,
             itemCount: songs.length,
             onPageChanged: (index) async {
-              if (_isPlaying) await _audioPlayer.stop();
+              if (_currentIndex < songs.length &&
+                  _isPlayingSong(songs[_currentIndex])) {
+                await _audioController.togglePlayPause();
+              }
               if (mounted) {
                 setState(() {
                   _currentIndex = index;
-                  _isPlaying = false;
                 });
               }
             },
@@ -93,8 +112,8 @@ class _HashtagFeedScreenState extends State<HashtagFeedScreen> {
                 fallbackImage: widget.image,
                 song: song,
                 isCurrent: index == _currentIndex,
-                isPlaying: index == _currentIndex && _isPlaying,
-                onPlay: () => _toggleSong(song),
+                isPlaying: _isPlayingSong(song),
+                onPlay: () => _toggleSong(songs, index),
                 isVideo: index % 4 != 3,
               );
             },
@@ -298,14 +317,18 @@ class _VideoBackdropState extends State<_VideoBackdrop> {
             Uri.parse(
               'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
             ),
+            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
           )
           ..initialize()
               .then((_) {
                 if (mounted) {
-                  _controller
-                    ..setLooping(true)
-                    ..play();
-                  setState(() {});
+                  _controller.setVolume(0).then((_) {
+                    if (!mounted) return;
+                    _controller
+                      ..setLooping(true)
+                      ..play();
+                    setState(() {});
+                  });
                 }
               })
               .catchError((Object _) {});
