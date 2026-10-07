@@ -7,6 +7,7 @@ import '../services/song_service.dart';
 import '../widgets/home/header_greeting.dart';
 import '../widgets/home/horizontal_playlist_section.dart';
 import 'playlist_detail_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -106,13 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void _quickPlay(Map<String, String> item) async {
     final title = (item['title'] ?? '').toLowerCase();
     final currentTitle = (_audio.currentSong?.title ?? '').toLowerCase();
-
     if (_audio.isPlaying && (currentTitle == title || _activeTitle.toLowerCase() == title)) {
       await _audio.togglePlayPause();
       setState(() {});
       return;
     }
-
     if (!_audio.isPlaying && _audio.currentSong != null && _activeTitle.toLowerCase() == title) {
       await _audio.togglePlayPause();
       setState(() {});
@@ -120,12 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     _activeTitle = item['title'] ?? '';
+
     final found = PlaylistController.instance.userPlaylists.firstWhere(
       (p) => (p['name'] ?? '').toLowerCase() == title,
       orElse: () => {},
     );
 
     List<SongModel> songs = List<SongModel>.from(found['songs'] ?? []);
+
     if (songs.isNotEmpty) {
       await _audio.setPlaylist(songs, initialIndex: 0);
     } else {
@@ -163,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
-
           return Scaffold(
             backgroundColor: isDark ? const Color(0xFF121316) : const Color(0xFFEBEFF2),
             appBar: AppBar(
@@ -307,9 +307,14 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const HeaderGreetingWidget(salam: 'Melodix'),
+              ValueListenableBuilder<UserAccountData>(
+                valueListenable: currentAccountNotifier,
+                builder: (context, account, _) {
+                  final greetingText = account.isLoggedIn ? 'Hi, ${account.name}' : 'Melodix';
+                  return HeaderGreetingWidget(salam: greetingText);
+                },
+              ),
               const SizedBox(height: 14),
-
               // Filter kategori atas
               SizedBox(
                 height: 40,
@@ -343,7 +348,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -358,7 +362,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-
               // Bento Spotlight
               if (spotlightItems.isNotEmpty)
                 Padding(
@@ -427,7 +430,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-
                         // Dua kartu kecil kanan
                         Expanded(
                           flex: 5,
@@ -478,7 +480,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               const SizedBox(height: 28),
-
               // Recently Played
               HorizontalPlaylistSection(
                 title: 'Recently played',
@@ -489,10 +490,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 activePlayingTitle: _activeTitle,
               ),
               const SizedBox(height: 24),
-
               // Made For You
               HorizontalPlaylistSection(
-                title: activeTitle == 'All' ? 'Made for you' : 'Made for you • $activeTitle',
+                title: activeTitle == 'All' ? 'Made for you' : 'Made for you   $activeTitle',
                 items: selectedItems,
                 onSeeAll: () => _openGrid(activeTitle == 'All' ? 'Made for you' : 'Made for you ($activeTitle)', selectedItems),
                 onItemTap: _openDetail,

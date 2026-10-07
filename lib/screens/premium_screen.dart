@@ -7,14 +7,13 @@ class PremiumScreen extends StatelessWidget {
 
   void _showTermsDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: isDark ? const Color(0xFF1E212B) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Syarat & Ketentuan',
+          'Terms & Conditions',
           style: TextStyle(
             color: isDark ? Colors.white : Colors.black87,
             fontWeight: FontWeight.bold,
@@ -22,10 +21,10 @@ class PremiumScreen extends StatelessWidget {
         ),
         content: SingleChildScrollView(
           child: Text(
-            '1. Akses langganan aktif seketika setelah pembayaran berhasil diverifikasi.\n\n'
-            '2. Pembayaran bersifat final dan tidak dapat ditarik kembali (non-refundable).\n\n'
-            '3. Kamu bebas membatalkan perpanjangan paket kapan saja langsung lewat menu pengaturan.\n\n'
-            '4. Mode putar offline dan audio kualitas studio dapat dinikmati selama masa aktif akun berjalan.',
+            '1. Subscription access activates immediately once payment is verified.\n\n'
+            '2. Payments are non-refundable.\n\n'
+            '3. You can cancel your subscription plan at any time in Settings.\n\n'
+            '4. Offline listening and studio-quality audio remain active during the valid subscription period.',
             style: TextStyle(
               color: isDark ? Colors.white70 : Colors.black87,
               fontSize: 13,
@@ -37,7 +36,7 @@ class PremiumScreen extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text(
-              'Tutup',
+              'Close',
               style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
             ),
           ),
@@ -49,13 +48,12 @@ class PremiumScreen extends StatelessWidget {
   void _showCheckoutDialog(BuildContext context, String planTitle, String price) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     String selectedPayment = 'GoPay';
-
     final paymentMethods = [
       {'name': 'GoPay', 'icon': Icons.account_balance_wallet_outlined},
       {'name': 'DANA', 'icon': Icons.wallet_outlined},
       {'name': 'OVO', 'icon': Icons.payments_outlined},
-      {'name': 'Transfer Bank (BCA/Mandiri)', 'icon': Icons.account_balance_outlined},
-      {'name': 'Kartu Debit / Kredit', 'icon': Icons.credit_card_outlined},
+      {'name': 'Bank Transfer (BCA/Mandiri)', 'icon': Icons.account_balance_outlined},
+      {'name': 'Credit / Debit Card', 'icon': Icons.credit_card_outlined},
     ];
 
     showModalBottomSheet(
@@ -75,7 +73,7 @@ class PremiumScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Langganan $planTitle',
+                    'Subscribe to $planTitle',
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black87,
                       fontSize: 18,
@@ -84,7 +82,7 @@ class PremiumScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Total tagihan: $price',
+                    'Total: $price',
                     style: TextStyle(
                       color: isDark ? Colors.amber : const Color(0xFFB45309),
                       fontSize: 14,
@@ -93,7 +91,7 @@ class PremiumScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Pilih Metode Pembayaran:',
+                    'Select Payment Method:',
                     style: TextStyle(
                       color: isDark ? Colors.white70 : Colors.black87,
                       fontSize: 13,
@@ -101,12 +99,10 @@ class PremiumScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   ...paymentMethods.map((pm) {
                     final name = pm['name'] as String;
                     final icon = pm['icon'] as IconData;
                     final isChosen = selectedPayment == name;
-
                     return GestureDetector(
                       onTap: () {
                         setModalState(() {
@@ -159,9 +155,7 @@ class PremiumScreen extends StatelessWidget {
                       ),
                     );
                   }),
-
                   const SizedBox(height: 16),
-
                   SizedBox(
                     width: double.infinity,
                     height: 46,
@@ -173,19 +167,18 @@ class PremiumScreen extends StatelessWidget {
                       ),
                       onPressed: () {
                         PremiumController.activatePremium(planTitle);
-
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             backgroundColor: Colors.amber,
                             content: Text(
-                              'Berhasil berlangganan $planTitle via $selectedPayment!',
+                              'Successfully subscribed to $planTitle via $selectedPayment!',
                               style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                           ),
                         );
                       },
-                      child: const Text('Bayar Sekarang', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text('Pay Now', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -197,7 +190,6 @@ class PremiumScreen extends StatelessWidget {
     );
   }
 
-  // Cover Album Header
   Widget _buildAlbumTile(String url, double angle, double elevation) {
     return Transform.rotate(
       angle: angle,
@@ -240,194 +232,203 @@ class PremiumScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Showcase
-            Stack(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 250,
-                  width: double.infinity,
-                  child: OverflowBox(
-                    maxWidth: MediaQuery.of(context).size.width * 1.5,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildAlbumTile('https://i.pinimg.com/1200x/55/ed/d5/55edd5f8215e3e6ae9d842501ddeb296.jpg', -0.12, 4),
-                        _buildAlbumTile('https://i.pinimg.com/1200x/40/e0/51/40e051803c96da23aa787e846532f6a4.jpg', -0.04, 6),
-                        _buildAlbumTile('https://i.pinimg.com/1200x/62/cd/f5/62cdf5877dfa0115900fcc5ca0551368.jpg', 0.05, 8),
-                        _buildAlbumTile('https://i.pinimg.com/736x/28/60/7a/28607abee735a5c7ab04d1eb42a20aab.jpg', -0.08, 6),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Gradasi Latar
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0.0, 0.4, 0.8, 1.0],
-                        colors: [
-                          Colors.transparent,
-                          bgColor.withAlpha(130),
-                          bgColor.withAlpha(235),
-                          bgColor,
-                        ],
+                Stack(
+                  children: [
+                    SizedBox(
+                      height: 250,
+                      width: double.infinity,
+                      child: OverflowBox(
+                        maxWidth: MediaQuery.of(context).size.width * 1.5,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildAlbumTile('https://i.pinimg.com/1200x/55/ed/d5/55edd5f8215e3e6ae9d842501ddeb296.jpg', -0.12, 4),
+                            _buildAlbumTile('https://i.pinimg.com/1200x/40/e0/51/40e051803c96da23aa787e846532f6a4.jpg', -0.04, 6),
+                            _buildAlbumTile('https://i.pinimg.com/1200x/62/cd/f5/62cdf5877dfa0115900fcc5ca0551368.jpg', 0.05, 8),
+                            _buildAlbumTile('https://i.pinimg.com/736x/28/60/7a/28607abee735a5c7ab04d1eb42a20aab.jpg', -0.08, 6),
+                          ],
+                        ),
                       ),
                     ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: const [0.0, 0.4, 0.8, 1.0],
+                            colors: [
+                              Colors.transparent,
+                              bgColor.withAlpha(130),
+                              bgColor.withAlpha(235),
+                              bgColor,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1DB954).withAlpha(isDark ? 45 : 30),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.stars_rounded, color: Color(0xFF1DB954), size: 18),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Melodix Plus',
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Listen without limits\nwith Melodix Standard.',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () => _showCheckoutDialog(
+                            context,
+                            'Standard',
+                            'IDR 59,900 / month',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark ? Colors.white : Colors.black87,
+                            foregroundColor: isDark ? Colors.black : Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Get Melodix Standard',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () => _showTermsDialog(context),
+                        child: Text(
+                          'Terms & conditions apply.',
+                          style: TextStyle(
+                            color: isDark ? Colors.white70 : Colors.black54,
+                            fontSize: 11.5,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const PremiumBenefitsCard(),
+                      const SizedBox(height: 34),
+                      Text(
+                        'Available Plans',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      PremiumPlanCard(
+                        title: 'Standard',
+                        titleColor: const Color(0xFF1DB954),
+                        price: 'IDR 59,900 / month',
+                        features: const [
+                          '1 Melodix Standard Account',
+                          'Download music for offline listening',
+                          'Studio-grade audio format (~320kbps)',
+                          'Continuous music with no commercial ad breaks',
+                          'Cancel your subscription anytime',
+                        ],
+                        buttonText: 'Get Standard',
+                        buttonColor: const Color(0xFF1DB954),
+                        onSelect: () => _showCheckoutDialog(
+                          context,
+                          'Standard',
+                          'IDR 59,900 / month',
+                        ),
+                      ),
+                      PremiumPlanCard(
+                        title: 'Platinum',
+                        titleColor: const Color.fromARGB(255, 255, 191, 71),
+                        price: 'IDR 119,900 / month',
+                        features: const [
+                          'High-fidelity lossless audio (320 kbps)',
+                          'AI Smart Curator & Personalized Recommendations',
+                          'Exclusive releases & early song access',
+                          'Cancel your subscription anytime',
+                        ],
+                        buttonText: 'Get Platinum',
+                        buttonColor: const Color.fromARGB(255, 255, 191, 71),
+                        onSelect: () => _showCheckoutDialog(
+                          context,
+                          'Platinum',
+                          'IDR 119,900 / month',
+                        ),
+                      ),
+                      const SizedBox(height: 100),
+                    ],
                   ),
                 ),
               ],
             ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Label Header
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1DB954).withAlpha(isDark ? 45 : 30),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.stars_rounded, color: Color(0xFF1DB954), size: 18),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Melodix Plus',
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
+          ),
+          // Back Button Navigation 
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 4.0),
+              child: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(120),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 12),
-
-                  // Headline Utama
-                  Text(
-                    'Dengarkan musik tanpa batas\ndengan Melodix Standard.',
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: 18,
                   ),
-                  const SizedBox(height: 20),
-
-                  // Tombol pilih Standard
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () => _showCheckoutDialog(
-                        context,
-                        'Standard',
-                        'IDR 59,900 / bulan',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isDark ? Colors.white : Colors.black87,
-                        foregroundColor: isDark ? Colors.black : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Pilih Melodix Standard',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  GestureDetector(
-                    onTap: () => _showTermsDialog(context),
-                    child: Text(
-                      'Syarat & ketentuan berlaku.',
-                      style: TextStyle(
-                        color: isDark ? Colors.white70 : Colors.black54,
-                        fontSize: 11.5,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const PremiumBenefitsCard(),
-                  const SizedBox(height: 34),
-
-                  // Judul Paket
-                  Text(
-                    'Pilihan Paket Melodix',
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Paket 1: Standard
-                  PremiumPlanCard(
-                    title: 'Standard',
-                    titleColor: const Color(0xFF1DB954),
-                    price: 'IDR 59,900 / bulan',
-                    features: const [
-                      '1 Akun Melodix Standard',
-                      'Simpan lagu tanpa kuota internet',
-                      'Format audio studio jernih (~320kbps)',
-                      'Kendali bebas tanpa jeda sponsor',
-                      'Bisa berhenti langganan kapan saja',
-                    ],
-                    buttonText: 'Pilih Standard',
-                    buttonColor: const Color(0xFF1DB954),
-                    onSelect: () => _showCheckoutDialog(
-                      context,
-                      'Standard',
-                      'IDR 59,900 / bulan',
-                    ),
-                  ),
-
-                  // Paket 2: Platinum
-                  PremiumPlanCard(
-                    title: 'Platinum',
-                    titleColor: const Color.fromARGB(255, 255, 191, 71),
-                    price: 'IDR 119,900 / bulan',
-                    features: const [
-                      'Audio resolusi tinggi (320 kbps)',
-                      'Asisten Kurasi Cerdas & Rekomendasi Pintar',
-                      'Akses rilis eksklusif & audio tanpa kompresi',
-                      'Bisa berhenti langganan kapan saja',
-                    ],
-                    buttonText: 'Pilih Platinum',
-                    buttonColor: const Color.fromARGB(255, 255, 191, 71),
-                    onSelect: () => _showCheckoutDialog(
-                      context,
-                      'Platinum',
-                      'IDR 119,900 / bulan',
-                    ),
-                  ),
-
-                  const SizedBox(height: 100),
-                ],
+                ),
+                onPressed: () {
+                  Navigator.of(context).maybePop();
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
