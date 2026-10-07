@@ -135,7 +135,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
       );
     }
 
-    final hasPlaylistName = _audioController.currentPlaylistName.isNotEmpty;
+    final isQueuePlayback = _audioController.isQueuePlayback;
+    final sourceName = _audioController.currentPlaylistName.trim();
+
+    final sourceLabel = isQueuePlayback
+        ? 'FROM QUEUE'
+        : sourceName.isNotEmpty
+            ? 'FROM $sourceName'
+            : 'FROM HOME';
+
+    final sourceTitle = currentSong.title;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -146,7 +155,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              hasPlaylistName ? 'PLAYING FROM PLAYLIST' : 'NOW PLAYING',
+              sourceLabel,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -156,7 +165,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              hasPlaylistName ? _audioController.currentPlaylistName : currentSong.title,
+              sourceTitle,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -208,9 +217,181 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 24),
+            const _QueueSection(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _QueueSection extends StatelessWidget {
+  const _QueueSection();
+
+  Future<void> _confirmClearQueue(BuildContext context) async {
+    final controller = AudioController.instance;
+    if (controller.queue.isEmpty) return;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF282828) : Colors.white,
+        title: Text(
+          'Clear Queue?',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+        ),
+        content: Text(
+          'Remove all songs from your queue?',
+          style: TextStyle(color: isDark ? Colors.grey[300] : Colors.grey[700]),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Clear',
+              style: TextStyle(color: Color(0xFF1DB954)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      controller.clearQueue();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = AudioController.instance;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subTextColor = isDark ? Colors.grey : Colors.grey.shade600;
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        final queue = controller.queue;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'NEXT UP',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: queue.isEmpty
+                      ? null
+                      : () => _confirmClearQueue(context),
+                  child: const Text(
+                    'Clear',
+                    style: TextStyle(color: Color(0xFF1DB954)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (queue.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Queue is empty',
+                  style: TextStyle(color: subTextColor, fontSize: 13),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: queue.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final song = queue[index];
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF22252E) : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: song.albumCover.isNotEmpty
+                              ? Image.network(
+                                  song.albumCover,
+                                  width: 48,
+                                  height: 48,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => Container(
+                                    width: 48,
+                                    height: 48,
+                                    color: Colors.grey.shade800,
+                                    child: const Icon(Icons.music_note, color: Colors.white54),
+                                  ),
+                                )
+                              : Container(
+                                  width: 48,
+                                  height: 48,
+                                  color: Colors.grey.shade800,
+                                  child: const Icon(Icons.music_note, color: Colors.white54),
+                                ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                song.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                song.artist,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: subTextColor, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Remove from Queue',
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: isDark ? Colors.white70 : Colors.black54,
+                          ),
+                          onPressed: () => controller.removeFromQueue(song),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
+        );
+      },
     );
   }
 }
