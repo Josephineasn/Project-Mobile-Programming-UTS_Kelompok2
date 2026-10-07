@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../models/song_model.dart';
+import '../core/app_colors.dart';
 import '../services/audio_controller.dart';
 import '../services/song_service.dart';
 import 'hashtag_feed_screen.dart';
 import '../widgets/search/custom_search_bar.dart';
 import '../widgets/search/search_card.dart';
 import '../widgets/search/search_category.dart';
+import '../widgets/player/queue_action_button.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -79,6 +81,27 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  Future<void> _playAndOpenPlayer({
+    required List<SongModel> songs,
+    required int index,
+    required String playlistName,
+  }) async {
+    final song = songs[index];
+    final isCurrent = _audioController.currentSong?.audioUrl == song.audioUrl;
+
+    if (isCurrent) {
+      await _audioController.togglePlayPause();
+    } else {
+      await _audioController.setPlaylist(
+        songs,
+        initialIndex: index,
+        autoPlay: true,
+        playlistName: playlistName,
+      );
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -89,35 +112,24 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'search',
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  height: kToolbarHeight,
+                  child: Row(
+                    children: [
                   CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.green[200],
-                    child: const Text(
-                      'H',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                    radius: 16,
+                    backgroundColor: AppColors.primaryGreen,
+                    child: const Icon(
+                      Icons.person,
+                      size: 20,
+                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -130,21 +142,25 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   const Spacer(),
-                  Icon(
-                    Icons.camera_alt_outlined,
-                    color: textColor,
-                    size: 24,
+                      Icon(
+                        Icons.camera_alt_outlined,
+                        color: textColor,
+                        size: 24,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 12),
-              CustomSearchBar(
-                controller: _searchController,
-                onChanged: (query) => _performSearch(query),
-                onClear: () {
-                  _searchController.clear();
-                  _performSearch('');
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CustomSearchBar(
+                  controller: _searchController,
+                  onChanged: (query) => _performSearch(query),
+                  onClear: () {
+                    _searchController.clear();
+                    _performSearch('');
+                  },
+                ),
               ),
               const SizedBox(height: 24),
               if (_isSearching) ...[
@@ -207,27 +223,29 @@ class _SearchScreenState extends State<SearchScreen> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: subTextColor),
                         ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
-                            color: const Color(0xFF1DB954),
-                            size: 32,
-                          ),
-                          onPressed: () {
-                            if (isCurrent) {
-                              _audioController.togglePlayPause();
-                            } else {
-                              _audioController.setPlaylist(_searchResults, initialIndex: index, autoPlay: true, playlistName: 'Search');
-                            }
-                          },
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            QueueActionButton(song: song, size: 24),
+                            IconButton(
+                              icon: Icon(
+                                isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                                color: const Color(0xFF1DB954),
+                                size: 32,
+                              ),
+                              onPressed: () => _playAndOpenPlayer(
+                                songs: _searchResults,
+                                index: index,
+                                playlistName: 'Search',
+                              ),
+                            ),
+                          ],
                         ),
-                        onTap: () {
-                          if (isCurrent) {
-                            _audioController.togglePlayPause();
-                          } else {
-                            _audioController.setPlaylist(_searchResults, initialIndex: index, autoPlay: true, playlistName: 'Search');
-                          }
-                        },
+                        onTap: () => _playAndOpenPlayer(
+                          songs: _searchResults,
+                          index: index,
+                          playlistName: 'Search',
+                        ),
                       );
                     },
                   ),
@@ -243,9 +261,11 @@ class _SearchScreenState extends State<SearchScreen> {
                       ('K-Pop ON!', Colors.blue, 3),
                     ];
 
-                    return Column(
-                      children: [
-                        for (var row = 0; row < 2; row++) ...[
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          for (var row = 0; row < 2; row++) ...[
                           if (row > 0) const SizedBox(height: 12),
                           Row(
                             children: [
@@ -290,17 +310,21 @@ class _SearchScreenState extends State<SearchScreen> {
                             ],
                           ),
                         ],
-                      ],
+                        ],
+                      ),
                     );
                   },
                 ),
                 const SizedBox(height: 25),
-                Text(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
                   'Temukan sesuatu yang lain',
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 15),
@@ -308,6 +332,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   height: 230,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     children: [
                       SearchCard(
                         title: '#timor hip hop',
@@ -397,6 +422,23 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _playAndOpenPlayer(int index) async {
+    final song = widget.songs[index];
+    final isCurrent = _audioController.currentSong?.audioUrl == song.audioUrl;
+
+    if (isCurrent) {
+      await _audioController.togglePlayPause();
+    } else {
+      await _audioController.setPlaylist(
+        widget.songs,
+        initialIndex: index,
+        autoPlay: true,
+        playlistName: widget.title,
+      );
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -461,13 +503,7 @@ class _CategorySongsScreenState extends State<_CategorySongsScreen> {
               isPlaying ? Icons.pause : Icons.play_arrow,
               color: isCurrent ? const Color(0xFF1DB954) : itemTextColor,
             ),
-            onTap: () {
-              if (isCurrent) {
-                _audioController.togglePlayPause();
-              } else {
-                _audioController.setPlaylist(widget.songs, initialIndex: index, autoPlay: true, playlistName: widget.title);
-              }
-            },
+            onTap: () => _playAndOpenPlayer(index),
           );
         },
       ),
