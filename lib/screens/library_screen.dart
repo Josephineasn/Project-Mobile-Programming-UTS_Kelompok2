@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../services/audio_controller.dart';
 import '../services/playlist_controller.dart';
 import '../widgets/library/playlist_item_tile.dart';
 import '../widgets/library/library_header.dart';
+import '../widgets/library/add_playlist_button.dart';
 import '../widgets/library/filter_chip_row.dart';
 import '../widgets/library/library_sort_dropdown.dart';
 import '../models/song_model.dart';
@@ -23,9 +25,8 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   String selectedFilter = '';
   bool isSearching = false;
   String searchQuery = '';
-
-  String _currentSort = 'terbaru';
-  bool _isGridView = false;
+  String _currentSort = 'Latest';
+  bool _isGridView = true;
 
   @override
   void initState() {
@@ -48,42 +49,230 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   }
 
   List<Map<String, dynamic>> get sortedPlaylists {
-    List<Map<String, dynamic>> allPlaylists = [
-      {
-        'name': 'Liked Songs',
-        'isPinned': true,
-        'songs': List<SongModel>.from(_audioController.likedSongs),
-        'imageUrl': 'assets/images/liked_songs.png',
-      },
-      ..._playlistController.userPlaylists,
-    ];
+  List<Map<String, dynamic>> rawPlaylists = [
+    // --- LIKED SONGS ---
+    {
+      'id': 'liked_songs',
+      'name': 'Liked Songs',
+      'isPinned': true,
+      'isLikedSongs': true,
+      'type': 'Playlists',
+      'category': 'All',
+      'songs': List<SongModel>.from(_audioController.likedSongs),
+      'imageUrl': 'assets/images/likedsongs.png',
+      'subtitle': 'Your favorite tracks, all in one place.',
+    },
 
-    List<Map<String, dynamic>> filteredList = allPlaylists.where((item) {
-      final name = item['name'].toString().toLowerCase();
-      final query = searchQuery.toLowerCase();
-      return name.contains(query);
-    }).toList();
+    // --- DEEP FOCUS ---
+    {
+      'id': 'daydream_mix',
+      'name': 'Daydream Mix',
+      'type': 'Playlists',
+      'category': 'Deep Focus',
+      'subtitle': 'Lost in thoughts, one track at a time.',
+      'imageUrl': 'assets/images/daydream.jpg',
+    },
+    {
+      'id': 'focus_flow',
+      'name': 'Focus Flow',
+      'isPinned': true,
+      'type': 'Playlists',
+      'category': 'Deep Focus',
+      'subtitle': 'Zero distractions, pure productivity.',
+      'imageUrl': 'assets/images/focus.jpg',
+    },
+    {
+      'id': 'deep_zone',
+      'name': 'Deep Zone',
+      'type': 'Playlists',
+      'category': 'Deep Focus',
+      'subtitle': 'Ambient soundscapes to lock you in.',
+      'imageUrl': 'assets/images/deepzone.jpg',
+    },
 
-    filteredList.sort((a, b) {
-      if (a['isPinned'] != b['isPinned']) {
-        return a['isPinned'] ? -1 : 1;
-      }
-      switch (_currentSort) {
-        case 'Latest':
-          return 0;
-        case 'alphabet':
-          return (a['name'] as String).compareTo(b['name'] as String);
-        case 'SongCount':
-          final countA = (a['songs'] as List?)?.length ?? 0;
-          final countB = (b['songs'] as List?)?.length ?? 0;
-          return countB.compareTo(countA);
-        default:
-          return 0;
-      }
-    });
+    // --- MIDNIGHT WALK ---
+    {
+      'id': 'night_drift',
+      'name': 'Night Drift',
+      'type': 'Playlists',
+      'category': 'Midnight Walk',
+      'subtitle': 'Empty streets and midnight thoughts.',
+      'imageUrl': 'assets/images/nightdrift.jpg',
+    },
+    {
+      'id': 'starlight',
+      'name': 'Starlight',
+      'type': 'Playlists',
+      'category': 'Midnight Walk',
+      'subtitle': 'Soundtrack for your late-night strolls.',
+      'imageUrl': 'assets/images/starlight.jpg',
+    },
+    {
+      'id': 'after_hours',
+      'name': 'After Hours',
+      'type': 'Playlists',
+      'category': 'Midnight Walk',
+      'subtitle': 'Neon lights and quiet beats.',
+      'imageUrl': 'assets/images/afterhours.jpg',
+    },
 
-    return filteredList;
+    // --- WORKOUT BOOST ---
+    {
+      'id': 'power_rush',
+      'name': 'Power Rush',
+      'type': 'Playlists',
+      'category': 'Workout Boost',
+      'subtitle': 'High energy to crush your limits.',
+      'imageUrl': 'assets/images/powerrush.jpg',
+    },
+    {
+      'id': 'beast_mode',
+      'name': 'Beast Mode',
+      'isPinned': true,
+      'type': 'Playlists',
+      'category': 'Workout Boost',
+      'subtitle': 'Heavy bass to fuel the grind.',
+      'imageUrl': 'assets/images/beastmode.jpg',
+    },
+    {
+      'id': 'hype_mix',
+      'name': 'Hype Mix',
+      'type': 'Playlists',
+      'category': 'Workout Boost',
+      'subtitle': 'Upbeat tracks for maximum drive.',
+      'imageUrl': 'assets/images/hypemix.jpg',
+    },
+
+    // --- MELANCHOLY ---
+    {
+      'id': 'blue_hour',
+      'name': 'Blue Hour',
+      'type': 'Playlists',
+      'category': 'Melancholy',
+      'subtitle': 'Soft melodies for heavy feelings.',
+      'imageUrl': 'assets/images/bluehour.jpg',
+    },
+    {
+      'id': 'soft_fade',
+      'name': 'Soft Fade',
+      'type': 'Playlists',
+      'category': 'Melancholy',
+      'subtitle': 'Gentle notes for quiet heartbreak.',
+      'imageUrl': 'assets/images/softfade.jpg',
+    },
+    {
+      'id': 'melancholy',
+      'name': 'Melancholy',
+      'type': 'Playlists',
+      'category': 'Melancholy',
+      'subtitle': 'Raw, honest songs that understand.',
+      'imageUrl': 'assets/images/melancholy.jpg',
+    },
+
+    // --- TRENDING SPOTLIGHT ---
+    {
+      'id': 'trending_now',
+      'name': 'Trending Now',
+      'type': 'Playlists',
+      'category': 'Trending Spotlight',
+      'subtitle': 'What the world is listening to today.',
+      'imageUrl': 'assets/images/trending.jpg',
+    },
+    {
+      'id': 'top_hits_id',
+      'name': 'Top Hits Indonesia',
+      'isPinned': true,
+      'type': 'Playlists',
+      'category': 'Trending Spotlight',
+      'subtitle': 'Lagu terpopuler minggu ini.',
+      'imageUrl': 'assets/images/tophits.jpg',
+    },
+    {
+      'id': 'chart_climbers',
+      'name': 'Chart Climbers',
+      'type': 'Playlists',
+      'category': 'Trending Spotlight',
+      'subtitle': 'The biggest tracks blowing up right now.',
+      'imageUrl': 'assets/images/chart.jpg',
+    },
+    {
+      'id': 'hot_right_now',
+      'name': 'Hot Right Now',
+      'type': 'Playlists',
+      'category': 'Trending Spotlight',
+      'subtitle': 'Viral anthems you cannot skip.',
+      'imageUrl': 'assets/images/hotright.jpg',
+    },
+
+    // Playlist buatan user
+    ..._playlistController.userPlaylists.map((p) {
+      return {
+        'type': 'Playlists',
+        'category': 'Playlists',
+        ...p,
+      };
+    }),
+  ];
+
+  // Hapus item dengan nama/id yang sama
+  final Set<String> seenNames = {};
+  List<Map<String, dynamic>> uniquePlaylists = [];
+
+  for (var item in rawPlaylists) {
+    final nameKey = item['name']?.toString().toLowerCase().trim() ?? '';
+    if (nameKey.isNotEmpty && !seenNames.contains(nameKey)) {
+      seenNames.add(nameKey);
+      uniquePlaylists.add(item);
+    }
   }
+
+  // Filtering
+  List<Map<String, dynamic>> filteredList = uniquePlaylists.where((item) {
+    final name = item['name'].toString().toLowerCase();
+    final query = searchQuery.toLowerCase();
+    final matchesSearch = name.contains(query);
+
+    if (selectedFilter.isEmpty || selectedFilter.toLowerCase() == 'all') {
+      return matchesSearch;
+    }
+
+    final itemType = (item['type'] ?? '').toString().toLowerCase();
+    final itemCategory = (item['category'] ?? '').toString().toLowerCase();
+    final filterLower = selectedFilter.toLowerCase();
+
+    final matchesFilter = itemType == filterLower || itemCategory == filterLower;
+
+    return matchesSearch && matchesFilter;
+  }).toList();
+
+  // Sorting
+  filteredList.sort((a, b) {
+    if (a['isLikedSongs'] == true) return -1;
+    if (b['isLikedSongs'] == true) return 1;
+
+    // Pinned items
+    final bool isPinnedA = a['isPinned'] == true;
+    final bool isPinnedB = b['isPinned'] == true;
+
+    if (isPinnedA && !isPinnedB) return -1;
+    if (!isPinnedA && isPinnedB) return 1;
+
+    // Sort pilihan user
+    switch (_currentSort) {
+      case 'alphabet':
+        return (a['name'] as String).compareTo(b['name'] as String);
+      case 'SongCount':
+        final countA = (a['songs'] as List?)?.length ?? 0;
+        final countB = (b['songs'] as List?)?.length ?? 0;
+        return countB.compareTo(countA);
+      case 'Latest':
+      default:
+        return 0;
+    }
+  });
+
+  return filteredList;
+}
 
   void showCreatePlaylistDialog() {
     final controller = TextEditingController(
@@ -201,9 +390,8 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
               onPressed: () {
                 final text = controller.text.trim();
                 if (text.isNotEmpty) {
-                  setState(() {
-                    item['name'] = text;
-                  });
+                  final oldName = item['name'];
+                  _playlistController.renamePlaylist(oldName, text);
                 }
                 Navigator.pop(ctx);
               },
@@ -254,7 +442,8 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
-                _playlistController.deletePlaylist(item);
+                final playlistKey = item['id'] ?? item['name'];
+                _playlistController.deletePlaylist(playlistKey);
                 Navigator.pop(ctx);
               },
               child: const Text(
@@ -272,9 +461,218 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   }
 
   void togglePin(Map<String, dynamic> item) {
-    setState(() {
-      item['isPinned'] = !(item['isPinned'] ?? false);
-    });
+  final name = item['name'] as String?;
+    if (name != null) {
+      _playlistController.togglePin(name);
+    }
+  }
+
+  Widget _buildCustomMasonryGrid(
+    List<Map<String, dynamic>> displayList,
+    bool isDark,
+    Color textColor,
+  ) {
+    List<Widget> items = [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: InkWell(
+            onTap: showCreatePlaylistDialog,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              height: 160,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add, size: 48, color: textColor),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Add Playlist',
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+
+      ...displayList.map((item) {
+        String imageUrl = item['imageUrl'] ?? 'assets/images/placeholder.jpg';
+        final imageProvider = imageUrl.startsWith('http')
+            ? NetworkImage(imageUrl) as ImageProvider
+            : AssetImage(imageUrl);
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PlaylistDetailScreen(playlist: item),
+              ),
+            );
+          },
+          onLongPress: () {
+            showEditPlaylistDialog(item);
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1E1E1E).withValues(alpha: 0.6)
+                    : Colors.white.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AspectRatio(
+                    aspectRatio: 1.0,
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        if (item['isPinned'] == true)
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.push_pin,
+                                    color: Color(0xFF1DB954),
+                                    size: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(12),
+                    ),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item['name'],
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (item['subtitle'] != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                item['subtitle'],
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade700,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    ];
+
+    List<Widget> leftColumnItems = [];
+    List<Widget> rightColumnItems = [];
+
+    for (int i = 0; i < items.length; i++) {
+      if (i % 2 == 0) {
+        leftColumnItems.add(items[i]);
+        leftColumnItems.add(const SizedBox(height: 16));
+      } else {
+        rightColumnItems.add(items[i]);
+        rightColumnItems.add(const SizedBox(height: 16));
+      }
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: leftColumnItems,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: rightColumnItems,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -312,7 +710,10 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 4.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -347,107 +748,16 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
 
             Expanded(
               child: _isGridView
-                  ? GridView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.8,
-                          ),
-                      itemCount: displayList.length,
-                      itemBuilder: (context, index) {
-                        final item = displayList[index];
-                        String imageUrl =
-                            item['imageUrl'] ?? 'assets/images/placeholder.jpg';
-
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    PlaylistDetailScreen(playlist: item),
-                              ),
-                            );
-                          },
-                          onLongPress: () {
-                            showEditPlaylistDialog(item);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        image: DecorationImage(
-                                          image: imageUrl.startsWith('http')
-                                              ? NetworkImage(imageUrl)
-                                                    as ImageProvider
-                                              : AssetImage(imageUrl),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    if (item['isPinned'] == true)
-                                      Positioned(
-                                        top: 8,
-                                        right: 8,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.black54,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.push_pin,
-                                            color: Color(0xFF1DB954),
-                                            size: 16,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                item['name'],
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (item['subtitle'] != null) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  item['subtitle'],
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ],
-                          ),
-                        );
-                      },
-                    )
+                  ? _buildCustomMasonryGrid(displayList, isDark, textColor)
                   : ListView.builder(
-                      itemCount: displayList.length,
+                      itemCount: displayList.length + 1,
                       itemBuilder: (context, index) {
-                        final item = displayList[index];
+                        if (index == 0) {
+                          return AddPlaylistButton(
+                            onTap: showCreatePlaylistDialog,
+                          );
+                        }
+                        final item = displayList[index - 1];
                         return PlaylistItemTile(
                           title: item['name'],
                           imageUrl: item['imageUrl'],

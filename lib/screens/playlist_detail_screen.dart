@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../models/song_model.dart';
 import '../services/song_service.dart';
 import '../services/audio_controller.dart';
 import '../widgets/player/mini_player_bar.dart';
+import '../services/playlist_controller.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final Map<String, dynamic> playlist;
@@ -24,11 +26,17 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     super.initState();
     _audioController.addListener(_onAudioControllerChanged);
 
+    if (widget.playlist['songs'] == null) {
+      widget.playlist['songs'] = <SongModel>[];
+    }
+
     List<SongModel> currentSongs = List<SongModel>.from(
       widget.playlist['songs'] ?? [],
     );
 
-    if (currentSongs.isEmpty && !_isLikedSongsPlaylist) {
+    final bool isUserCreated = widget.playlist['isUserCreated'] == true;
+
+    if (currentSongs.isEmpty && !_isLikedSongsPlaylist && !isUserCreated) {
       _loadInitialSongs();
     }
   }
@@ -224,9 +232,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               if (_isLikedSongsPlaylist) {
                                 _audioController.toggleLike(song);
                               } else {
-                                setState(
-                                  () => widget.playlist['songs'].add(song),
+                                PlaylistController.instance.addSongToPlaylist(
+                                  widget.playlist['name'],
+                                  song,
                                 );
+                                setState(() {
+                                  if (widget.playlist['songs'] == null) {
+                                    widget.playlist['songs'] = <SongModel>[];
+                                  }
+                                  (widget.playlist['songs'] as List).add(song);
+                                });
                               }
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -282,11 +297,23 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              setState(() => widget.playlist['songs'].remove(song));
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Delete "${song.title}"')),
+              PlaylistController.instance.removeSongFromPlaylist(
+                widget.playlist['name'],
+                song,
               );
+
+              setState(() {
+                if (widget.playlist['songs'] != null) {
+                  (widget.playlist['songs'] as List).removeWhere(
+                    (s) => s.title == song.title,
+                  );
+                }
+              });
+
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Delete "${song.title}"')));
             },
             child: const Text(
               'Delete',
@@ -305,7 +332,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
-    
+
     List<SongModel> songs = List<SongModel>.from(
       _isLikedSongsPlaylist
           ? _audioController.likedSongs
@@ -342,7 +369,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    _isLikedSongsPlaylist ? Icons.favorite_border : Icons.music_off,
+                    _isLikedSongsPlaylist
+                        ? Icons.favorite_border
+                        : Icons.music_off,
                     size: 64,
                     color: Colors.grey,
                   ),
@@ -485,7 +514,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 );
               },
             ),
-
       bottomNavigationBar: const MiniPlayerBar(),
     );
   }
