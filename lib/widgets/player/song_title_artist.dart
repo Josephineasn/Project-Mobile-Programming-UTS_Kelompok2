@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/song_model.dart';
 import '../../services/audio_controller.dart';
 import '../../services/playlist_controller.dart';
+import 'queue_action_button.dart';
 
 class SongTitleArtist extends StatelessWidget {
   final SongModel song;
@@ -177,6 +178,7 @@ class SongTitleArtist extends StatelessWidget {
                   ),
                   onPressed: () => _showAddToPlaylistBottomSheet(context),
                 ),
+                QueueActionButton(song: activeSong),
                 IconButton(
                   icon: Icon(
                     isLiked ? Icons.favorite : Icons.favorite_border,
