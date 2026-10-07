@@ -43,12 +43,10 @@ class LibraryHeader extends StatelessWidget implements PreferredSizeWidget {
                 CircleAvatar(
                   radius: 16,
                   backgroundColor: const Color(0xFF1DB954),
-                  child: Text(
-                    'U',
-                    style: TextStyle(
-                      color: isDark ? Colors.black : Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Icon(
+                    Icons.person,
+                    size: 20,
+                    color: isDark ? Colors.black : Colors.white,
                   ),
                 ),
                 const SizedBox(width: 12),

@@ -1,10 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song_model.dart';
 
 class PlaylistController extends ChangeNotifier {
   static final PlaylistController instance = PlaylistController._internal();
   factory PlaylistController() => instance;
-  PlaylistController._internal();
+
+  PlaylistController._internal() {
+    _loadFromStorage(); // Memuat data tersimpan saat controller diinisialisasi
+  }
+
+  static const String _storageKey = 'user_playlists_storage';
 
   final List<Map<String, dynamic>> _userPlaylists = [
     {
@@ -151,6 +158,79 @@ class PlaylistController extends ChangeNotifier {
 
   List<Map<String, dynamic>> get userPlaylists => _userPlaylists;
 
+  Future<void> _saveToStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final dataToSave = _userPlaylists.map((playlist) {
+        final songsList = (playlist['songs'] as List<SongModel>?)?.map((s) {
+              return {
+                'title': s.title,
+                'artist': s.artist,
+                'audioUrl': s.audioUrl,
+                'albumCover': s.albumCover,
+              };
+            }).toList() ??
+            [];
+
+        return {
+          'id': playlist['id'],
+          'name': playlist['name'],
+          'isPinned': playlist['isPinned'] ?? false,
+          'isUserCreated': playlist['isUserCreated'] ?? false,
+          'imageUrl': playlist['imageUrl'],
+          'subtitle': playlist['subtitle'],
+          'songs': songsList,
+        };
+      }).toList();
+
+      await prefs.setString(_storageKey, jsonEncode(dataToSave));
+    } catch (e) {
+      debugPrint('Error saving playlists: $e');
+    }
+  }
+
+  Future<void> _loadFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString(_storageKey);
+
+      if (jsonString != null && jsonString.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(jsonString);
+
+        _userPlaylists.clear();
+
+        for (var item in decoded) {
+          final map = Map<String, dynamic>.from(item);
+          final songsList = (map['songs'] as List<dynamic>?)?.map((s) {
+                final songMap = Map<String, dynamic>.from(s);
+                return SongModel(
+                  title: songMap['title'] ?? '',
+                  artist: songMap['artist'] ?? '',
+                  audioUrl: songMap['audioUrl'] ?? '',
+                  albumCover: songMap['albumCover'] ?? '',
+                );
+              }).toList() ??
+              <SongModel>[];
+
+          _userPlaylists.add({
+            'id': map['id'],
+            'name': map['name'],
+            'isPinned': map['isPinned'] ?? false,
+            'isUserCreated': map['isUserCreated'] ?? false,
+            'imageUrl': map['imageUrl'],
+            'subtitle': map['subtitle'],
+            'songs': songsList,
+          });
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading playlists: $e');
+    }
+  }
+
+
   int _findPlaylistIndex(dynamic keyOrName) {
     return _userPlaylists.indexWhere(
       (p) => p['id'] == keyOrName || p['name'] == keyOrName,
@@ -160,7 +240,9 @@ class PlaylistController extends ChangeNotifier {
   void togglePin(String playlistName) {
     final index = _findPlaylistIndex(playlistName);
     if (index != -1) {
-      _userPlaylists[index]['isPinned'] = !(_userPlaylists[index]['isPinned'] ?? false);
+      _userPlaylists[index]['isPinned'] =
+          !(_userPlaylists[index]['isPinned'] ?? false);
+      _saveToStorage();
       notifyListeners();
     }
   }
@@ -168,11 +250,14 @@ class PlaylistController extends ChangeNotifier {
   void addSongToPlaylist(String playlistName, SongModel song) {
     final index = _findPlaylistIndex(playlistName);
     if (index != -1) {
-      final List<SongModel> songs = List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
-      final exists = songs.any((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
+      final List<SongModel> songs =
+          List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
+      final exists = songs.any((s) =>
+          s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
       if (!exists) {
         songs.add(song);
         _userPlaylists[index]['songs'] = songs;
+        _saveToStorage();
         notifyListeners();
       }
     }
@@ -181,9 +266,12 @@ class PlaylistController extends ChangeNotifier {
   void removeSongFromPlaylist(String playlistName, SongModel song) {
     final index = _findPlaylistIndex(playlistName);
     if (index != -1) {
-      final List<SongModel> songs = List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
-      songs.removeWhere((s) => s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
+      final List<SongModel> songs =
+          List<SongModel>.from(_userPlaylists[index]['songs'] ?? []);
+      songs.removeWhere((s) =>
+          s.title.trim().toLowerCase() == song.title.trim().toLowerCase());
       _userPlaylists[index]['songs'] = songs;
+      _saveToStorage();
       notifyListeners();
     }
   }
@@ -196,23 +284,24 @@ class PlaylistController extends ChangeNotifier {
       'isUserCreated': true,
       'songs': <SongModel>[],
     });
+    _saveToStorage();
     notifyListeners();
   }
 
-  /// Mengubah nama playlist berdasarkan nama lama atau ID
   void renamePlaylist(String oldNameOrId, String newName) {
     final index = _findPlaylistIndex(oldNameOrId);
     if (index != -1) {
       _userPlaylists[index]['name'] = newName;
+      _saveToStorage();
       notifyListeners();
     }
   }
 
-  /// Menghapus playlist (Menerima parameter berupa `Map<String, dynamic>` atau `String` ID/Name)
   void deletePlaylist(dynamic itemOrKey) {
     if (itemOrKey is Map<String, dynamic>) {
       _userPlaylists.removeWhere(
-        (p) => (itemOrKey['id'] != null && p['id'] == itemOrKey['id']) ||
+        (p) =>
+            (itemOrKey['id'] != null && p['id'] == itemOrKey['id']) ||
             p['name'] == itemOrKey['name'],
       );
     } else if (itemOrKey is String) {
@@ -220,6 +309,7 @@ class PlaylistController extends ChangeNotifier {
         (p) => p['id'] == itemOrKey || p['name'] == itemOrKey,
       );
     }
+    _saveToStorage();
     notifyListeners();
   }
 }

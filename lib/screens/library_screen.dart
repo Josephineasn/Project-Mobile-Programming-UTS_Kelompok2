@@ -49,218 +49,220 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   }
 
   List<Map<String, dynamic>> get sortedPlaylists {
-  List<Map<String, dynamic>> rawPlaylists = [
-    {
-      'id': 'liked_songs',
-      'name': 'Liked Songs',
-      'isPinned': true,
-      'isLikedSongs': true,
-      'type': 'Playlists',
-      'category': 'All',
-      'songs': List<SongModel>.from(_audioController.likedSongs),
-      'imageUrl': 'assets/images/likedsongs.png',
-      'subtitle': 'Your favorite tracks, all in one place.',
-    },
-    {
-      'id': 'daydream_mix',
-      'name': 'Daydream Mix',
-      'type': 'Playlists',
-      'category': 'Deep Focus',
-      'subtitle': 'Lost in thoughts, one track at a time.',
-      'imageUrl': 'assets/images/daydream.jpg',
-    },
-    {
-      'id': 'focus_flow',
-      'name': 'Focus Flow',
-      'isPinned': true,
-      'type': 'Playlists',
-      'category': 'Deep Focus',
-      'subtitle': 'Zero distractions, pure productivity.',
-      'imageUrl': 'assets/images/focus.jpg',
-    },
-    {
-      'id': 'deep_zone',
-      'name': 'Deep Zone',
-      'type': 'Playlists',
-      'category': 'Deep Focus',
-      'subtitle': 'Ambient soundscapes to lock you in.',
-      'imageUrl': 'assets/images/deepzone.jpg',
-    },
-    {
-      'id': 'night_drift',
-      'name': 'Night Drift',
-      'type': 'Playlists',
-      'category': 'Midnight Walk',
-      'subtitle': 'Empty streets and midnight thoughts.',
-      'imageUrl': 'assets/images/nightdrift.jpg',
-    },
-    {
-      'id': 'starlight',
-      'name': 'Starlight',
-      'type': 'Playlists',
-      'category': 'Midnight Walk',
-      'subtitle': 'Soundtrack for your late-night strolls.',
-      'imageUrl': 'assets/images/starlight.jpg',
-    },
-    {
-      'id': 'after_hours',
-      'name': 'After Hours',
-      'type': 'Playlists',
-      'category': 'Midnight Walk',
-      'subtitle': 'Neon lights and quiet beats.',
-      'imageUrl': 'assets/images/afterhours.jpg',
-    },
-    {
-      'id': 'power_rush',
-      'name': 'Power Rush',
-      'type': 'Playlists',
-      'category': 'Workout Boost',
-      'subtitle': 'High energy to crush your limits.',
-      'imageUrl': 'assets/images/powerrush.jpg',
-    },
-    {
-      'id': 'beast_mode',
-      'name': 'Beast Mode',
-      'isPinned': true,
-      'type': 'Playlists',
-      'category': 'Workout Boost',
-      'subtitle': 'Heavy bass to fuel the grind.',
-      'imageUrl': 'assets/images/beastmode.jpg',
-    },
-    {
-      'id': 'hype_mix',
-      'name': 'Hype Mix',
-      'type': 'Playlists',
-      'category': 'Workout Boost',
-      'subtitle': 'Upbeat tracks for maximum drive.',
-      'imageUrl': 'assets/images/hypemix.jpg',
-    },
-    {
-      'id': 'blue_hour',
-      'name': 'Blue Hour',
-      'type': 'Playlists',
-      'category': 'Melancholy',
-      'subtitle': 'Soft melodies for heavy feelings.',
-      'imageUrl': 'assets/images/bluehour.jpg',
-    },
-    {
-      'id': 'soft_fade',
-      'name': 'Soft Fade',
-      'type': 'Playlists',
-      'category': 'Melancholy',
-      'subtitle': 'Gentle notes for quiet heartbreak.',
-      'imageUrl': 'assets/images/softfade.jpg',
-    },
-    {
-      'id': 'melancholy',
-      'name': 'Melancholy',
-      'type': 'Playlists',
-      'category': 'Melancholy',
-      'subtitle': 'Raw, honest songs that understand.',
-      'imageUrl': 'assets/images/melancholy.jpg',
-    },
-    {
-      'id': 'trending_now',
-      'name': 'Trending Now',
-      'type': 'Playlists',
-      'category': 'Trending Spotlight',
-      'subtitle': 'What the world is listening to today.',
-      'imageUrl': 'assets/images/trending.jpg',
-    },
-    {
-      'id': 'top_hits_id',
-      'name': 'Top Hits Indonesia',
-      'isPinned': true,
-      'type': 'Playlists',
-      'category': 'Trending Spotlight',
-      'subtitle': 'Lagu terpopuler minggu ini.',
-      'imageUrl': 'assets/images/tophits.jpg',
-    },
-    {
-      'id': 'chart_climbers',
-      'name': 'Chart Climbers',
-      'type': 'Playlists',
-      'category': 'Trending Spotlight',
-      'subtitle': 'The biggest tracks blowing up right now.',
-      'imageUrl': 'assets/images/chart.jpg',
-    },
-    {
-      'id': 'hot_right_now',
-      'name': 'Hot Right Now',
-      'type': 'Playlists',
-      'category': 'Trending Spotlight',
-      'subtitle': 'Viral anthems you cannot skip.',
-      'imageUrl': 'assets/images/hotright.jpg',
-    },
-    ..._playlistController.userPlaylists.map((p) {
-      return {
+    List<Map<String, dynamic>> rawPlaylists = [
+      {
+        'id': 'liked_songs',
+        'name': 'Liked Songs',
+        'isPinned': true,
+        'isLikedSongs': true,
         'type': 'Playlists',
-        'category': 'Playlists',
-        ...p,
-      };
-    }),
-  ];
+        'category': 'All',
+        'songs': List<SongModel>.from(_audioController.likedSongs),
+        'imageUrl': 'assets/images/likedsongs.png',
+        'subtitle': 'Your favorite tracks, all in one place.',
+      },
+      {
+        'id': 'daydream_mix',
+        'name': 'Daydream Mix',
+        'type': 'Playlists',
+        'category': 'Deep Focus',
+        'subtitle': 'Lost in thoughts, one track at a time.',
+        'imageUrl': 'assets/images/daydream.jpg',
+      },
+      {
+        'id': 'focus_flow',
+        'name': 'Focus Flow',
+        'isPinned': true,
+        'type': 'Playlists',
+        'category': 'Deep Focus',
+        'subtitle': 'Zero distractions, pure productivity.',
+        'imageUrl': 'assets/images/focus.jpg',
+      },
+      {
+        'id': 'deep_zone',
+        'name': 'Deep Zone',
+        'type': 'Playlists',
+        'category': 'Deep Focus',
+        'subtitle': 'Ambient soundscapes to lock you in.',
+        'imageUrl': 'assets/images/deepzone.jpg',
+      },
+      {
+        'id': 'night_drift',
+        'name': 'Night Drift',
+        'type': 'Playlists',
+        'category': 'Midnight Walk',
+        'subtitle': 'Empty streets and midnight thoughts.',
+        'imageUrl': 'assets/images/nightdrift.jpg',
+      },
+      {
+        'id': 'starlight',
+        'name': 'Starlight',
+        'type': 'Playlists',
+        'category': 'Midnight Walk',
+        'subtitle': 'Soundtrack for your late-night strolls.',
+        'imageUrl': 'assets/images/starlight.jpg',
+      },
+      {
+        'id': 'after_hours',
+        'name': 'After Hours',
+        'type': 'Playlists',
+        'category': 'Midnight Walk',
+        'subtitle': 'Neon lights and quiet beats.',
+        'imageUrl': 'assets/images/afterhours.jpg',
+      },
+      {
+        'id': 'power_rush',
+        'name': 'Power Rush',
+        'type': 'Playlists',
+        'category': 'Workout Boost',
+        'subtitle': 'High energy to crush your limits.',
+        'imageUrl': 'assets/images/powerrush.jpg',
+      },
+      {
+        'id': 'beast_mode',
+        'name': 'Beast Mode',
+        'isPinned': true,
+        'type': 'Playlists',
+        'category': 'Workout Boost',
+        'subtitle': 'Heavy bass to fuel the grind.',
+        'imageUrl': 'assets/images/beastmode.jpg',
+      },
+      {
+        'id': 'hype_mix',
+        'name': 'Hype Mix',
+        'type': 'Playlists',
+        'category': 'Workout Boost',
+        'subtitle': 'Upbeat tracks for maximum drive.',
+        'imageUrl': 'assets/images/hypemix.jpg',
+      },
+      {
+        'id': 'blue_hour',
+        'name': 'Blue Hour',
+        'type': 'Playlists',
+        'category': 'Melancholy',
+        'subtitle': 'Soft melodies for heavy feelings.',
+        'imageUrl': 'assets/images/bluehour.jpg',
+      },
+      {
+        'id': 'soft_fade',
+        'name': 'Soft Fade',
+        'type': 'Playlists',
+        'category': 'Melancholy',
+        'subtitle': 'Gentle notes for quiet heartbreak.',
+        'imageUrl': 'assets/images/softfade.jpg',
+      },
+      {
+        'id': 'melancholy',
+        'name': 'Melancholy',
+        'type': 'Playlists',
+        'category': 'Melancholy',
+        'subtitle': 'Raw, honest songs that understand.',
+        'imageUrl': 'assets/images/melancholy.jpg',
+      },
+      {
+        'id': 'trending_now',
+        'name': 'Trending Now',
+        'type': 'Playlists',
+        'category': 'Trending Spotlight',
+        'subtitle': 'What the world is listening to today.',
+        'imageUrl': 'assets/images/trending.jpg',
+      },
+      {
+        'id': 'top_hits_id',
+        'name': 'Top Hits Indonesia',
+        'isPinned': true,
+        'type': 'Playlists',
+        'category': 'Trending Spotlight',
+        'subtitle': 'Lagu terpopuler minggu ini.',
+        'imageUrl': 'assets/images/tophits.jpg',
+      },
+      {
+        'id': 'chart_climbers',
+        'name': 'Chart Climbers',
+        'type': 'Playlists',
+        'category': 'Trending Spotlight',
+        'subtitle': 'The biggest tracks blowing up right now.',
+        'imageUrl': 'assets/images/chart.jpg',
+      },
+      {
+        'id': 'hot_right_now',
+        'name': 'Hot Right Now',
+        'type': 'Playlists',
+        'category': 'Trending Spotlight',
+        'subtitle': 'Viral anthems you cannot skip.',
+        'imageUrl': 'assets/images/hotright.jpg',
+      },
+      ..._playlistController.userPlaylists.map((p) {
+        return {
+          'type': 'Playlists',
+          'category': 'Playlists',
+          ...p,
+        };
+      }),
+    ];
 
-  // Hapus item
-  final Set<String> seenNames = {};
-  List<Map<String, dynamic>> uniquePlaylists = [];
+    // Mencegah duplikasi item berdasarkan nama playlist
+    final Set<String> seenNames = {};
+    List<Map<String, dynamic>> uniquePlaylists = [];
 
-  for (var item in rawPlaylists) {
-    final nameKey = item['name']?.toString().toLowerCase().trim() ?? '';
-    if (nameKey.isNotEmpty && !seenNames.contains(nameKey)) {
-      seenNames.add(nameKey);
-      uniquePlaylists.add(item);
+    for (var item in rawPlaylists) {
+      final nameKey = item['name']?.toString().toLowerCase().trim() ?? '';
+      if (nameKey.isNotEmpty && !seenNames.contains(nameKey)) {
+        seenNames.add(nameKey);
+        uniquePlaylists.add(item);
+      }
     }
+
+    // Filtering
+    List<Map<String, dynamic>> filteredList = uniquePlaylists.where((item) {
+      final name = item['name'].toString().toLowerCase();
+      final query = searchQuery.toLowerCase();
+      final matchesSearch = name.contains(query);
+
+      if (selectedFilter.isEmpty || selectedFilter.toLowerCase() == 'all') {
+        return matchesSearch;
+      }
+
+      final itemType = (item['type'] ?? '').toString().toLowerCase();
+      final itemCategory = (item['category'] ?? '').toString().toLowerCase();
+      final filterLower = selectedFilter.toLowerCase();
+
+      final matchesFilter =
+          itemType == filterLower || itemCategory == filterLower;
+
+      return matchesSearch && matchesFilter;
+    }).toList();
+
+    // Sorting
+    filteredList.sort((a, b) {
+      if (a['isLikedSongs'] == true) return -1;
+      if (b['isLikedSongs'] == true) return 1;
+
+      // Pinned items
+      final bool isPinnedA = a['isPinned'] == true;
+      final bool isPinnedB = b['isPinned'] == true;
+
+      if (isPinnedA && !isPinnedB) return -1;
+      if (!isPinnedA && isPinnedB) return 1;
+
+      // Sort pilihan user
+      switch (_currentSort) {
+        case 'alphabet':
+          return (a['name'] as String).compareTo(b['name'] as String);
+        case 'SongCount':
+          final countA = (a['songs'] as List?)?.length ?? 0;
+          final countB = (b['songs'] as List?)?.length ?? 0;
+          return countB.compareTo(countA);
+        case 'Latest':
+        default:
+          return 0;
+      }
+    });
+
+    return filteredList;
   }
 
-  // Filtering
-  List<Map<String, dynamic>> filteredList = uniquePlaylists.where((item) {
-    final name = item['name'].toString().toLowerCase();
-    final query = searchQuery.toLowerCase();
-    final matchesSearch = name.contains(query);
-
-    if (selectedFilter.isEmpty || selectedFilter.toLowerCase() == 'all') {
-      return matchesSearch;
-    }
-
-    final itemType = (item['type'] ?? '').toString().toLowerCase();
-    final itemCategory = (item['category'] ?? '').toString().toLowerCase();
-    final filterLower = selectedFilter.toLowerCase();
-
-    final matchesFilter = itemType == filterLower || itemCategory == filterLower;
-
-    return matchesSearch && matchesFilter;
-  }).toList();
-
-  // Sorting
-  filteredList.sort((a, b) {
-    if (a['isLikedSongs'] == true) return -1;
-    if (b['isLikedSongs'] == true) return 1;
-
-    // Pinned items
-    final bool isPinnedA = a['isPinned'] == true;
-    final bool isPinnedB = b['isPinned'] == true;
-
-    if (isPinnedA && !isPinnedB) return -1;
-    if (!isPinnedA && isPinnedB) return 1;
-
-    // Sort pilihan user
-    switch (_currentSort) {
-      case 'alphabet':
-        return (a['name'] as String).compareTo(b['name'] as String);
-      case 'SongCount':
-        final countA = (a['songs'] as List?)?.length ?? 0;
-        final countB = (b['songs'] as List?)?.length ?? 0;
-        return countB.compareTo(countA);
-      case 'Latest':
-      default:
-        return 0;
-    }
-  });
-
-  return filteredList;
-}
-
+  // Untuk membuat playlist baru
   void showCreatePlaylistDialog() {
     final controller = TextEditingController(
       text: 'New Playlist #${_playlistController.userPlaylists.length + 1}',
@@ -329,6 +331,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     );
   }
 
+  // Untuk ganti nama playlist
   void showEditPlaylistDialog(Map<String, dynamic> item) {
     final controller = TextEditingController(text: item['name']);
 
@@ -396,6 +399,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
     );
   }
 
+  // Konfirmasi hapus playlist
   void showDeletePlaylistDialog(Map<String, dynamic> item) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dialogBg = isDark ? const Color(0xFF282828) : Colors.white;
@@ -448,12 +452,111 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
   }
 
   void togglePin(Map<String, dynamic> item) {
-  final name = item['name'] as String?;
+    final name = item['name'] as String?;
     if (name != null) {
       _playlistController.togglePin(name);
     }
   }
 
+  // Bottom sheet opsi saat playlist ditekan lama (Long Press)
+  void _showPlaylistOptionsMenu(Map<String, dynamic> item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isPinned = item['isPinned'] == true;
+    final isLikedSongs = item['isLikedSongs'] == true;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF282828) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade600,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  item['name'] ?? 'Playlist Options',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Divider(height: 1),
+              
+              // Option: Pin / Unpin
+              ListTile(
+                leading: Icon(
+                  isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+                title: Text(
+                  isPinned ? 'Remove Pin' : 'Pin playlist',
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  togglePin(item);
+                },
+              ),
+
+              // Option: Edit Name (selain Liked Songs)
+              if (!isLikedSongs)
+                ListTile(
+                  leading: Icon(
+                    Icons.edit_outlined,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                  title: Text(
+                    'Edit name',
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    showEditPlaylistDialog(item);
+                  },
+                ),
+
+              // Option: Delete Playlist (selain Liked Songs)
+              if (!isLikedSongs)
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
+                  title: const Text(
+                    'Delete playlist',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    showDeletePlaylistDialog(item);
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Custom Grid layout 2 kolom bertipe staggred / masonry
   Widget _buildCustomMasonryGrid(
     List<Map<String, dynamic>> displayList,
     bool isDark,
@@ -500,10 +603,8 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       ),
 
       ...displayList.map((item) {
-        String imageUrl = item['imageUrl'] ?? 'assets/images/placeholder.jpg';
-        final imageProvider = imageUrl.startsWith('http')
-            ? NetworkImage(imageUrl) as ImageProvider
-            : AssetImage(imageUrl);
+        final String? imageUrl = item['imageUrl'];
+        final bool hasValidImage = imageUrl != null && imageUrl.isNotEmpty;
 
         return GestureDetector(
           onTap: () {
@@ -515,7 +616,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
             );
           },
           onLongPress: () {
-            showEditPlaylistDialog(item);
+            _showPlaylistOptionsMenu(item);
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
@@ -539,16 +640,37 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
                     aspectRatio: 1.0,
                     child: Stack(
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12),
-                            ),
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                        Positioned.fill(
+                          child: hasValidImage
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    image: DecorationImage(
+                                      image: imageUrl.startsWith('http')
+                                          ? NetworkImage(imageUrl)
+                                              as ImageProvider
+                                          : AssetImage(imageUrl),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF282828),
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.music_note_rounded,
+                                      color: Colors.grey,
+                                      size: 48,
+                                    ),
+                                  ),
+                                ),
                         ),
                         if (item['isPinned'] == true)
                           Positioned(
@@ -626,6 +748,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
       }),
     ];
 
+    // Membagi widget ke kolom kiri dan kanan bergantian
     List<Widget> leftColumnItems = [];
     List<Widget> rightColumnItems = [];
 
@@ -696,6 +819,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Baris filter chip dan dropdown sorting / layout toggle
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 12.0,
@@ -733,6 +857,7 @@ class _YourLibraryScreenState extends State<YourLibraryScreen> {
               ),
             ),
 
+            // Tampilan utama playlist (Grid atau List view)
             Expanded(
               child: _isGridView
                   ? _buildCustomMasonryGrid(displayList, isDark, textColor)
