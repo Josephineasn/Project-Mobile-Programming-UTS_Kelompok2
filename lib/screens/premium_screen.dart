@@ -7,7 +7,6 @@ class PremiumScreen extends StatelessWidget {
 
   void _showTermsDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
