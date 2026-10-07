@@ -513,6 +513,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF242424) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -524,89 +525,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ValueListenableBuilder<List<UserAccountData>>(
               valueListenable: savedAccountsNotifier,
               builder: (context, savedList, _) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      child: Text(
-                        'Choose Account',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const Divider(),
-                    if (savedList.isEmpty)
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       const Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Center(
-                          child: Text(
-                            'No saved accounts found.',
-                            style: TextStyle(color: Colors.grey),
-                          ),
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        child: Text(
+                          'Choose Account',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ...savedList.map((acc) {
-                      final isCurrent = currentAccountNotifier.value.isLoggedIn &&
-                          currentAccountNotifier.value.email == acc.email;
-
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFF1DB954),
-                          child: Text(
-                            acc.name.isNotEmpty ? acc.name[0] : 'U',
-                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        title: Text(acc.name),
-                        subtitle: Text('${acc.email} • ${acc.isPremium ? 'Premium' : 'Free'}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (isCurrent)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 6.0),
-                                child: Icon(Icons.check_circle, color: Color(0xFF1DB954), size: 22),
-                              ),
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline, color: Colors.grey, size: 20),
-                              tooltip: 'Remove account',
-                              onPressed: () {
-                                _showRemoveAccountConfirmDialog(acc);
-                              },
+                      const Divider(),
+                      if (savedList.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Center(
+                            child: Text(
+                              'No saved accounts found.',
+                              style: TextStyle(color: Colors.grey),
                             ),
-                          ],
+                          ),
                         ),
+                      ...savedList.map((acc) {
+                        final isCurrent = currentAccountNotifier.value.isLoggedIn &&
+                            currentAccountNotifier.value.email == acc.email;
+
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: const Color(0xFF1DB954),
+                            child: Text(
+                              acc.name.isNotEmpty ? acc.name[0] : 'U',
+                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          title: Text(acc.name),
+                          subtitle: Text('${acc.email} • ${acc.isPremium ? 'Premium' : 'Free'}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isCurrent)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 6.0),
+                                  child: Icon(Icons.check_circle, color: Color(0xFF1DB954), size: 22),
+                                ),
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle_outline, color: Colors.grey, size: 20),
+                                tooltip: 'Remove account',
+                                onPressed: () {
+                                  _showRemoveAccountConfirmDialog(acc);
+                                },
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            final updatedAcc = acc.copyWith(isLoggedIn: true);
+                            currentAccountNotifier.value = updatedAcc;
+
+                            if (acc.isPremium) {
+                              PremiumController.activatePremium('Melodix Premium');
+                            } else {
+                              PremiumController.cancelPremium();
+                            }
+
+                            AppNotificationService.handleLoginEvent(acc.name, acc.email);
+
+                            Navigator.pop(ctx);
+                            setState(() {});
+                            _showNotification('Signed in as ${acc.name}', bottomPosition: 200);
+                          },
+                        );
+                      }),
+                      ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          child: Icon(Icons.add, color: Colors.white),
+                        ),
+                        title: const Text('Sign in with another account'),
                         onTap: () {
-                          final updatedAcc = acc.copyWith(isLoggedIn: true);
-                          currentAccountNotifier.value = updatedAcc;
-
-                          if (acc.isPremium) {
-                            PremiumController.activatePremium('Melodix Premium');
-                          } else {
-                            PremiumController.cancelPremium();
-                          }
-
-                          AppNotificationService.handleLoginEvent(acc.name, acc.email);
-
                           Navigator.pop(ctx);
-                          setState(() {});
-                          _showNotification('Signed in as ${acc.name}', bottomPosition: 200);
+                          _showManualSignInDialog();
                         },
-                      );
-                    }),
-                    ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.grey,
-                        child: Icon(Icons.add, color: Colors.white),
                       ),
-                      title: const Text('Sign in with another account'),
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _showManualSignInDialog();
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),
@@ -1063,6 +1066,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -1070,31 +1074,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 35,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[600],
-                      borderRadius: BorderRadius.circular(2),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 35,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[600],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                    child: Text(
+                      title,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                const Divider(),
-                ...children,
-              ],
+                  const Divider(),
+                  ...children,
+                ],
+              ),
             ),
           ),
         );

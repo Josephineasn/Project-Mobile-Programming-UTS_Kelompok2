@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Kotak Benefit
 class PremiumBenefitsCard extends StatelessWidget {
   const PremiumBenefitsCard({super.key});
 
@@ -8,39 +7,41 @@ class PremiumBenefitsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final cardBgColor = isDark ? const Color(0xFF171A24) : Colors.white;
-    final cardBorderColor = isDark ? Colors.white.withAlpha(20) : Colors.grey.shade200;
-    final titleTextColor = isDark ? Colors.white : const Color(0xFF191B22);
-    final subtitleTextColor = isDark ? Colors.white60 : Colors.black54;
+    final cardBgColor = isDark ? const Color(0xFF161922) : Colors.white;
+    final cardBorderColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.06);
+    final titleTextColor = isDark ? Colors.white : const Color(0xFF15181E);
+    final subtitleTextColor = isDark ? Colors.white60 : const Color(0xFF6B7280);
 
     final benefitItems = [
       {
-        'title': 'Bebas Jeda Iklan',
-        'desc': 'Musik mengalir terus tanpa jeda audio sponsor komersial.',
+        'title': 'Uninterrupted Music Flow',
+        'desc': 'Zero commercial disruptions from the first beat to the outro.',
         'icon': Icons.all_inclusive_rounded,
         'color': const Color(0xFF1DB954),
       },
       {
-        'title': 'Kendali Trek Penuh',
-        'desc': 'Bebas pilih dan putar lagu mana saja tanpa sistem acak paksa.',
+        'title': 'Full Track Autonomy',
+        'desc': 'Play, loop, or skip any track on demand without forced shuffles.',
         'icon': Icons.tune_rounded,
         'color': const Color(0xFF579FF4),
       },
       {
-        'title': 'Kualitas Studio Master',
-        'desc': 'Vokal lebih tebal dan bass lebih bulat di headphone kesayanganmu.',
+        'title': 'Studio Master Clarity',
+        'desc': 'Uncompressed vocal presence and deep bass tuned for your headphones.',
         'icon': Icons.graphic_eq_rounded,
         'color': const Color(0xFFC084FC),
       },
       {
-        'title': 'Mode Offline Cerdas',
-        'desc': 'Simpan playlist ke memori lokal, tetap asyik walau tanpa kuota.',
+        'title': 'Smart Offline Storage',
+        'desc': 'Download full albums to device storage and listen anywhere without data.',
         'icon': Icons.download_done_rounded,
         'color': const Color(0xFFFBBF24),
       },
       {
-        'title': 'Sesi Dengar Bersama',
-        'desc': 'Putar lagu bareng teman secara sinkron dan real-time.',
+        'title': 'Real-Time Friend Sessions',
+        'desc': 'Host synced listening rooms with friends wherever they are.',
         'icon': Icons.group_rounded,
         'color': const Color(0xFFFF758F),
       },
@@ -51,12 +52,14 @@ class PremiumBenefitsCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: cardBorderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black45 : Colors.grey.shade300.withAlpha(120),
-            blurRadius: 18,
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.45)
+                : const Color(0xFFA0AEC0).withValues(alpha: 0.18),
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
@@ -67,29 +70,30 @@ class PremiumBenefitsCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(7),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withAlpha(isDark ? 45 : 35),
+                  color: Colors.amber.withValues(alpha: isDark ? 0.16 : 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Keuntungan Eksklusif Melodix',
+                      'Exclusive Melodix Perks',
                       style: TextStyle(
                         color: titleTextColor,
-                        fontSize: 16,
+                        fontSize: 16.5,
                         fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Rasakan pengalaman audio terbaik setiap hari',
+                      'Pure listening pleasure built into every track',
                       style: TextStyle(
                         color: subtitleTextColor,
                         fontSize: 12,
@@ -101,32 +105,37 @@ class PremiumBenefitsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Divider(color: isDark ? Colors.white12 : Colors.grey.shade200, height: 1),
+          Divider(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.06),
+            height: 1,
+          ),
           const SizedBox(height: 14),
 
-          // Daftar Benefit
+          // Benefit feature list
           ...benefitItems.map((item) {
             final iconColor = item['color'] as Color;
 
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 7.0),
+              padding: const EdgeInsets.symmetric(vertical: 7.5),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: 38,
+                    height: 38,
                     decoration: BoxDecoration(
-                      color: iconColor.withAlpha(isDark ? 35 : 25),
+                      color: iconColor.withValues(alpha: isDark ? 0.16 : 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       item['icon'] as IconData,
                       color: iconColor,
-                      size: 18,
+                      size: 19,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 13),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +170,7 @@ class PremiumBenefitsCard extends StatelessWidget {
   }
 }
 
-// Paket Langganan Premium
+// Polished Plan Card
 class PremiumPlanCard extends StatelessWidget {
   final String? badgeText;
   final String title;
@@ -193,26 +202,30 @@ class PremiumPlanCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final cardBgColor = isDark ? const Color(0xFF151821) : Colors.white;
-    final cardBorderColor = isDark ? titleColor.withAlpha(90) : titleColor.withAlpha(140);
-    final titleTextColor = isDark ? Colors.white : const Color(0xFF191B22);
-    final featureTextColor = isDark ? Colors.white70 : Colors.black87;
-    final dividerColor = isDark ? Colors.white12 : Colors.grey.shade200;
-    final footerColor = isDark ? Colors.white38 : Colors.black45;
+    final cardBorderColor = isDark
+        ? titleColor.withValues(alpha: 0.35)
+        : titleColor.withValues(alpha: 0.5);
+    final titleTextColor = isDark ? Colors.white : const Color(0xFF14171F);
+    final featureTextColor = isDark ? Colors.white70 : const Color(0xFF374151);
+    final dividerColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.06);
+    final footerColor = isDark ? Colors.white38 : const Color(0xFF9CA3AF);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       width: double.infinity,
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: cardBorderColor,
           width: 1.4,
         ),
         boxShadow: [
           BoxShadow(
-            color: titleColor.withAlpha(isDark ? 30 : 35),
-            blurRadius: 18,
+            color: titleColor.withValues(alpha: isDark ? 0.14 : 0.12),
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
@@ -220,12 +233,12 @@ class PremiumPlanCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Gradasi Aksen Paket
+          // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             decoration: BoxDecoration(
-              color: titleColor.withAlpha(isDark ? 35 : 25),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              color: titleColor.withValues(alpha: isDark ? 0.15 : 0.12),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -233,14 +246,14 @@ class PremiumPlanCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.album_outlined, color: titleColor, size: 17),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 7),
                     Text(
                       'MELODIX PLAN',
                       style: TextStyle(
                         color: titleColor,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
+                        letterSpacing: 0.8,
                       ),
                     ),
                   ],
@@ -256,8 +269,8 @@ class PremiumPlanCard extends StatelessWidget {
                       badgeText!,
                       style: TextStyle(
                         color: buttonTextColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -266,7 +279,7 @@ class PremiumPlanCard extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -276,6 +289,7 @@ class PremiumPlanCard extends StatelessWidget {
                     color: titleTextColor,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -292,7 +306,6 @@ class PremiumPlanCard extends StatelessWidget {
                 Divider(color: dividerColor, height: 1),
                 const SizedBox(height: 14),
 
-                // Daftar Fitur
                 ...features.map(
                   (feature) => Padding(
                     padding: const EdgeInsets.only(bottom: 9),
@@ -307,7 +320,7 @@ class PremiumPlanCard extends StatelessWidget {
                             size: 16,
                           ),
                         ),
-                        const SizedBox(width: 9),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             feature,
@@ -325,39 +338,48 @@ class PremiumPlanCard extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // Tombol Paket
-                SizedBox(
+                Container(
                   width: double.infinity,
-                  height: 46,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26),
+                    boxShadow: [
+                      BoxShadow(
+                        color: buttonColor.withValues(alpha: isDark ? 0.35 : 0.25),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: ElevatedButton(
                     onPressed: onSelect,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonColor,
                       foregroundColor: buttonTextColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(26),
                       ),
                       elevation: 0,
                     ),
                     child: Text(
                       buttonText,
                       style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
                 ),
 
                 if (footerText != null) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Center(
                     child: Text(
                       footerText!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: footerColor,
-                        fontSize: 10.5,
+                        fontSize: 11,
                       ),
                     ),
                   ),
