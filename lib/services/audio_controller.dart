@@ -22,6 +22,28 @@ class AudioController extends ChangeNotifier {
   bool _hasPlayedBefore = false;
   final List<SongModel> _likedSongs = [];
 
+  final List<Map<String, dynamic>> _recentlyPlayedHistory = [];
+  List<Map<String, dynamic>> get recentlyPlayedHistory => List.unmodifiable(_recentlyPlayedHistory);
+
+  void addToHistory({
+    required String title,
+    required String subtitle,
+    required String imageUrl,
+    SongModel? song,
+    Map<String, dynamic>? playlist,
+  }) {
+    _recentlyPlayedHistory.removeWhere((item) => item['title'] == title);
+    _recentlyPlayedHistory.insert(0, {
+      'title': title,
+      'subtitle': subtitle,
+      'imageUrl': imageUrl,
+      'playedAt': DateTime.now(),
+      'song': song,
+      'playlist': playlist,
+    });
+    notifyListeners();
+  }
+
   String _currentPlaylistName = '';
 
   bool _isShuffle = false;
@@ -97,6 +119,18 @@ class AudioController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeFromHistory(int index) {
+    if (index >= 0 && index < _recentlyPlayedHistory.length) {
+      _recentlyPlayedHistory.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  void clearAllHistory() {
+    _recentlyPlayedHistory.clear();
+    notifyListeners();
+  }
+
   void toggleRepeat() {
     _isRepeat = !_isRepeat;
     if (_isRepeat) {
@@ -135,6 +169,14 @@ class AudioController extends ChangeNotifier {
   Future<void> playSong(SongModel song) async {
     if (song.audioUrl.isEmpty) return;
     _hasPlayedBefore = true;
+
+    addToHistory(
+      title: song.title,
+      subtitle: song.artist,
+      imageUrl: song.albumCover,
+      song: song,
+    );
+
     await _saveLastPlayedState(Duration.zero);
 
     await _player.stop();
