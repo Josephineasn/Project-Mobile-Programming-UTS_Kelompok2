@@ -8,6 +8,56 @@ import '../widgets/premium/premium_plan_card.dart';
 class PremiumScreen extends StatelessWidget {
   const PremiumScreen({super.key});
 
+  void _showCancelConfirmationDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E212B) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text(
+          'Cancel Subscription?',
+          style: TextStyle(
+            color: isDark ? Colors.white : const Color(0xFF15181E),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Are you sure you want to cancel your Premium membership? You will lose unlimited song skips, studio-grade audio quality, and offline downloads.',
+          style: TextStyle(color: Colors.grey, fontSize: 13.5, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Keep Premium', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              elevation: 0,
+            ),
+            onPressed: () {
+              PremiumController.cancelPremium();
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: Colors.redAccent,
+                  content: Text(
+                    'Your subscription has been canceled. Returned to Free tier.',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              );
+            },
+            child: const Text('Yes, Cancel', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showTermsDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
@@ -309,6 +359,23 @@ class PremiumScreen extends StatelessWidget {
                               child: const Text(
                                 'Back to Home',
                                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.redAccent,
+                                side: const BorderSide(color: Colors.redAccent, width: 1.3),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                              ),
+                              onPressed: () => _showCancelConfirmationDialog(context),
+                              child: const Text(
+                                'Cancel Subscription',
+                                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
